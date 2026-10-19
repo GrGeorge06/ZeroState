@@ -1579,6 +1579,7 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite - GrGeorge");
+    app.setWindowIcon(QIcon::fromTheme("bravelite", QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png")));
 
     BrowserWindow window(false);
     window.show();

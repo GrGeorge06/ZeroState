@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Vignette -->
+    <radialGradient id="bgGrad" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#2a2d34" />
+      <stop offset="100%" stop-color="#141518" />
+    </radialGradient>
+
+    <!-- Outer Shield Metallic Gradient -->
+    <linearGradient id="shieldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7b39" />
+      <stop offset="50%" stop-color="#ff4500" />
+      <stop offset="100%" stop-color="#b82e00" />
+    </linearGradient>
+
+    <!-- Inner Shield Gradient -->
+    <linearGradient id="shieldInner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2126" />
+      <stop offset="100%" stop-color="#121316" />
+    </linearGradient>
+
+    <!-- Lightning Bolt / Fast Core -->
+    <linearGradient id="boltGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#ff7300" />
+      <stop offset="100%" stop-color="#ff3b00" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+
+    <!-- Core Glow Filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Rounded Squircle Base Plate -->
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#bgGrad)" stroke="#383c45" stroke-width="3" filter="url(#dropShadow)" />
+
+  <!-- Subtle Cyber Privacy Circuit Arc -->
+  <path d="M 120 256 A 136 136 0 0 1 392 256" fill="none" stroke="#ff5500" stroke-width="2" stroke-dasharray="8 12" opacity="0.4" />
+
+  <!-- Outer Shield Shell -->
+  <path d="M 256 70 
+           L 384 122 
+           C 384 266, 320 376, 256 428 
+           C 192 376, 128 266, 128 122 
+           Z" 
+        fill="url(#shieldRim)" 
+        filter="url(#dropShadow)" />
+
+  <!-- Inner Dark Chamber -->
+  <path d="M 256 94 
+           L 362 136 
+           C 362 254, 308 348, 256 394 
+           C 204 348, 150 254, 150 136 
+           Z" 
+        fill="url(#shieldInner)" 
+        stroke="#2c2f36" 
+        stroke-width="2" />
+
+  <!-- Center "Lite / Speed" Angular Monogram Bolt -->
+  <path d="M 276 138 
+           L 186 264 
+           L 248 264 
+           L 228 360 
+           L 330 232 
+           L 266 232 
+           Z" 
+        fill="url(#boltGrad)" 
+        filter="url(#glow)" />
+
+  <!-- Privacy Dot Sentinel -->
+  <circle cx="256" cy="116" r="5" fill="#52c41a" filter="url(#glow)" />
+</svg>
