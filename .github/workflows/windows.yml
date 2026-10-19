@@ -1,0 +1,47 @@
+name: Build Windows Release
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up MSVC Environment
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Install Qt6 & WebEngine
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        modules: 'qtwebengine'
+        cache: true
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build BraveLite
+      run: |
+        cmake --build build --config Release
+
+    - name: Package Windows DLLs (windeployqt)
+      run: |
+        mkdir dist
+        copy build\fedorabrowser.exe dist\BraveLite.exe
+        windeployqt --webengine --release dist\BraveLite.exe
+
+    - name: Upload Windows Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: BraveLite-Windows-x64
+        path: dist/
