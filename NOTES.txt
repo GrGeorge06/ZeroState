@@ -1,0 +1,10 @@
+make it so when you open links for example discord links it opens in the existing window not a new one, I am intrested in creating a dashboard in settings that you can configure your own llms via ollama to sumarize web pages when you hover your mouse over the links, give an overview after the search to give the answer you are searching for just like google's AI overview all that with a very light llm, the intergrated llms should be toggleable in the dashboard and everything needed sould be configurable inside of the browser, name the ai "BraveLite AI". also the youtube fullscreen issue has not been resolved - exiting fullscreen still unmaximizes the window. change the version to v1.11,
+
+--------------------------------------------
+adblock sources that are not yet blocked:
+
+pagead.js
+freshmarketer.com
+claritybt.freshmarketer.com
+fwtracks.freshmarketer.com
+--------------------------------
