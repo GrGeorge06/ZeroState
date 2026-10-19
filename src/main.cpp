@@ -11,6 +11,8 @@
 #include <QWebEngineView>
 #include <QWebEngineProfile>
 #include <QWebEnginePage>
+#include <QWebEngineSettings>
+#include <QWebEngineFullScreenRequest>
 #include <QWebEngineHistory>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineUrlRequestInfo>
@@ -18,11 +20,20 @@
 #include <QWebEngineScript>
 #include <QWebEngineScriptCollection>
 #include <QWebEngineCookieStore>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QCryptographicHash>
 #include <QContextMenuEvent>
 #include <QListWidget>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QCheckBox>
+#include <QClipboard>
 #include <QDialog>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -38,7 +49,10 @@
 #include <QTextStream>
 #include <QShortcut>
 #include <QMap>
+#include <QSet>
 #include <QStackedWidget>
+#include <QToolButton>
+#include <QStyle>
 #include <functional>
 #include <memory>
 
@@ -151,7 +165,16 @@ signals:
 protected:
     void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID) override {
         Q_UNUSED(level); Q_UNUSED(lineNumber); Q_UNUSED(sourceID);
-        if (message.startsWith("LOGIN_SUBMIT::")) {
+        if (message.startsWith("LOGIN_SUBMIT_JSON::")) {
+            QString jsonPart = message.mid(QString("LOGIN_SUBMIT_JSON::").length());
+            QJsonObject obj = QJsonDocument::fromJson(jsonPart.toUtf8()).object();
+            QString site = obj["site"].toString();
+            QString user = obj["user"].toString();
+            QString pass = obj["pass"].toString();
+            if (!site.isEmpty() && !pass.isEmpty()) {
+                emit loginCaptured(site, user, pass);
+            }
+        } else if (message.startsWith("LOGIN_SUBMIT::")) {
             QStringList parts = message.split("::");
             if (parts.size() >= 4) {
                 emit loginCaptured(parts[1], parts[2], parts[3]);
@@ -303,7 +326,7 @@ class BrowserWindow : public QMainWindow {
     Q_OBJECT
 public:
     BrowserWindow(bool isIncognito = false, QWidget *parent = nullptr)
-    : QMainWindow(parent), m_isIncognito(isIncognito) {
+    : QMainWindow(parent), m_isIncognito(isIncognito), m_profile(nullptr) {
 
         resize(1260, 840);
         setWindowTitle(m_isIncognito ? "BraveLite [Incognito]" : "BraveLite");
@@ -314,48 +337,24 @@ public:
         if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
         setWindowIcon(appIcon);
 
+        m_netManager = new QNetworkAccessManager(this);
         m_adBlocker = new AdBlocker(this);
         connect(m_adBlocker, &AdBlocker::trackerBlocked, this, &BrowserWindow::onTrackerBlocked);
 
+        setupBrowserProfile();
+
         if (!m_isIncognito) {
-            auto *prof = QWebEngineProfile::defaultProfile();
-            prof->setUrlRequestInterceptor(m_adBlocker);
-            prof->setPersistentCookiesPolicy(QWebEngineProfile::AllowPersistentCookies);
-            prof->setPersistentStoragePath(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite/Storage");
-            connect(prof, &QWebEngineProfile::downloadRequested, this, &BrowserWindow::handleDownload);
-
-            // Injected Cosmetic Filter
-            QWebEngineScript cosmeticScript;
-            cosmeticScript.setName("CosmeticAdBlockFilter");
-            cosmeticScript.setInjectionPoint(QWebEngineScript::DocumentCreation);
-            cosmeticScript.setWorldId(QWebEngineScript::MainWorld);
-            cosmeticScript.setRunsOnSubFrames(true);
-            cosmeticScript.setSourceCode(R"(
-                (function() {
-                    const injectStyle = () => {
-                        if (document.getElementById('__bravelite_cosmetic')) return;
-                        const s = document.createElement('style');
-                        s.id = '__bravelite_cosmetic';
-                        s.innerHTML = `
-                            .adbox, .banner_ads, .adsbox, .textads,
-                            [class*="banner_ads"], [class*="adbox"],
-                            div[id*="google_ads"], div[id*="ad-slot"],
-                            #ad-container, .adsbygoogle { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; }
-                        `;
-                        (document.head || document.documentElement).appendChild(s);
-                    };
-                    injectStyle();
-                    window.addEventListener('DOMContentLoaded', injectStyle);
-                })();
-            )");
-            prof->scripts()->insert(cosmeticScript);
-
             loadPersistentData();
         }
 
         applyStyling();
         setupUI();
         setupShortcuts();
+
+        if (!m_isIncognito) {
+            preloadAllBookmarkIcons();
+        }
+
         addNewTab();
     }
 
@@ -367,13 +366,31 @@ public:
 
 public slots:
     void promptSaveCredentials(const QString &site, const QString &user, const QString &pass) {
+        if (m_isIncognito || site.isEmpty() || pass.isEmpty()) return;
+
+        // Check if already saved with the exact same username & password
+        int existingIndex = -1;
+        for (int i = 0; i < savedPasswords.size(); ++i) {
+            if (savedPasswords[i].site.compare(site, Qt::CaseInsensitive) == 0 &&
+                savedPasswords[i].username == user) {
+                if (savedPasswords[i].password == pass) {
+                    return; // Already saved, no need to prompt again
+                }
+                existingIndex = i;
+            break;
+                }
+        }
+
         QDialog dlg(this);
-        dlg.setWindowTitle("Save Password?");
-        dlg.resize(360, 180);
+        dlg.setWindowTitle(existingIndex != -1 ? "Update Password?" : "Save Password?");
+        dlg.resize(380, 190);
         dlg.setStyleSheet("background-color: #242529; color: #fff;");
         QFormLayout form(&dlg);
 
-        QLabel header("Do you want BraveLite to save this login?");
+        QLabel header(existingIndex != -1
+        ? QString("Update saved password for %1?").arg(site)
+        : QString("Do you want BraveLite to save this login for %1?").arg(site));
+        header.setWordWrap(true);
         header.setStyleSheet("font-weight: bold; color: #fff;");
         form.addRow(&header);
 
@@ -387,16 +404,21 @@ public slots:
         form.addRow("Password:", &passEdit);
 
         QHBoxLayout btns;
-        QPushButton btnSave("Save", &dlg);
+        QPushButton btnSave(existingIndex != -1 ? "Update" : "Save", &dlg);
         btnSave.setStyleSheet("background-color: #ff5500; font-weight: bold; border-radius: 4px; padding: 6px 14px; color: #fff;");
-        QPushButton btnNever("Never", &dlg);
+        QPushButton btnNever("Not Now", &dlg);
         btnNever.setStyleSheet("background-color: #35373c; border-radius: 4px; padding: 6px 14px; color: #d0d0d0;");
         btns.addWidget(&btnNever);
         btns.addWidget(&btnSave);
         form.addRow(&btns);
 
         connect(&btnSave, &QPushButton::clicked, [&]() {
-            savedPasswords.append({site, userEdit.text(), passEdit.text()});
+            if (existingIndex != -1) {
+                savedPasswords[existingIndex].username = userEdit.text();
+                savedPasswords[existingIndex].password = passEdit.text();
+            } else {
+                savedPasswords.append({site, userEdit.text(), passEdit.text()});
+            }
             savePersistentData();
             dlg.accept();
         });
@@ -700,6 +722,195 @@ private slots:
         tabBar->setCurrentIndex(idx);
     }
 
+    // Integrated Local Password Manager Widget
+    QWidget* createPasswordManagerWidget(QWidget *parent = nullptr) {
+        QWidget *container = new QWidget(parent);
+        QVBoxLayout *layout = new QVBoxLayout(container);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(12);
+
+        QHBoxLayout *topControls = new QHBoxLayout();
+        QCheckBox *chkAutofill = new QCheckBox("Automatically fill saved logins on websites", container);
+        chkAutofill->setChecked(autofillEnabled);
+        chkAutofill->setStyleSheet("font-size: 14px; color: #e0e0e0;");
+        connect(chkAutofill, &QCheckBox::toggled, this, [this](bool checked) {
+            autofillEnabled = checked;
+            savePersistentData();
+        });
+
+        QCheckBox *chkShowPass = new QCheckBox("Show passwords in plain text", container);
+        chkShowPass->setStyleSheet("font-size: 14px; color: #e0e0e0;");
+
+        topControls->addWidget(chkAutofill);
+        topControls->addStretch();
+        topControls->addWidget(chkShowPass);
+        layout->addLayout(topControls);
+
+        QLineEdit *searchFilter = new QLineEdit(container);
+        searchFilter->setPlaceholderText("🔍 Filter saved logins by website or username...");
+        searchFilter->setStyleSheet("background: #2b2d30; border: 1px solid #3c4043; border-radius: 8px; padding: 8px 12px; color: #fff;");
+        layout->addWidget(searchFilter);
+
+        QTableWidget *table = new QTableWidget(0, 3, container);
+        table->setHorizontalHeaderLabels({"Website (Domain)", "Username / Email", "Password"});
+        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        table->setStyleSheet(
+            "QTableWidget { background-color: #242529; border: 1px solid #32353b; border-radius: 8px; color: #fff; gridline-color: #32353b; font-size: 13px; }"
+            "QHeaderView::section { background-color: #2b2d30; color: #fff; font-weight: bold; padding: 8px; border: none; border-bottom: 1px solid #32353b; }"
+            "QTableWidget::item { padding: 6px; }"
+            "QTableWidget::item:selected { background-color: #ff5500; color: #fff; }"
+        );
+        layout->addWidget(table, 1);
+
+        auto refreshTable = [this, table, chkShowPass, searchFilter]() {
+            QString filter = searchFilter->text().trimmed().toLower();
+            bool showPlain = chkShowPass->isChecked();
+            table->setRowCount(0);
+
+            for (int i = 0; i < savedPasswords.size(); ++i) {
+                const auto &cred = savedPasswords[i];
+                if (!filter.isEmpty() && !cred.site.toLower().contains(filter) && !cred.username.toLower().contains(filter)) {
+                    continue;
+                }
+                int row = table->rowCount();
+                table->insertRow(row);
+
+                QTableWidgetItem *siteItem = new QTableWidgetItem(cred.site);
+                siteItem->setData(Qt::UserRole, i); // Store real index
+                table->setItem(row, 0, siteItem);
+                table->setItem(row, 1, new QTableWidgetItem(cred.username));
+                table->setItem(row, 2, new QTableWidgetItem(showPlain ? cred.password : QString("••••••••••••")));
+            }
+        };
+
+        connect(chkShowPass, &QCheckBox::toggled, container, refreshTable);
+        connect(searchFilter, &QLineEdit::textChanged, container, refreshTable);
+        refreshTable();
+
+        QHBoxLayout *btnRow = new QHBoxLayout();
+        QPushButton *btnAdd = new QPushButton("+ Add Login", container);
+        QPushButton *btnEdit = new QPushButton("Edit Selected", container);
+        QPushButton *btnCopyUser = new QPushButton("Copy Username", container);
+        QPushButton *btnCopyPass = new QPushButton("Copy Password", container);
+        QPushButton *btnFillTab = new QPushButton("🔑 Autofill Current Tab", container);
+        QPushButton *btnDelete = new QPushButton("Delete", container);
+
+        QString primaryStyle = "background: #ff5500; font-weight: bold; padding: 8px 14px; border-radius: 6px; color: #fff;";
+        QString secondaryStyle = "background: #35373c; font-weight: bold; padding: 8px 14px; border-radius: 6px; color: #fff;";
+        QString dangerStyle = "background: #e81123; font-weight: bold; padding: 8px 14px; border-radius: 6px; color: #fff;";
+
+        btnAdd->setStyleSheet(primaryStyle);
+        btnEdit->setStyleSheet(secondaryStyle);
+        btnCopyUser->setStyleSheet(secondaryStyle);
+        btnCopyPass->setStyleSheet(secondaryStyle);
+        btnFillTab->setStyleSheet(secondaryStyle);
+        btnDelete->setStyleSheet(dangerStyle);
+
+        btnRow->addWidget(btnAdd);
+        btnRow->addWidget(btnEdit);
+        btnRow->addWidget(btnCopyUser);
+        btnRow->addWidget(btnCopyPass);
+        btnRow->addWidget(btnFillTab);
+        btnRow->addStretch();
+        btnRow->addWidget(btnDelete);
+        layout->addLayout(btnRow);
+
+        connect(btnAdd, &QPushButton::clicked, container, [this, container, refreshTable]() {
+            bool ok = false;
+            QString site = QInputDialog::getText(container, "Add Saved Login", "Website domain (e.g. github.com):", QLineEdit::Normal, "", &ok).trimmed();
+            if (!ok || site.isEmpty()) return;
+            if (site.startsWith("http://") || site.startsWith("https://")) {
+                site = QUrl(site).host();
+            }
+
+            QString user = QInputDialog::getText(container, "Add Saved Login", "Username / Email:", QLineEdit::Normal, "", &ok).trimmed();
+            if (!ok) return;
+
+            QString pass = QInputDialog::getText(container, "Add Saved Login", "Password:", QLineEdit::Password, "", &ok);
+            if (!ok || pass.isEmpty()) return;
+
+            savedPasswords.append({site, user, pass});
+            savePersistentData();
+            refreshTable();
+        });
+
+        connect(btnEdit, &QPushButton::clicked, container, [this, container, table, refreshTable]() {
+            int row = table->currentRow();
+            if (row < 0) return;
+            int idx = table->item(row, 0)->data(Qt::UserRole).toInt();
+            if (idx < 0 || idx >= savedPasswords.size()) return;
+
+            bool ok = false;
+            QString site = QInputDialog::getText(container, "Edit Login", "Website domain:", QLineEdit::Normal, savedPasswords[idx].site, &ok).trimmed();
+            if (!ok || site.isEmpty()) return;
+
+            QString user = QInputDialog::getText(container, "Edit Login", "Username / Email:", QLineEdit::Normal, savedPasswords[idx].username, &ok).trimmed();
+            if (!ok) return;
+
+            QString pass = QInputDialog::getText(container, "Edit Login", "Password:", QLineEdit::Normal, savedPasswords[idx].password, &ok);
+            if (!ok || pass.isEmpty()) return;
+
+            savedPasswords[idx] = {site, user, pass};
+            savePersistentData();
+            refreshTable();
+        });
+
+        connect(btnCopyUser, &QPushButton::clicked, container, [this, table]() {
+            int row = table->currentRow();
+            if (row < 0) return;
+            int idx = table->item(row, 0)->data(Qt::UserRole).toInt();
+            if (idx >= 0 && idx < savedPasswords.size()) {
+                QApplication::clipboard()->setText(savedPasswords[idx].username);
+            }
+        });
+
+        connect(btnCopyPass, &QPushButton::clicked, container, [this, table]() {
+            int row = table->currentRow();
+            if (row < 0) return;
+            int idx = table->item(row, 0)->data(Qt::UserRole).toInt();
+            if (idx >= 0 && idx < savedPasswords.size()) {
+                QApplication::clipboard()->setText(savedPasswords[idx].password);
+            }
+        });
+
+        connect(btnFillTab, &QPushButton::clicked, container, [this]() {
+            if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
+                autofillCredentialsForView(v, true);
+            }
+        });
+
+        connect(btnDelete, &QPushButton::clicked, container, [this, table, refreshTable]() {
+            int row = table->currentRow();
+            if (row < 0) return;
+            int idx = table->item(row, 0)->data(Qt::UserRole).toInt();
+            if (idx >= 0 && idx < savedPasswords.size()) {
+                savedPasswords.removeAt(idx);
+                savePersistentData();
+                refreshTable();
+            }
+        });
+
+        return container;
+    }
+
+    void openPasswordManagerDialog() {
+        QDialog dlg(this);
+        dlg.setWindowTitle("BraveLite Self-Hosted Password Manager");
+        dlg.resize(740, 460);
+        dlg.setStyleSheet("background-color: #1a1a1e; color: #fff;");
+        QVBoxLayout *layout = new QVBoxLayout(&dlg);
+        layout->setContentsMargins(20, 20, 20, 20);
+
+        QLabel *title = new QLabel("🔑 Saved Passwords & Autofill Vault", &dlg);
+        title->setStyleSheet("font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 6px;");
+        layout->addWidget(title);
+
+        layout->addWidget(createPasswordManagerWidget(&dlg), 1);
+        dlg.exec();
+    }
+
     void openSettingsTab() {
         QWidget *page = new QWidget(this);
         page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
@@ -730,10 +941,36 @@ private slots:
 
         QLabel *detailTitle = new QLabel(content);
         detailTitle->setStyleSheet("font-size: 22px; font-weight: bold; margin-bottom: 12px; color: #ffffff;");
-        QListWidget *itemsList = new QListWidget(content);
+
+        QStackedWidget *detailStack = new QStackedWidget(content);
+
+        // Page 0: Integrated Password Manager
+        QWidget *passPage = new QWidget(detailStack);
+        QVBoxLayout *passLayout = new QVBoxLayout(passPage);
+        passLayout->setContentsMargins(0, 0, 0, 0);
+        passLayout->addWidget(createPasswordManagerWidget(passPage), 1);
+        QHBoxLayout *passIoRow = new QHBoxLayout();
+        QPushButton *btnImportPass = new QPushButton("Import Passwords / Bookmarks", passPage);
+        QPushButton *btnExportPass = new QPushButton("Export Passwords (CSV)", passPage);
+        btnImportPass->setStyleSheet("background: #ff5500; font-weight: bold; padding: 8px 16px; border-radius: 6px; color: #fff;");
+        btnExportPass->setStyleSheet("background: #35373c; font-weight: bold; padding: 8px 16px; border-radius: 6px; color: #fff;");
+        connect(btnImportPass, &QPushButton::clicked, this, &BrowserWindow::importTop5Browsers);
+        connect(btnExportPass, &QPushButton::clicked, this, &BrowserWindow::exportPasswords);
+        passIoRow->addWidget(btnImportPass);
+        passIoRow->addWidget(btnExportPass);
+        passIoRow->addStretch();
+        passLayout->addLayout(passIoRow);
+        detailStack->addWidget(passPage);
+
+        // Page 1: Generic List View for other settings categories
+        QWidget *listPage = new QWidget(detailStack);
+        QVBoxLayout *listLayout = new QVBoxLayout(listPage);
+        listLayout->setContentsMargins(0, 0, 0, 0);
+
+        QListWidget *itemsList = new QListWidget(listPage);
         itemsList->setStyleSheet("background-color: #242529; border: 1px solid #32353b; border-radius: 8px; padding: 12px; color: #fff; font-size: 14px;");
 
-        QWidget *btnRow = new QWidget(content);
+        QWidget *btnRow = new QWidget(listPage);
         QHBoxLayout *btnLayout = new QHBoxLayout(btnRow);
         btnLayout->setContentsMargins(0, 8, 0, 0);
         btnLayout->setSpacing(10);
@@ -746,9 +983,12 @@ private slots:
         btnLayout->addWidget(actionBtn2);
         btnLayout->addStretch();
 
+        listLayout->addWidget(itemsList, 1);
+        listLayout->addWidget(btnRow);
+        detailStack->addWidget(listPage);
+
         cLayout->addWidget(detailTitle);
-        cLayout->addWidget(itemsList);
-        cLayout->addWidget(btnRow);
+        cLayout->addWidget(detailStack, 1);
 
         auto showCategoryPtr = std::make_shared<std::function<void(int)>>();
         *showCategoryPtr = [=](int row) {
@@ -760,16 +1000,13 @@ private slots:
 
             if (row == 0) {
                 detailTitle->setText("Autofill and passwords");
-                for (const auto &p : savedPasswords) {
-                    itemsList->addItem(p.site + "  |  User: " + p.username + "  |  Pass: ••••••••");
-                }
-                actionBtn1->setText("Import Passwords / Bookmarks");
-                actionBtn2->setText("Export Passwords (CSV)");
-                actionBtn1->show();
-                actionBtn2->show();
-                connect(actionBtn1, &QPushButton::clicked, this, &BrowserWindow::importTop5Browsers);
-                connect(actionBtn2, &QPushButton::clicked, this, &BrowserWindow::exportPasswords);
-            } else if (row == 1) {
+                detailStack->setCurrentIndex(0);
+                return;
+            }
+
+            detailStack->setCurrentIndex(1);
+
+            if (row == 1) {
                 detailTitle->setText("Bookmarks Manager");
                 for (const auto &b : bookmarksList) {
                     itemsList->addItem(b.title + " (" + b.url + ")");
@@ -822,7 +1059,7 @@ private slots:
                 actionBtn1->setText("Delete All Cookies");
                 actionBtn1->show();
                 connect(actionBtn1, &QPushButton::clicked, [this]() {
-                    QWebEngineProfile::defaultProfile()->cookieStore()->deleteAllCookies();
+                    if (m_profile) m_profile->cookieStore()->deleteAllCookies();
                     QMessageBox::information(this, "Cleared", "Cookies and storage cleared.");
                 });
             } else if (row == 7) {
@@ -874,6 +1111,7 @@ private slots:
         zoomMenu->addAction("Zoom Out\tCtrl+-", this, &BrowserWindow::zoomOut);
         zoomMenu->addAction("Reset Zoom (100%)\tCtrl+0", this, &BrowserWindow::zoomReset);
 
+        menu.addAction("Passwords & Autofill", this, &BrowserWindow::openPasswordManagerDialog);
         menu.addAction("History\tCtrl+H", this, &BrowserWindow::openHistoryTab);
         menu.addAction("Bookmarks Manager", this, &BrowserWindow::openSettingsTab);
         menu.addAction("Downloads\tCtrl+J", this, &BrowserWindow::openDownloadsTab);
@@ -881,7 +1119,7 @@ private slots:
 
         menu.addAction("Delete browsing data...\tCtrl+Shift+Del", this, [this]() {
             if (QMessageBox::question(this, "Clear Data", "Delete all cookies and history?") == QMessageBox::Yes) {
-                QWebEngineProfile::defaultProfile()->cookieStore()->deleteAllCookies();
+                if (m_profile) m_profile->cookieStore()->deleteAllCookies();
                 historyList.clear();
                 savePersistentData();
                 QMessageBox::information(this, "Cleared", "Cookies and history cleared.");
@@ -972,7 +1210,8 @@ private slots:
             for (auto item : arr) {
                 QJsonObject obj = item.toObject();
                 if (obj["type"].toString() == "url") {
-                    bookmarksList.append({obj["name"].toString(), obj["url"].toString(), style()->standardIcon(QStyle::SP_FileIcon)});
+                    QString url = obj["url"].toString();
+                    bookmarksList.append({obj["name"].toString(), url, loadCachedFavicon(QUrl(url))});
                     count++;
                 } else if (obj["children"].isArray()) {
                     self(self, obj["children"].toArray());
@@ -982,6 +1221,7 @@ private slots:
         for (const QString &key : roots.keys()) parseNode(parseNode, roots[key].toObject()["children"].toArray());
         savePersistentData();
         renderBookmarks();
+        preloadAllBookmarkIcons();
         QMessageBox::information(this, "Import Complete", QString("Imported %1 bookmarks.").arg(count));
     }
 
@@ -1000,13 +1240,14 @@ private slots:
                 if (endHref != -1 && closeTag != -1 && endTag != -1) {
                     QString url = line.mid(hrefIdx + 6, endHref - (hrefIdx + 6));
                     QString title = line.mid(closeTag + 1, endTag - (closeTag + 1));
-                    bookmarksList.append({title, url, style()->standardIcon(QStyle::SP_FileIcon)});
+                    bookmarksList.append({title, url, loadCachedFavicon(QUrl(url))});
                     count++;
                 }
             }
         }
         savePersistentData();
         renderBookmarks();
+        preloadAllBookmarkIcons();
         QMessageBox::information(this, "Import Complete", QString("Imported %1 bookmarks.").arg(count));
     }
 
@@ -1018,8 +1259,12 @@ private slots:
         while (!in.atEnd()) {
             QString line = in.readLine();
             QStringList p = line.split(",");
-            if (p.size() >= 3 && !p[0].contains("url", Qt::CaseInsensitive)) {
-                savedPasswords.append({p[0].trimmed(), p[1].trimmed(), p[2].trimmed()});
+            if (p.size() >= 3 && !p[0].contains("url", Qt::CaseInsensitive) && !p[0].contains("name", Qt::CaseInsensitive)) {
+                QString rawSite = p[0].trimmed();
+                if (rawSite.startsWith("http://") || rawSite.startsWith("https://")) {
+                    rawSite = QUrl(rawSite).host();
+                }
+                savedPasswords.append({rawSite, p[1].trimmed(), p[2].trimmed()});
                 count++;
             }
         }
@@ -1073,12 +1318,17 @@ private slots:
 
 private:
     bool m_isIncognito;
+    QWebEngineProfile *m_profile;
+    QNetworkAccessManager *m_netManager;
+    QSet<QString> m_pendingFaviconHosts;
     AdBlocker *m_adBlocker;
+    QWidget *headerContainer;
     CustomTabBar *tabBar;
     QStackedWidget *tabStack;
     QLineEdit *urlBar;
     QPushButton *btnPrivacyGrade;
     QPushButton *btnShield;
+    QPushButton *btnPasswords;
     QPushButton *btnDownload;
     QPushButton *btnMenu;
     QToolBar *bookmarksBar;
@@ -1088,8 +1338,290 @@ private:
     QVector<DownloadItem> downloadsList;
     QVector<SavedCredential> savedPasswords;
     QVector<SitePermission> sitePermissions;
+    bool autofillEnabled = true;
     bool odohEnabled = true;
     QString sponsorBlockServer = "https://sponsor.ajay.app/api/skipSegments";
+
+    QString getConfigDir() const {
+        QString dir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite";
+        QDir().mkpath(dir);
+        return dir;
+    }
+
+    // Persistent profile setup: keeps logins & cookies alive across restarts + enables Fullscreen
+    void setupBrowserProfile() {
+        if (m_isIncognito) {
+            m_profile = new QWebEngineProfile(this);
+        } else {
+            // Named profile with ForcePersistentCookies keeps all website logins active after restart
+            m_profile = new QWebEngineProfile("BraveLiteProfile", this);
+            QString storagePath = getConfigDir() + "/Storage";
+            QString cachePath = getConfigDir() + "/Cache";
+            QDir().mkpath(storagePath);
+            QDir().mkpath(cachePath);
+
+            m_profile->setPersistentStoragePath(storagePath);
+            m_profile->setCachePath(cachePath);
+            m_profile->setHttpCacheType(QWebEngineProfile::DiskHttpCache);
+            m_profile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
+        }
+
+        m_profile->setUrlRequestInterceptor(m_adBlocker);
+        connect(m_profile, &QWebEngineProfile::downloadRequested, this, &BrowserWindow::handleDownload);
+
+        // Enable Fullscreen support, LocalStorage, and media features for YouTube
+        QWebEngineSettings *settings = m_profile->settings();
+        settings->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
+        settings->setAttribute(QWebEngineSettings::LocalStorageEnabled, true);
+        settings->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
+        settings->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
+        settings->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
+
+        if (!m_isIncognito) {
+            // Injected Cosmetic Filter
+            QWebEngineScript cosmeticScript;
+            cosmeticScript.setName("CosmeticAdBlockFilter");
+            cosmeticScript.setInjectionPoint(QWebEngineScript::DocumentCreation);
+            cosmeticScript.setWorldId(QWebEngineScript::MainWorld);
+            cosmeticScript.setRunsOnSubFrames(true);
+            cosmeticScript.setSourceCode(R"(
+                (function() {
+                    const injectStyle = () => {
+                        if (document.getElementById('__bravelite_cosmetic')) return;
+                        const s = document.createElement('style');
+                        s.id = '__bravelite_cosmetic';
+                        s.innerHTML = `
+                            .adbox, .banner_ads, .adsbox, .textads,
+                            [class*="banner_ads"], [class*="adbox"],
+                            div[id*="google_ads"], div[id*="ad-slot"],
+                            #ad-container, .adsbygoogle { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; }
+                        `;
+                        (document.head || document.documentElement).appendChild(s);
+                    };
+                    injectStyle();
+                    window.addEventListener('DOMContentLoaded', injectStyle);
+                })();
+            )");
+            m_profile->scripts()->insert(cosmeticScript);
+        }
+    }
+
+    // ---------------- FAVICON PRELOADING & DISK CACHE ----------------
+    QString getFaviconCacheFile(const QUrl &url) const {
+        QString favDir = getConfigDir() + "/favicons";
+        QDir().mkpath(favDir);
+        QString key = url.host().isEmpty() ? url.toString() : url.host().toLower();
+        QString hash = QString::fromLatin1(QCryptographicHash::hash(key.toUtf8(), QCryptographicHash::Md5).toHex());
+        return favDir + "/" + hash + ".png";
+    }
+
+    QIcon loadCachedFavicon(const QUrl &url) const {
+        QString cacheFile = getFaviconCacheFile(url);
+        if (QFile::exists(cacheFile)) {
+            QPixmap px(cacheFile);
+            if (!px.isNull()) {
+                return QIcon(px);
+            }
+        }
+        return QIcon();
+    }
+
+    void preloadBookmarkFavicon(int index) {
+        if (index < 0 || index >= bookmarksList.size()) return;
+        QUrl url(bookmarksList[index].url);
+        if (!url.isValid() || url.host().isEmpty()) return;
+
+        // 1. Check disk cache first
+        QIcon cached = loadCachedFavicon(url);
+        if (!cached.isNull()) {
+            bookmarksList[index].icon = cached;
+            return;
+        }
+
+        QString hostKey = url.host().toLower();
+        if (m_pendingFaviconHosts.contains(hostKey)) return;
+        m_pendingFaviconHosts.insert(hostKey);
+
+        // 2. Fetch favicon asynchronously in the background without opening the bookmark
+        QUrl favUrl(QString("https://www.google.com/s2/favicons?sz=64&domain_url=%1")
+        .arg(QString::fromUtf8(QUrl::toPercentEncoding(url.toString()))));
+
+        QNetworkRequest req(favUrl);
+        req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+        req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0");
+
+        QNetworkReply *reply = m_netManager->get(req);
+        connect(reply, &QNetworkReply::finished, this, [this, reply, url, hostKey]() {
+            m_pendingFaviconHosts.remove(hostKey);
+            if (reply->error() == QNetworkReply::NoError) {
+                QByteArray data = reply->readAll();
+                QPixmap px;
+                if (px.loadFromData(data) && !px.isNull()) {
+                    px.save(getFaviconCacheFile(url), "PNG");
+                    QIcon newIcon(px);
+                    bool updated = false;
+                    for (auto &bm : bookmarksList) {
+                        if (QUrl(bm.url).host().toLower() == hostKey) {
+                            bm.icon = newIcon;
+                            updated = true;
+                        }
+                    }
+                    if (updated) {
+                        renderBookmarks();
+                    }
+                }
+            }
+            reply->deleteLater();
+        });
+    }
+
+    void preloadAllBookmarkIcons() {
+        bool anyLoadedFromCache = false;
+        for (int i = 0; i < bookmarksList.size(); ++i) {
+            if (bookmarksList[i].icon.isNull()) {
+                QIcon cached = loadCachedFavicon(QUrl(bookmarksList[i].url));
+                if (!cached.isNull()) {
+                    bookmarksList[i].icon = cached;
+                    anyLoadedFromCache = true;
+                } else {
+                    preloadBookmarkFavicon(i);
+                }
+            }
+        }
+        if (anyLoadedFromCache) {
+            renderBookmarks();
+        }
+    }
+
+    // ---------------- PASSWORD AUTOFILL ENGINE ----------------
+    void autofillCredentialsForView(CustomWebView *view, bool forceFill = false) {
+        if (!view || !view->page()) return;
+        if (!autofillEnabled && !forceFill) return;
+
+        QString host = view->url().host().toLower();
+        if (host.isEmpty()) return;
+
+        QJsonArray matchingCreds;
+        for (const auto &cred : savedPasswords) {
+            QString savedHost = cred.site.toLower();
+            if (savedHost == host || host.endsWith("." + savedHost) || savedHost.endsWith("." + host)) {
+                QJsonObject o;
+                o["user"] = cred.username;
+                o["pass"] = cred.password;
+                matchingCreds.append(o);
+            }
+        }
+
+        if (matchingCreds.isEmpty()) return;
+
+        QString credsJson = QString::fromUtf8(QJsonDocument(matchingCreds).toJson(QJsonDocument::Compact));
+        QString script = QString(R"(
+            (function(creds, force) {
+                if (!creds || creds.length === 0) return;
+
+                function setNativeInputValue(el, val) {
+                    if (!el) return;
+                    el.focus();
+                    const proto = window.HTMLInputElement.prototype;
+                    const descriptor = Object.getOwnPropertyDescriptor(proto, 'value');
+                    if (descriptor && descriptor.set) {
+                        descriptor.set.call(el, val);
+                    } else {
+                        el.value = val;
+                    }
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    el.blur();
+                }
+
+                function findUsernameField(passEl) {
+                    const container = passEl.closest('form') || document.body;
+                    const inputs = Array.from(container.querySelectorAll(
+                        'input[type="email"], input[type="text"], input[type="tel"], input:not([type])'
+                    ));
+                    for (let i = inputs.length - 1; i >= 0; i--) {
+                        const inp = inputs[i];
+                        if (inp !== passEl && inp.offsetParent !== null && !inp.disabled && !inp.readOnly) {
+                            return inp;
+                        }
+                    }
+                    return null;
+                }
+
+                function fillCredentials(cred, passEl) {
+                    const userEl = findUsernameField(passEl);
+                    if (userEl && (force || !userEl.value) && cred.user) {
+                        setNativeInputValue(userEl, cred.user);
+                    }
+                    if (force || !passEl.value) {
+                        setNativeInputValue(passEl, cred.pass);
+                    }
+                }
+
+                function attachPickerBadge(passEl) {
+                    if (passEl.dataset.braveliteBadge === '1') return;
+                    passEl.dataset.braveliteBadge = '1';
+
+                    passEl.addEventListener('dblclick', function() {
+                        if (creds.length === 1) {
+                            fillCredentials(creds[0], passEl);
+                            return;
+                        }
+                        let existing = document.getElementById('__bravelite_pass_menu');
+                        if (existing) existing.remove();
+
+                        const rect = passEl.getBoundingClientRect();
+                        const menu = document.createElement('div');
+                        menu.id = '__bravelite_pass_menu';
+                    menu.style.cssText = 'position:fixed; z-index:2147483647; background:#242529; color:#fff; border:1px solid #ff5500; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.5); font-family:sans-serif; font-size:13px; min-width:200px; padding:4px 0;';
+                    menu.style.top = (rect.bottom + 4) + 'px';
+                    menu.style.left = rect.left + 'px';
+
+                    creds.forEach(function(c) {
+                        const item = document.createElement('div');
+                        item.textContent = '🔑 ' + (c.user || '(Saved Login)');
+                        item.style.cssText = 'padding:8px 14px; cursor:pointer;';
+                    item.onmouseenter = function() { item.style.background = '#ff5500'; };
+                    item.onmouseleave = function() { item.style.background = 'transparent'; };
+                    item.onclick = function() {
+                        fillCredentials(c, passEl);
+                        menu.remove();
+                    };
+                    menu.appendChild(item);
+                    });
+
+                    document.body.appendChild(menu);
+                    setTimeout(function() {
+                        document.addEventListener('click', function closeMenu() {
+                            menu.remove();
+                            document.removeEventListener('click', closeMenu);
+                        });
+                    }, 50);
+                    });
+                }
+
+                function tryAutofill() {
+                    const passInputs = document.querySelectorAll('input[type="password"]');
+                    let filledAny = false;
+                    for (let i = 0; i < passInputs.length; i++) {
+                        const passEl = passInputs[i];
+                        if (passEl.offsetParent === null) continue;
+                        attachPickerBadge(passEl);
+                        fillCredentials(creds[0], passEl);
+                        filledAny = true;
+                    }
+                    return filledAny;
+                }
+
+                if (!tryAutofill()) {
+                    setTimeout(tryAutofill, 700);
+                    setTimeout(tryAutofill, 1800);
+                }
+            })(%1, %2);
+        )").arg(credsJson, forceFill ? "true" : "false");
+
+        view->page()->runJavaScript(script);
+    }
 
     void setupShortcuts() {
         new QShortcut(QKeySequence::ZoomIn, this, SLOT(zoomIn()));
@@ -1101,6 +1633,15 @@ private:
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_J), this, [this]() { openDownloadsTab(); });
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_H), this, [this]() { openHistoryTab(); });
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_L), this, [this]() { urlBar->setFocus(); urlBar->selectAll(); });
+        new QShortcut(QKeySequence(Qt::Key_Escape), this, [this]() {
+            if (isFullScreen()) {
+                if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
+                    v->page()->triggerAction(QWebEnginePage::ExitFullScreen);
+                }
+                headerContainer->show();
+                showNormal();
+            }
+        });
     }
 
     void applyStyling() {
@@ -1131,7 +1672,19 @@ private:
                 background-color: #1e1f22;
                 border: none;
                 padding: 3px 8px;
-                spacing: 6px;
+                spacing: 4px;
+            }
+            QToolBar QToolButton {
+                background-color: transparent;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 8px;
+                color: #dfdfdf;
+                font-size: 12px;
+            }
+            QToolBar QToolButton:hover {
+                background-color: #35373c;
+                color: #ffffff;
             }
             QTabBar::tab {
                 background: #242629;
@@ -1179,7 +1732,7 @@ private:
         mainLayout->setSpacing(0);
 
         // Header container (Tabs at absolute top, then Nav Bar, then Bookmarks)
-        QWidget *headerContainer = new QWidget(this);
+        headerContainer = new QWidget(this);
         headerContainer->setObjectName("headerContainer");
         QVBoxLayout *headerLayout = new QVBoxLayout(headerContainer);
         headerLayout->setContentsMargins(0, 2, 0, 0);
@@ -1240,6 +1793,10 @@ private:
                     btnBookmark->setToolTip("Bookmark this page");
                     connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
 
+                    btnPasswords = new QPushButton("🔑", this);
+                    btnPasswords->setToolTip("Password Manager & Autofill");
+                    connect(btnPasswords, &QPushButton::clicked, this, &BrowserWindow::openPasswordManagerDialog);
+
                     btnShield = new QPushButton("🛡", this);
                     btnShield->setToolTip("Brave Shields: Active");
                     btnShield->setStyleSheet("QPushButton { font-size: 16px; color: #ff5500; padding: 4px 6px; } QPushButton:hover { background: #35373c; }");
@@ -1271,16 +1828,18 @@ private:
                     navLayout->addWidget(btnPrivacyGrade);
                     navLayout->addWidget(urlBar);
                     navLayout->addWidget(btnBookmark);
+                    navLayout->addWidget(btnPasswords);
                     navLayout->addWidget(btnShield);
                     navLayout->addWidget(btnZoomOut);
                     navLayout->addWidget(btnZoomIn);
                     navLayout->addWidget(btnDownload);
                     navLayout->addWidget(btnMenu);
 
-                    // 3. BOOKMARKS BAR (With Live Favicon on the Left)
+                    // 3. BOOKMARKS BAR (Icon on the Left + Name Next to Icon, max 16 chars)
                     bookmarksBar = new QToolBar("Bookmarks", this);
                     bookmarksBar->setMovable(false);
                     bookmarksBar->setIconSize(QSize(16, 16));
+                    bookmarksBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
                     renderBookmarks();
 
                     // 4. PROGRESS BAR
@@ -1386,6 +1945,8 @@ private:
 
                     if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
                         v->load(target);
+                    } else {
+                        addNewTab(target);
                     }
     }
 
@@ -1416,29 +1977,90 @@ private:
 
         if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
 
-            bookmarksList.append({title, url, v->icon()});
+            QIcon pageIcon = v->icon();
+        if (!pageIcon.isNull()) {
+            QPixmap px = pageIcon.pixmap(32, 32);
+            if (!px.isNull()) {
+                px.save(getFaviconCacheFile(QUrl(url)), "PNG");
+            }
+        } else {
+            pageIcon = loadCachedFavicon(QUrl(url));
+        }
+
+        bookmarksList.append({title, url, pageIcon});
+        int addedIdx = bookmarksList.size() - 1;
         savePersistentData();
         renderBookmarks();
+        preloadBookmarkFavicon(addedIdx);
     }
 
-    // Bookmarks Bar with Website Favicons on the Left
+    // Bookmarks Bar: Icon on the Left + Name Next to Icon (Truncated at 16th character)
     void renderBookmarks() {
         bookmarksBar->clear();
         for (int i = 0; i < bookmarksList.size(); ++i) {
             Bookmark bm = bookmarksList[i];
-            QAction *act = bookmarksBar->addAction(bm.icon.isNull() ? style()->standardIcon(QStyle::SP_FileIcon) : bm.icon, bm.title);
-            act->setToolTip(bm.url);
 
-            connect(act, &QAction::triggered, this, [this, bm]() {
-                addNewTab(QUrl(bm.url));
+            // Truncate bookmark display name at the 16th character if too long
+            QString shortTitle = bm.title.length() > 16 ? bm.title.left(16) : bm.title;
+            QIcon displayIcon = bm.icon.isNull() ? style()->standardIcon(QStyle::SP_DriveNetIcon) : bm.icon;
+
+            QToolButton *btn = new QToolButton(bookmarksBar);
+            btn->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+            btn->setIcon(displayIcon);
+            btn->setIconSize(QSize(16, 16));
+            btn->setText(shortTitle);
+            btn->setToolTip(bm.title + "\n" + bm.url);
+            btn->setCursor(Qt::PointingHandCursor);
+
+            // Left-click opens bookmark in current tab (or new tab if on Settings/History)
+            connect(btn, &QToolButton::clicked, this, [this, bm]() {
+                if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
+                    v->load(QUrl(bm.url));
+                } else {
+                    addNewTab(QUrl(bm.url));
+                }
             });
+
+            // Right-click menu to Open in New Tab, Edit, or Delete
+            btn->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(btn, &QToolButton::customContextMenuRequested, this, [this, i, btn](const QPoint &pos) {
+                QMenu menu(btn);
+                menu.setStyleSheet("QMenu { background: #242529; color: #fff; border: 1px solid #3c4043; } QMenu::item { padding: 6px 18px; } QMenu::item:selected { background: #35373c; }");
+                QAction *openNewTabAct = menu.addAction("Open in new tab");
+                menu.addSeparator();
+                QAction *editAct = menu.addAction("Edit bookmark");
+                QAction *delAct = menu.addAction("Delete bookmark");
+
+                QAction *chosen = menu.exec(btn->mapToGlobal(pos));
+                if (chosen == openNewTabAct && i < bookmarksList.size()) {
+                    addNewTab(QUrl(bookmarksList[i].url));
+                } else if (chosen == editAct && i < bookmarksList.size()) {
+                    bool ok = false;
+                    QString nTitle = QInputDialog::getText(this, "Edit Bookmark", "Name:", QLineEdit::Normal, bookmarksList[i].title, &ok);
+                    if (ok && !nTitle.isEmpty()) bookmarksList[i].title = nTitle;
+
+                    QString nUrl = QInputDialog::getText(this, "Edit Bookmark", "URL:", QLineEdit::Normal, bookmarksList[i].url, &ok);
+                    if (ok && !nUrl.isEmpty()) {
+                        if (!nUrl.startsWith("http://") && !nUrl.startsWith("https://")) nUrl = "https://" + nUrl;
+                            bookmarksList[i].url = nUrl;
+                        bookmarksList[i].icon = loadCachedFavicon(QUrl(nUrl));
+                    }
+                    savePersistentData();
+                    renderBookmarks();
+                    preloadBookmarkFavicon(i);
+                } else if (chosen == delAct && i < bookmarksList.size()) {
+                    bookmarksList.removeAt(i);
+                    savePersistentData();
+                    renderBookmarks();
+                }
+            });
+
+            bookmarksBar->addWidget(btn);
         }
     }
 
     QString getStorageFile() {
-        QString dir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite";
-        QDir().mkpath(dir);
-        return dir + "/data.json";
+        return getConfigDir() + "/data.json";
     }
 
     void loadPersistentData() {
@@ -1446,19 +2068,26 @@ private:
         if (!file.open(QIODevice::ReadOnly)) return;
 
         QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+        autofillEnabled = root.value("autofillEnabled").toBool(true);
+
         historyList.clear();
         for (auto v : root["history"].toArray()) historyList.append(v.toString());
 
         bookmarksList.clear();
         for (auto v : root["bookmarks"].toArray()) {
             QJsonObject o = v.toObject();
-            bookmarksList.append({o["title"].toString(), o["url"].toString(), style()->standardIcon(QStyle::SP_FileIcon)});
+            QString url = o["url"].toString();
+            bookmarksList.append({o["title"].toString(), url, loadCachedFavicon(QUrl(url))});
         }
 
         savedPasswords.clear();
         for (auto v : root["passwords"].toArray()) {
             QJsonObject o = v.toObject();
-            savedPasswords.append({o["site"].toString(), o["user"].toString(), o["pass"].toString()});
+            QString pass = o["pass"].toString();
+            if (o["encoded"].toBool(false)) {
+                pass = QString::fromUtf8(QByteArray::fromBase64(pass.toUtf8()));
+            }
+            savedPasswords.append({o["site"].toString(), o["user"].toString(), pass});
         }
 
         downloadsList.clear();
@@ -1481,6 +2110,8 @@ private:
         if (!file.open(QIODevice::WriteOnly)) return;
 
         QJsonObject root;
+        root["autofillEnabled"] = autofillEnabled;
+
         QJsonArray histArr;
         for (const QString &h : historyList) histArr.append(h);
         root["history"] = histArr;
@@ -1499,7 +2130,8 @@ private:
             QJsonObject o;
             o["site"] = p.site;
             o["user"] = p.username;
-            o["pass"] = p.password;
+            o["pass"] = QString::fromUtf8(p.password.toUtf8().toBase64());
+            o["encoded"] = true;
             passArr.append(o);
         }
         root["passwords"] = passArr;
@@ -1532,14 +2164,23 @@ QWebEngineView* CustomWebView::createWindow(QWebEnginePage::WebWindowType type) 
 CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
     CustomWebView *view = new CustomWebView(this);
 
-    QWebEngineProfile *profile = m_isIncognito ? new QWebEngineProfile(this) : QWebEngineProfile::defaultProfile();
-    if (m_isIncognito) {
-        profile->setUrlRequestInterceptor(m_adBlocker);
-        connect(profile, &QWebEngineProfile::downloadRequested, this, &BrowserWindow::handleDownload);
-    }
-
-    CustomWebEnginePage *p = new CustomWebEnginePage(profile, view);
+    CustomWebEnginePage *p = new CustomWebEnginePage(m_profile, view);
     view->setPage(p);
+
+    // Ensure Fullscreen support is enabled on every page
+    p->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
+
+    // Handle HTML5 Fullscreen requests (fixes YouTube Fullscreen)
+    connect(p, &QWebEnginePage::fullScreenRequested, this, [this](QWebEngineFullScreenRequest request) {
+        request.accept();
+        if (request.toggleOn()) {
+            headerContainer->hide();
+            showFullScreen();
+        } else {
+            headerContainer->show();
+            showNormal();
+        }
+    });
 
     if (!m_isIncognito) {
         connect(p, &CustomWebEnginePage::loginCaptured, this, &BrowserWindow::promptSaveCredentials);
@@ -1571,18 +2212,32 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
         }
     });
 
-    // Capture site favicon for Tab Bar and matching Bookmark buttons
+    // Capture site favicon for Tab Bar, disk cache, and matching Bookmark buttons
     connect(view, &QWebEngineView::iconChanged, [this, view](const QIcon &icon) {
         int i = tabStack->indexOf(view);
         if (i != -1) {
             tabBar->setTabIcon(i, icon);
         }
-        for (auto &bm : bookmarksList) {
-            if (bm.url == view->url().toString()) {
-                bm.icon = icon;
-                renderBookmarks();
-                break;
+        if (icon.isNull()) return;
+
+        QUrl pageUrl = view->url();
+        if (!pageUrl.host().isEmpty()) {
+            QPixmap px = icon.pixmap(32, 32);
+            if (!px.isNull()) {
+                px.save(getFaviconCacheFile(pageUrl), "PNG");
             }
+        }
+
+        bool updated = false;
+        for (auto &bm : bookmarksList) {
+            if (bm.url == pageUrl.toString() ||
+                (!pageUrl.host().isEmpty() && QUrl(bm.url).host().toLower() == pageUrl.host().toLower())) {
+                bm.icon = icon;
+            updated = true;
+                }
+        }
+        if (updated) {
+            renderBookmarks();
         }
     });
 
@@ -1609,23 +2264,52 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
         }
     });
 
-    // Credential hook + SponsorBlock video segment skipper
+    // Credential capture hook + Automatic Autofill + SponsorBlock video segment skipper
     connect(view, &QWebEngineView::loadFinished, [this, view](bool ok) {
         if (ok && !m_isIncognito) {
             view->page()->runJavaScript(R"(
                 (function() {
                     if (!window.__passHooked) {
                         window.__passHooked = true;
-                        document.addEventListener('submit', function(e) {
-                            const form = e.target;
-                            const passInput = form.querySelector('input[type="password"]');
-                            if (passInput && passInput.value) {
-                                const userInput = form.querySelector('input[type="text"], input[type="email"]');
-                                const username = userInput ? userInput.value : "";
-                                const password = passInput.value;
-                                console.log("LOGIN_SUBMIT::" + window.location.hostname + "::" + username + "::" + password);
+
+                        function captureActiveCredentials() {
+                            const passInputs = document.querySelectorAll('input[type="password"]');
+                            for (let i = 0; i < passInputs.length; i++) {
+                                const passInput = passInputs[i];
+                                if (!passInput.value) continue;
+                                const container = passInput.closest('form') || document.body;
+                                let username = "";
+                                const userInputs = container.querySelectorAll(
+                                    'input[type="email"], input[type="text"], input[type="tel"], input:not([type])'
+                                );
+                                for (let j = userInputs.length - 1; j >= 0; j--) {
+                                    const u = userInputs[j];
+                                    if (u !== passInput && u.value && u.offsetParent !== null) {
+                                        username = u.value;
+                                        break;
+                                    }
+                                }
+                                const payload = JSON.stringify({
+                                    site: window.location.hostname,
+                                    user: username,
+                                    pass: passInput.value
+                                });
+                                if (window.__lastCapturedPayload !== payload) {
+                                    window.__lastCapturedPayload = payload;
+                                    console.log("LOGIN_SUBMIT_JSON::" + payload);
+                                }
+                                break;
                             }
+                        }
+
+                        document.addEventListener('submit', captureActiveCredentials, true);
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') captureActiveCredentials();
                         }, true);
+                            document.addEventListener('click', function(e) {
+                                const btn = e.target.closest('button, input[type="submit"], [role="button"]');
+                                if (btn) captureActiveCredentials();
+                            }, true);
                     }
 
                     if (window.location.hostname.includes('youtube.com') && !window.__sbActive) {
@@ -1634,13 +2318,13 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
                             const v = document.querySelector('video');
                             const urlParams = new URLSearchParams(window.location.search);
                             const videoId = urlParams.get('v');
-                            if (v && videoId && !v.__sbFetched) {
+                            if (v && videoId && v.__sbFetched !== videoId) {
                                 v.__sbFetched = videoId;
                                 fetch('https://sponsor.ajay.app/api/skipSegments?videoID=' + videoId + '&categories=["sponsor","selfpromo"]')
-                                    .then(r => r.json())
-                                    .then(segments => {
-                                        v.__sbSegments = segments;
-                                    }).catch(() => {});
+                                .then(r => r.json())
+                                .then(segments => {
+                                    v.__sbSegments = segments;
+                                }).catch(() => {});
                             }
                             if (v && v.__sbSegments && Array.isArray(v.__sbSegments)) {
                                 for (let s of v.__sbSegments) {
@@ -1653,6 +2337,8 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
                     }
                 })();
             )");
+
+            autofillCredentialsForView(view, false);
         }
     });
 
@@ -1665,6 +2351,7 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
+    app.setOrganizationName("BraveLite");
 
     QIcon appIcon = QIcon::fromTheme("bravelite");
     if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
