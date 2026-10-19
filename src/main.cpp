@@ -221,7 +221,7 @@ class AdBlocker : public QWebEngineUrlRequestInterceptor {
     Q_OBJECT
 public:
     explicit AdBlocker(QObject *parent = nullptr) : QWebEngineUrlRequestInterceptor(parent), m_enabled(true) {
-        blocklist = {
+        for (const char *d : {
             "freshmarketer.com", "claritybt.freshmarketer.com", "fwtracks.freshmarketer.com",
             "iot-logser.realme.com", "bdapi-ads.realmemobile.com", "bdapi-in-ads.realmemobile.com", "iot-eu-logser.realme.com",
             "ck.ads.oppomobile.com", "data.ads.oppomobile.com", "adsfs.oppomobile.com", "adx.ads.oppomobile.com",
@@ -267,7 +267,9 @@ public:
             "pushwhy.com", "pushengage.com", "richpush.co", "evadav.com", "ero-advertising.com",
             "bidvertiser.com", "chitika.com", "infolinks.com", "viglink.com", "skimresources.com",
             "redirectvoluum.com", "bemobtrk.com", "binom.org", "voluum.com", "network.nutaku.net"
-        };
+        }) {
+            blockSet.insert(QString::fromLatin1(d));
+        }
     }
 
     void setEnabled(bool enabled) { m_enabled = enabled; }
@@ -277,11 +279,15 @@ public:
         return siteBlockedCounts.value(host, 0);
     }
 
+    // Fast O(1) domain suffix lookup instead of linear string scanning on every network packet
     bool isHostBlocked(const QString &host) const {
         QString h = host.toLower().trimmed();
         if (h.isEmpty()) return false;
-        for (const QString &domain : blocklist) {
-            if (h == domain || h.endsWith("." + domain)) return true;
+        while (!h.isEmpty()) {
+            if (blockSet.contains(h)) return true;
+            int dot = h.indexOf('.');
+            if (dot == -1) break;
+            h = h.mid(dot + 1);
         }
         return false;
     }
@@ -326,7 +332,7 @@ protected:
 
 private:
     bool m_enabled;
-    QStringList blocklist;
+    QSet<QString> blockSet;
     QMap<QString, int> siteBlockedCounts;
 };
 
@@ -447,7 +453,7 @@ protected:
     }
 };
 
-// ---------------- 4. BOOKMARK TOOLBUTTON (Movable Drag-Reorder + Middle-Click) ----------------
+// ---------------- 4. BOOKMARK TOOLBUTTON ----------------
 class BookmarkToolButton : public QToolButton {
     Q_OBJECT
 public:
@@ -538,7 +544,7 @@ public:
     }
 };
 
-// ---------------- 6. CUSTOM TAB BAR (Supports Drag-Out Detach & Re-Attach) ----------------
+// ---------------- 6. CUSTOM TAB BAR ----------------
 class CustomTabBar : public QTabBar {
     Q_OBJECT
 public:
@@ -691,11 +697,15 @@ public:
         m_adBlocker = new AdBlocker(this);
         connect(m_adBlocker, &AdBlocker::trackerBlocked, this, &BrowserWindow::onTrackerBlocked);
 
+        detectHardwareGpu();
         initDefaultKeybinds();
         setupBrowserProfile();
 
         if (!m_isIncognito) {
             loadPersistentData();
+            if (aiEnabled) {
+                ensureOllamaServerRunning();
+            }
         }
 
         setupUI();
@@ -715,11 +725,12 @@ public:
             return urls;
         };
         CrashLogger::s_activeStateProvider = [this]() {
-            return QString("Theme=%1 | Shield=%2 | AI=%3 (Model=%4) | SearchEngine=%5 | Incognito=%6")
+            return QString("Theme=%1 | Shield=%2 | AI=%3 (Model=%4, GPU=%5) | SearchEngine=%6 | Incognito=%7")
             .arg(currentThemeProfile,
                  m_adBlocker->isEnabled() ? "ON" : "OFF",
                  aiEnabled ? "ON" : "OFF",
                  ollamaModel,
+                 aiUseGpu ? "Enabled" : "CPU-Only",
                  defaultSearchEngine,
                  m_isIncognito ? "Yes" : "No");
         };
@@ -922,7 +933,7 @@ public slots:
         dlg.exec();
     }
 
-    // ---------------- BRAVELITE AI: HOVER LINK SUMMARIZER ----------------
+    // ---------------- BRAVELITE AI: RELIABLE HOVER LINK SUMMARIZER ----------------
     void handleLinkHoverSummarize(const QString &targetUrl, const QString &linkText) {
         if (!aiEnabled || !aiHoverSummaryEnabled) return;
         auto *view = qobject_cast<CustomWebView*>(tabStack->currentWidget());
@@ -931,9 +942,16 @@ public slots:
         QUrl url(targetUrl);
         if (!url.isValid() || (!url.scheme().startsWith("http"))) return;
 
+        // Cancel any previous in-flight hover fetch so rapid mouse movements don't queue up
+        if (m_activeHoverReply) {
+            m_activeHoverReply->abort();
+            m_activeHoverReply->deleteLater();
+            m_activeHoverReply = nullptr;
+        }
+
         QJsonObject initPayload;
         initPayload["url"] = targetUrl;
-        initPayload["summary"] = QString("✨ BraveLite AI (%1) is summarizing page...").arg(ollamaModel);
+        initPayload["summary"] = QString("✨ BraveLite AI (%1) is summarizing link...").arg(ollamaModel);
         QString initJson = QString::fromUtf8(QJsonDocument(initPayload).toJson(QJsonDocument::Compact));
         view->page()->runJavaScript(
             QString("if (window.__updateBraveLiteAiTooltipObj) window.__updateBraveLiteAiTooltipObj(%1);").arg(initJson)
@@ -941,32 +959,44 @@ public slots:
 
         QNetworkRequest pageReq(url);
         pageReq.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
-        pageReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (BraveLite AI Summarizer)");
+        pageReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36");
+        pageReq.setTransferTimeout(2200); // Fast 2.2s timeout so slow sites still get summarized immediately via URL/title
 
         QNetworkReply *pageReply = m_netManager->get(pageReq);
+        m_activeHoverReply = pageReply;
         QPointer<CustomWebView> safeView(view);
 
         connect(pageReply, &QNetworkReply::finished, this, [this, pageReply, safeView, targetUrl, linkText]() {
+            if (m_activeHoverReply == pageReply) m_activeHoverReply = nullptr;
+
+            QString extractedTitle;
             QString extractedText;
             if (pageReply->error() == QNetworkReply::NoError) {
-                QString rawHtml = QString::fromUtf8(pageReply->read(32768));
+                QString rawHtml = QString::fromUtf8(pageReply->read(24576));
+                QRegularExpression titleRe("<title[^>]*>([\\s\\S]*?)</title>", QRegularExpression::CaseInsensitiveOption);
+                auto tm = titleRe.match(rawHtml);
+                if (tm.hasMatch()) extractedTitle = tm.captured(1).simplified();
+
                 rawHtml.remove(QRegularExpression("<script[^>]*>[\\s\\S]*?</script>", QRegularExpression::CaseInsensitiveOption));
                 rawHtml.remove(QRegularExpression("<style[^>]*>[\\s\\S]*?</style>", QRegularExpression::CaseInsensitiveOption));
                 rawHtml.remove(QRegularExpression("<[^>]+>"));
-                extractedText = rawHtml.simplified().left(1400);
+                extractedText = rawHtml.simplified().left(900);
             }
             pageReply->deleteLater();
 
             QString prompt = QString(
-                "Summarize what this linked webpage is about in 2 short, clear sentences.\n"
-                "URL: %1\nLink Title: %2\nPage Content Excerpt: %3"
-            ).arg(targetUrl, linkText, extractedText.isEmpty() ? "(Use URL and Title context)" : extractedText);
+                "Give a 2-sentence summary of what this link leads to. Be direct.\n"
+                "Link URL: %1\nAnchor Text: %2\nPage Title: %3\nPage Excerpt: %4"
+            ).arg(targetUrl,
+                  linkText.isEmpty() ? "(none)" : linkText,
+                  extractedTitle.isEmpty() ? "(unknown)" : extractedTitle,
+                  extractedText.isEmpty() ? "(Summarize based on URL and Anchor Text)" : extractedText);
 
             queryOllamaAsync(prompt, [safeView, targetUrl](const QString &aiResponse, bool ok) {
                 if (!safeView || !safeView->page()) return;
                 QString display = ok
                 ? ("✨ BraveLite AI: " + aiResponse.trimmed())
-                : ("⚠ BraveLite AI: Could not reach Ollama. Check Settings -> BraveLite AI.");
+                : ("⚠ BraveLite AI: " + aiResponse);
                 QJsonObject payload;
                 payload["url"] = targetUrl;
                 payload["summary"] = display;
@@ -978,7 +1008,7 @@ public slots:
         });
     }
 
-    // ---------------- DEDICATED LOCAL SEARCH ENGINE: "BraveLite Browser" + AI OVERVIEW ----------------
+    // ---------------- "BraveLite Engine": CARBON COPY OF DUCKDUCKGO + GOOGLE AI OVERVIEW ----------------
     void runBraveLiteSearch(const QString &query) {
         if (query.trimmed().isEmpty()) return;
         CustomWebView *view = qobject_cast<CustomWebView*>(tabStack->currentWidget());
@@ -988,100 +1018,199 @@ public slots:
 
         urlBar->setText("bravelite://search?q=" + query);
         int i = tabStack->indexOf(view);
-        if (i != -1) tabBar->setTabText(i, (query.left(12) + " - BraveLite"));
+        if (i != -1) tabBar->setTabText(i, (query.left(12) + " at BraveLite Engine"));
 
         QString escapedQuery = query.toHtmlEscaped();
-        QString aiSectionHtml = (aiEnabled && aiSearchOverviewEnabled) ? QString(
-            "<div id='aiOverviewCard' style='max-width:780px; background:linear-gradient(135deg,#232028 0%,#1e2229 100%); border:1px solid #ff5500; border-radius:12px; padding:18px 22px; margin-bottom:26px;'>"
-            "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>"
-            "<span style='background:#ff5500; color:#fff; font-weight:700; font-size:12px; padding:4px 10px; border-radius:12px;'>✨ BraveLite AI Overview</span>"
-            "<span style='font-size:12px; color:#9aa0a6;'>Model: %1 (Local Ollama)</span>"
-            "</div>"
-            "<div id='aiOverviewText' style='font-size:14.5px; line-height:1.6; color:#f0f2f5; white-space:pre-wrap;'>"
-            "<span style='color:#ff9c6e; font-style:italic;'>⏳ BraveLite AI is generating a direct answer for <b>\"%2\"</b>...</span>"
-            "</div></div>"
-        ).arg(ollamaModel.toHtmlEscaped(), escapedQuery) : QString();
+        QString encodedQuery = QString::fromUtf8(QUrl::toPercentEncoding(query));
 
-        QString searchPageHtml = QString(
+        // Carbon copy of Google's AI Overview component (4-color Gemini sparkle, shimmer loader, Show more toggle, source cards)
+        QString googleAiOverviewHtml = (aiEnabled && aiSearchOverviewEnabled) ? QString(
+            "<div class='g-ai-wrapper' id='aiOverviewCard'>"
+            "  <div class='g-ai-header'>"
+            "    <div class='g-ai-title-row'>"
+            "      <svg class='g-sparkle' viewBox='0 0 24 24' width='22' height='22'>"
+            "        <path fill='#4285F4' d='M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z'/>"
+            "        <circle fill='#EA4335' cx='19' cy='5' r='2'/>"
+            "        <circle fill='#FBBC04' cx='5' cy='19' r='1.5'/>"
+            "        <circle fill='#34A853' cx='18' cy='19' r='1.5'/>"
+            "      </svg>"
+            "      <span class='g-ai-label'>AI Overview</span>"
+            "      <span class='g-ai-meta'>BraveLite AI • %1 (%2)</span>"
+            "    </div>"
+            "  </div>"
+            "  <div class='g-ai-grid'>"
+            "    <div class='g-ai-main' id='aiOverviewContainer'>"
+            "      <div id='aiOverviewText' class='g-ai-text'>"
+            "        <div class='shimmer-line' style='width:92%;'></div>"
+            "        <div class='shimmer-line' style='width:84%;'></div>"
+            "        <div class='shimmer-line' style='width:68%;'></div>"
+            "      </div>"
+            "      <button id='aiShowMoreBtn' class='g-ai-more-btn' style='display:none;' onclick='window.__toggleAiExpand()'>Show more ▾</button>"
+            "    </div>"
+            "    <div class='g-ai-sources' id='aiSourcesRail'></div>"
+            "  </div>"
+            "  <div class='g-ai-footer'>"
+            "    <span>Generative AI is local & private via Ollama (%1)</span>"
+            "    <span>BraveLite Engine</span>"
+            "  </div>"
+            "</div>"
+        ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
+
+        // Carbon copy of DuckDuckGo Dark Theme UI + Navigation + Instant Results
+        QString ddgSearchPageHtml = QString(
             "<!DOCTYPE html><html><head><meta charset='utf-8'>"
-            "<title>%1 - BraveLite Browser Search</title>"
+            "<title>%1 at BraveLite Engine</title>"
             "<style>"
             "* { box-sizing: border-box; }"
-            "body { margin: 0; padding: 28px 60px; background: #16171a; color: #e8eaed; font-family: 'Segoe UI', sans-serif; }"
-            ".top-bar { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; border-bottom: 1px solid #2b2d33; padding-bottom: 18px; }"
-            ".brand { font-size: 22px; font-weight: 700; color: #ff5500; white-space: nowrap; }"
-            ".search-box { flex: 1; max-width: 640px; display: flex; background: #24262b; border: 1px solid #3c4043; border-radius: 24px; padding: 8px 18px; }"
-            ".search-box input { width: 100%; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; }"
-            ".results-container { max-width: 780px; }"
-            ".result-card { background: #1f2126; border: 1px solid #2d3037; border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; }"
-            ".result-url { font-size: 12px; color: #8e9297; margin-bottom: 4px; }"
-            ".result-title { font-size: 18px; color: #8ab4f8; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 6px; }"
-            ".result-title:hover { text-decoration: underline; }"
-            ".result-snippet { font-size: 14px; color: #bdc1c6; line-height: 1.5; }"
+            "body { margin: 0; background: #1c1c1c; color: #eeeeee; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }"
+            "a { text-decoration: none; }"
+            /* DuckDuckGo Top Header */
+            ".ddg-header { background: #1c1c1c; border-bottom: 1px solid #2e2e2e; padding: 14px 24px 0 24px; position: sticky; top: 0; z-index: 100; }"
+            ".ddg-top-row { display: flex; align-items: center; gap: 22px; max-width: 1120px; margin-bottom: 12px; }"
+            ".ddg-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }"
+            ".ddg-logo-badge { width: 34px; height: 34px; border-radius: 50%; background: #de5833; display: flex; align-items: center; justify-content: center; font-size: 19px; }"
+            ".ddg-search-form { flex: 1; max-width: 630px; display: flex; align-items: center; background: #2b2b2b; border: 1px solid #3d3d3d; border-radius: 8px; height: 42px; padding: 0 6px 0 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }"
+            ".ddg-search-form:focus-within { border-color: #de5833; background: #242424; }"
+            ".ddg-search-form input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; }"
+            ".ddg-clear-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 4px 8px; }"
+            ".ddg-clear-btn:hover { color: #fff; }"
+            ".ddg-submit-btn { background: transparent; border: none; color: #de5833; font-size: 17px; cursor: pointer; padding: 6px 10px; font-weight: bold; }"
+            /* DuckDuckGo Sub-Navigation Tabs */
+            ".ddg-nav-tabs { display: flex; gap: 24px; padding-left: 172px; font-size: 13.5px; }"
+            ".ddg-tab { color: #aaaaaa; padding-bottom: 10px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; }"
+            ".ddg-tab:hover { color: #ffffff; }"
+            ".ddg-tab.active { color: #ffffff; border-bottom-color: #de5833; font-weight: 600; }"
+            /* Main Content Area aligned with search input */
+            ".ddg-main { padding: 20px 24px 60px 196px; max-width: 1060px; }"
+            "@media (max-width: 860px) { .ddg-nav-tabs { padding-left: 0; } .ddg-main { padding-left: 24px; } }"
+            /* Carbon Copy of Google AI Overview */
+            ".g-ai-wrapper { background: linear-gradient(180deg, #1f242d 0%, #1b1e24 100%); border: 1px solid #333a48; border-radius: 16px; padding: 20px 24px 14px 24px; margin-bottom: 26px; max-width: 780px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }"
+            ".g-ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }"
+            ".g-ai-title-row { display: flex; align-items: center; gap: 10px; }"
+            ".g-ai-label { font-size: 16px; font-weight: 600; color: #e8eaed; letter-spacing: 0.2px; }"
+            ".g-ai-meta { font-size: 11.5px; color: #9aa0a6; background: rgba(255,255,255,0.06); padding: 3px 9px; border-radius: 12px; }"
+            ".g-ai-grid { display: flex; gap: 20px; align-items: flex-start; }"
+            ".g-ai-main { flex: 1; min-width: 0; }"
+            ".g-ai-text { font-size: 15px; line-height: 1.65; color: #e8eaed; white-space: pre-wrap; overflow: hidden; transition: max-height 0.25s ease; }"
+            ".g-ai-text.collapsed { max-height: 165px; mask-image: linear-gradient(to bottom, black 65%, transparent 100%); }"
+            ".g-ai-more-btn { margin-top: 10px; width: 100%; background: #282e3a; border: 1px solid #3c4454; color: #8ab4f8; border-radius: 20px; padding: 8px 16px; font-size: 13.5px; font-weight: 600; cursor: pointer; }"
+            ".g-ai-more-btn:hover { background: #313846; }"
+            ".g-ai-sources { width: 210px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }"
+            ".g-source-chip { display: block; background: #262b36; border: 1px solid #363d4c; border-radius: 10px; padding: 8px 10px; color: #e8eaed; font-size: 12px; transition: background 0.15s; }"
+            ".g-source-chip:hover { background: #303746; border-color: #8ab4f8; }"
+            ".g-source-title { font-weight: 600; color: #8ab4f8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }"
+            ".g-source-domain { color: #9aa0a6; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }"
+            ".g-ai-footer { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 10px; border-top: 1px solid #2c323f; font-size: 11.5px; color: #8e9297; }"
+            "@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }"
+            ".shimmer-line { height: 14px; margin-bottom: 10px; border-radius: 6px; background: linear-gradient(90deg, #282e3b 25%, #3a4356 50%, #282e3b 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite linear; }"
+            /* DuckDuckGo Organic Search Results */
+            ".ddg-results { max-width: 680px; }"
+            ".ddg-result { padding: 14px 16px; margin: 0 -16px 10px -16px; border-radius: 8px; transition: background 0.12s; }"
+            ".ddg-result:hover { background: #242424; }"
+            ".ddg-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 13px; color: #b0b0b0; }"
+            ".ddg-fav { width: 16px; height: 16px; border-radius: 3px; }"
+            ".ddg-title { font-size: 19px; line-height: 1.3; color: #7399ff; font-weight: 500; display: block; margin-bottom: 5px; }"
+            ".ddg-title:hover { text-decoration: underline; }"
+            ".ddg-title:visited { color: #a986ff; }"
+            ".ddg-snippet { font-size: 14px; line-height: 1.55; color: #cccccc; }"
             "</style></head><body>"
-            "<div class='top-bar'>"
-            "<div class='brand'>🦁 BraveLite Browser</div>"
-            "<form class='search-box' onsubmit=\"event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);\">"
-            "<input id='qInput' type='text' value=\"%1\" placeholder='Search with BraveLite Browser...' />"
-            "</form></div>"
-            "%2"
-            "<div class='results-container' id='webResults'>"
-            "<div class='result-card'><div class='result-snippet'>Loading web results for <b>%1</b>...</div></div>"
+            "<div class='ddg-header'>"
+            "  <div class='ddg-top-row'>"
+            "    <div class='ddg-logo' onclick=\"window.location.href='https://duckduckgo.com'\">"
+            "      <div class='ddg-logo-badge'>🦁</div>"
+            "      <span>BraveLite Engine</span>"
+            "    </div>"
+            "    <form class='ddg-search-form' onsubmit=\"event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);\">"
+            "      <input id='qInput' type='text' value=\"%1\" placeholder='Search privately with BraveLite Engine...' autocomplete='off' />"
+            "      <button type='button' class='ddg-clear-btn' onclick=\"var i=document.getElementById('qInput'); i.value=''; i.focus();\">✕</button>"
+            "      <button type='submit' class='ddg-submit-btn'>🔍</button>"
+            "    </form>"
+            "  </div>"
+            "  <div class='ddg-nav-tabs'>"
+            "    <a class='ddg-tab active' href='#'>🔍 All</a>"
+            "    <a class='ddg-tab' href='https://duckduckgo.com/?q=%3&iax=images&ia=images'>🖼 Images</a>"
+            "    <a class='ddg-tab' href='https://duckduckgo.com/?q=%3&iax=videos&ia=videos'>🎬 Videos</a>"
+            "    <a class='ddg-tab' href='https://duckduckgo.com/?q=%3&iar=news&ia=news'>📰 News</a>"
+            "    <a class='ddg-tab' href='https://duckduckgo.com/?q=%3&iaxm=maps&ia=web'>🗺 Maps</a>"
+            "  </div>"
+            "</div>"
+            "<div class='ddg-main'>"
+            "  %2"
+            "  <div class='ddg-results' id='webResults'>"
+            "    <div class='ddg-result'><div class='ddg-snippet'>Searching BraveLite Engine for <b>%1</b>...</div></div>"
+            "  </div>"
             "</div>"
             "<script>"
-            "window.__setAiOverview = function(text) { var el = document.getElementById('aiOverviewText'); if (el) el.textContent = text; };"
+            "window.__aiExpanded = false;"
+            "window.__toggleAiExpand = function() {"
+            "  var t = document.getElementById('aiOverviewText');"
+            "  var b = document.getElementById('aiShowMoreBtn');"
+            "  if (!t || !b) return;"
+            "  window.__aiExpanded = !window.__aiExpanded;"
+            "  if (window.__aiExpanded) { t.classList.remove('collapsed'); b.textContent = 'Show less ▴'; }"
+            "  else { t.classList.add('collapsed'); b.textContent = 'Show more ▾'; }"
+            "};"
+            "window.__setAiOverview = function(text) {"
+            "  var el = document.getElementById('aiOverviewText');"
+            "  var btn = document.getElementById('aiShowMoreBtn');"
+            "  if (!el) return;"
+            "  el.textContent = text;"
+            "  if (text && text.length > 360) {"
+            "    el.classList.add('collapsed');"
+            "    if (btn) btn.style.display = 'block';"
+            "  } else if (btn) {"
+            "    btn.style.display = 'none';"
+            "  }"
+            "};"
             "window.__setWebResults = function(items) {"
-            "  var container = document.getElementById('webResults'); if (!container) return;"
+            "  var container = document.getElementById('webResults');"
+            "  var rail = document.getElementById('aiSourcesRail');"
+            "  if (!container) return;"
             "  container.innerHTML = '';"
+            "  if (rail) rail.innerHTML = '';"
             "  if (!items || items.length === 0) {"
-            "    container.innerHTML = '<div class=\"result-card\"><div class=\"result-snippet\">No instant results found. <a class=\"result-title\" href=\"https://duckduckgo.com/?q=%3\">Open full DuckDuckGo results</a></div></div>';"
+            "    container.innerHTML = '<div class=\"ddg-result\"><div class=\"ddg-snippet\">No instant results returned. <a class=\"ddg-title\" href=\"https://duckduckgo.com/?q=%3\">View on DuckDuckGo ➔</a></div></div>';"
             "    return;"
             "  }"
-            "  items.forEach(function(it) {"
+            "  items.forEach(function(it, idx) {"
+            "    var host = '';"
+            "    try { host = (new URL(it.url)).hostname; } catch(e) { host = it.url; }"
+            "    var fav = 'https://www.google.com/s2/favicons?sz=32&domain_url=' + encodeURIComponent(it.url);"
             "    var card = document.createElement('div');"
-            "    card.setAttribute('class', 'result-card');"
-            "    card.innerHTML = '<div class=\"result-url\">' + it.url + '</div>' +"
-            "                     '<a class=\"result-title\" href=\"' + it.url + '\">' + it.title + '</a>' +"
-            "                     '<div class=\"result-snippet\">' + it.snippet + '</div>';"
+            "    card.setAttribute('class', 'ddg-result');"
+            "    card.innerHTML = '<div class=\"ddg-site-row\"><img class=\"ddg-fav\" src=\"' + fav + '\" /><span>' + host + '</span></div>' +"
+            "                     '<a class=\"ddg-title\" href=\"' + it.url + '\">' + it.title + '</a>' +"
+            "                     '<div class=\"ddg-snippet\">' + it.snippet + '</div>';"
             "    container.appendChild(card);"
+            "    if (rail && idx < 3) {"
+            "      var chip = document.createElement('a');"
+            "      chip.setAttribute('class', 'g-source-chip');"
+            "      chip.href = it.url;"
+            "      chip.innerHTML = '<div class=\"g-source-title\">' + it.title + '</div><div class=\"g-source-domain\">🔗 ' + host + '</div>';"
+            "      rail.appendChild(chip);"
+            "    }"
             "  });"
             "};"
             "</script></body></html>"
-        ).arg(escapedQuery, aiSectionHtml, QString::fromUtf8(QUrl::toPercentEncoding(query)));
+        ).arg(escapedQuery, googleAiOverviewHtml, encodedQuery);
 
-        view->setHtml(searchPageHtml, QUrl("https://search.bravelite.local/"));
+        view->setHtml(ddgSearchPageHtml, QUrl("https://search.bravelite.local/"));
 
         QPointer<CustomWebView> safeView(view);
 
-        if (aiEnabled && aiSearchOverviewEnabled) {
-            QString aiPrompt = QString(
-                "You are BraveLite AI inside the BraveLite Browser search engine. "
-                "Provide a concise, accurate, helpful AI Overview answering the user's search query in 3-5 sentences:\nQuery: %1"
-            ).arg(query);
-
-            queryOllamaAsync(aiPrompt, [safeView](const QString &answer, bool ok) {
-                if (!safeView || !safeView->page()) return;
-                QString out = ok
-                ? answer.trimmed()
-                : "BraveLite AI could not connect to your local Ollama server (check Settings -> BraveLite AI to ensure Ollama is running and the model is pulled).";
-                QJsonArray arr{out};
-                QString escaped = QString::fromUtf8(QJsonDocument(arr).toJson(QJsonDocument::Compact));
-                escaped = escaped.mid(1, escaped.length() - 2);
-                safeView->page()->runJavaScript(QString("if (window.__setAiOverview) window.__setAiOverview(%1);").arg(escaped));
-            });
-        }
-
+        // Fetch DuckDuckGo results first, render them immediately, AND feed snippets to Google-style AI Overview
         QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(query));
         QNetworkRequest req(ddgUrl);
         req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36");
         QNetworkReply *reply = m_netManager->get(req);
 
-        connect(reply, &QNetworkReply::finished, this, [reply, safeView]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, safeView, query]() {
             if (!safeView || !safeView->page()) {
                 reply->deleteLater();
                 return;
             }
             QJsonArray resultsArr;
+            QStringList groundingContext;
             if (reply->error() == QNetworkReply::NoError) {
                 QString html = QString::fromUtf8(reply->readAll());
                 QRegularExpression re(
@@ -1102,15 +1231,21 @@ public slots:
                     }
                     QString title = match.captured(2);
                     title.remove(QRegularExpression("<[^>]+>"));
+                    title = title.simplified();
+
                     QString snippet = match.captured(3);
                     snippet.remove(QRegularExpression("<[^>]+>"));
+                    snippet = snippet.simplified();
 
                     if (rawHref.startsWith("http")) {
                         QJsonObject item;
                         item["url"] = rawHref;
-                        item["title"] = title.simplified();
-                        item["snippet"] = snippet.simplified();
+                        item["title"] = title;
+                        item["snippet"] = snippet;
                         resultsArr.append(item);
+                        if (count < 4) {
+                            groundingContext.append(QString("[%1] %2: %3").arg(count + 1).arg(title, snippet));
+                        }
                         count++;
                     }
                 }
@@ -1118,11 +1253,31 @@ public slots:
             reply->deleteLater();
 
             QString jsonStr = QString::fromUtf8(QJsonDocument(resultsArr).toJson(QJsonDocument::Compact));
-            QTimer::singleShot(150, safeView, [safeView, jsonStr]() {
+            QTimer::singleShot(100, safeView, [safeView, jsonStr]() {
                 if (safeView && safeView->page()) {
                     safeView->page()->runJavaScript(QString("if (window.__setWebResults) window.__setWebResults(%1);").arg(jsonStr));
                 }
             });
+
+            // Now generate the Google-style AI Overview grounded in the actual web results
+            if (aiEnabled && aiSearchOverviewEnabled) {
+                QString aiPrompt = QString(
+                    "Write a Google AI Overview style answer for the query: \"%1\".\n"
+                    "Start with a clear 2-sentence summary, followed by 3 concise bullet points (•) with key facts.\n"
+                    "Use these live web search results for accuracy:\n%2"
+                ).arg(query, groundingContext.isEmpty() ? "(No snippets available; answer from general knowledge)" : groundingContext.join("\n"));
+
+                queryOllamaAsync(aiPrompt, [safeView](const QString &answer, bool ok) {
+                    if (!safeView || !safeView->page()) return;
+                    QString out = ok
+                    ? answer.trimmed()
+                    : ("BraveLite AI: " + answer);
+                    QJsonArray arr{out};
+                    QString escaped = QString::fromUtf8(QJsonDocument(arr).toJson(QJsonDocument::Compact));
+                    escaped = escaped.mid(1, escaped.length() - 2);
+                    safeView->page()->runJavaScript(QString("if (window.__setAiOverview) window.__setAiOverview(%1);").arg(escaped));
+                });
+            }
         });
     }
 
@@ -1641,13 +1796,13 @@ private slots:
         QVBoxLayout *searchTextLayout = new QVBoxLayout();
         QLabel *sTitle = new QLabel("Search engine", searchCard);
         sTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *sSub = new QLabel("Choose between BraveLite Browser (with local BraveLite AI Overview) or DuckDuckGo.", searchCard);
+        QLabel *sSub = new QLabel("Choose between BraveLite Engine (DuckDuckGo UI + Google-style AI Overview) or standard DuckDuckGo.", searchCard);
         sSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         searchTextLayout->addWidget(sTitle);
         searchTextLayout->addWidget(sSub);
 
         QComboBox *engineCombo = new QComboBox(searchCard);
-        engineCombo->addItems({"BraveLite Browser", "DuckDuckGo"});
+        engineCombo->addItems({"BraveLite Engine", "DuckDuckGo"});
         engineCombo->setCurrentText(defaultSearchEngine);
         engineCombo->setStyleSheet("QComboBox { background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 14px; color: #fff; font-size: 13px; }");
         connect(engineCombo, &QComboBox::currentTextChanged, this, [this](const QString &val) {
@@ -1661,6 +1816,66 @@ private slots:
 
         layout->addStretch(1);
         return container;
+    }
+
+    // ---------------- GPU HARDWARE DETECTION FOR BRAVELITE AI ----------------
+    void detectHardwareGpu() {
+        m_detectedGpuName.clear();
+        #ifdef Q_OS_WIN
+        QProcess p;
+        p.start("wmic", {"path", "win32_VideoController", "get", "name"});
+        if (p.waitForFinished(1200)) {
+            QStringList lines = QString::fromUtf8(p.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
+            for (const QString &l : lines) {
+                QString clean = l.trimmed();
+                if (!clean.isEmpty() && !clean.startsWith("Name", Qt::CaseInsensitive)) {
+                    m_detectedGpuName = clean;
+                    break;
+                }
+            }
+        }
+        #else
+        // 1. Check NVIDIA GPU via nvidia-smi
+        QString nvSmi = QStandardPaths::findExecutable("nvidia-smi");
+        if (!nvSmi.isEmpty()) {
+            QProcess p;
+            p.start(nvSmi, {"--query-gpu=name", "--format=csv,noheader"});
+            if (p.waitForFinished(1000) && p.exitCode() == 0) {
+                m_detectedGpuName = QString::fromUtf8(p.readAllStandardOutput()).trimmed().split('\n').first();
+            }
+        }
+        // 2. Check Linux PCI / DRI GPU devices via lspci
+        if (m_detectedGpuName.isEmpty()) {
+            QString lspci = QStandardPaths::findExecutable("lspci");
+            if (!lspci.isEmpty()) {
+                QProcess p;
+                p.start(lspci, {});
+                if (p.waitForFinished(1000)) {
+                    QStringList lines = QString::fromUtf8(p.readAllStandardOutput()).split('\n');
+                    for (const QString &l : lines) {
+                        if (l.contains("VGA compatible controller", Qt::CaseInsensitive) ||
+                            l.contains("3D controller", Qt::CaseInsensitive) ||
+                            l.contains("Display controller", Qt::CaseInsensitive)) {
+                            int colon = l.indexOf(": ", 8);
+                        m_detectedGpuName = (colon != -1) ? l.mid(colon + 2).trimmed() : l.trimmed();
+                        break;
+                            }
+                    }
+                }
+            }
+        }
+        // 3. Fallback check for /dev/dri/renderD128
+        if (m_detectedGpuName.isEmpty() && QFileInfo::exists("/dev/dri/renderD128")) {
+            m_detectedGpuName = "Linux DRI Hardware GPU (/dev/dri/renderD128)";
+        }
+        #endif
+    }
+
+    void ensureOllamaServerRunning() {
+        QString ollamaBin = QStandardPaths::findExecutable("ollama");
+        if (!ollamaBin.isEmpty()) {
+            QProcess::startDetached(ollamaBin, {"serve"});
+        }
     }
 
     QWidget* createBraveLiteAiDashboardWidget(QWidget *parent = nullptr) {
@@ -1679,7 +1894,7 @@ private slots:
         chkMaster->setChecked(aiEnabled);
         chkMaster->setStyleSheet("font-size: 15px; font-weight: bold; color: #ff6a22; border: none;");
 
-        QCheckBox *chkOverview = new QCheckBox("Enable BraveLite AI Overview on Search Results (Google AI Overview style)", card);
+        QCheckBox *chkOverview = new QCheckBox("Enable Google-style AI Overview on BraveLite Engine Search Results", card);
         chkOverview->setChecked(aiSearchOverviewEnabled);
         chkOverview->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;");
 
@@ -1687,9 +1902,17 @@ private slots:
         chkHover->setChecked(aiHoverSummaryEnabled);
         chkHover->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;");
 
+        QString gpuStatusText = m_detectedGpuName.isEmpty()
+        ? "Use GPU Acceleration if available (No dedicated GPU detected — will fallback to CPU)"
+        : QString("Use GPU Acceleration — Detected: %1").arg(m_detectedGpuName);
+        QCheckBox *chkGpu = new QCheckBox(gpuStatusText, card);
+        chkGpu->setChecked(aiUseGpu && !m_detectedGpuName.isEmpty());
+        chkGpu->setStyleSheet("font-size: 14px; font-weight: 600; color: #52c41a; border: none;");
+
         cLayout->addWidget(chkMaster);
         cLayout->addWidget(chkOverview);
         cLayout->addWidget(chkHover);
+        cLayout->addWidget(chkGpu);
 
         QFormLayout *form = new QFormLayout();
         form->setSpacing(10);
@@ -1700,8 +1923,12 @@ private slots:
 
         QComboBox *modelCombo = new QComboBox(card);
         modelCombo->setEditable(true);
-        modelCombo->addItems({ollamaModel, "qwen2.5:0.5b", "llama3.2:1b", "smollm2:135m", "SmolLM2:360m", "phi3:mini", "gemma2:2b", "tinyllama"});
-        modelCombo->setCurrentText(ollamaModel);
+        QStringList presetModels = {"smollm2:360m", "smollm2:135m", "qwen2.5:0.5b", "llama3.2:1b", "phi3:mini", "gemma2:2b", "tinyllama"};
+        if (!presetModels.contains(ollamaModel.toLower())) {
+            modelCombo->addItem(ollamaModel.toLower());
+        }
+        modelCombo->addItems(presetModels);
+        modelCombo->setCurrentText(ollamaModel.toLower());
         modelCombo->setStyleSheet("QComboBox { background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 10px; color: #fff; }");
 
         QLineEdit *sysPromptEdit = new QLineEdit(aiSystemPrompt, card);
@@ -1712,40 +1939,155 @@ private slots:
         form->addRow("System Prompt:", sysPromptEdit);
         cLayout->addLayout(form);
 
-        QLabel *statusLbl = new QLabel("Status: Ready. Configure your local Ollama model above.", card);
+        QLabel *statusLbl = new QLabel("Status: Ready. GPU detection & local Ollama controls are active.", card);
+        statusLbl->setWordWrap(true);
         statusLbl->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         cLayout->addWidget(statusLbl);
 
-        QHBoxLayout *btnRow = new QHBoxLayout();
+        QProgressBar *pullProgressBar = new QProgressBar(card);
+        pullProgressBar->setFixedHeight(8);
+        pullProgressBar->setRange(0, 100);
+        pullProgressBar->setValue(0);
+        pullProgressBar->setTextVisible(false);
+        pullProgressBar->setStyleSheet("QProgressBar { background: #3c4043; border: none; border-radius: 4px; } QProgressBar::chunk { background: #ff5500; border-radius: 4px; }");
+        pullProgressBar->hide();
+        cLayout->addWidget(pullProgressBar);
+
+        QHBoxLayout *btnRow1 = new QHBoxLayout();
         QPushButton *btnSaveAi = new QPushButton("Save AI Configuration", card);
-        QPushButton *btnFetchModels = new QPushButton("🔄 Detect Installed Ollama Models", card);
+        QPushButton *btnStartServer = new QPushButton("🚀 Start Local Ollama Server", card);
+        QPushButton *btnPullModel = new QPushButton("⬇ Pull / Download Selected Model", card);
+
+        QHBoxLayout *btnRow2 = new QHBoxLayout();
+        QPushButton *btnFetchModels = new QPushButton("🔄 Detect Installed Models", card);
+        QPushButton *btnRedetectGpu = new QPushButton("🖥 Re-Scan GPU Hardware", card);
         QPushButton *btnTestAi = new QPushButton("✨ Test BraveLite AI", card);
 
         btnSaveAi->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none; }");
+        btnStartServer->setStyleSheet("QPushButton { background: #2b5b84; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #356fa1; }");
+        btnPullModel->setStyleSheet("QPushButton { background: #2d6a4f; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #40916c; }");
         btnFetchModels->setStyleSheet("QPushButton { background: #35373c; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: 1px solid #484b52; }");
+        btnRedetectGpu->setStyleSheet("QPushButton { background: #35373c; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: 1px solid #484b52; }");
         btnTestAi->setStyleSheet("QPushButton { background: #35373c; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: 1px solid #484b52; }");
 
-        btnRow->addWidget(btnSaveAi);
-        btnRow->addWidget(btnFetchModels);
-        btnRow->addWidget(btnTestAi);
-        btnRow->addStretch();
-        cLayout->addLayout(btnRow);
+        btnRow1->addWidget(btnSaveAi);
+        btnRow1->addWidget(btnStartServer);
+        btnRow1->addWidget(btnPullModel);
+        btnRow1->addStretch();
+
+        btnRow2->addWidget(btnFetchModels);
+        btnRow2->addWidget(btnRedetectGpu);
+        btnRow2->addWidget(btnTestAi);
+        btnRow2->addStretch();
+
+        cLayout->addLayout(btnRow1);
+        cLayout->addLayout(btnRow2);
 
         connect(chkMaster, &QCheckBox::toggled, this, [this](bool v) { aiEnabled = v; savePersistentData(); });
         connect(chkOverview, &QCheckBox::toggled, this, [this](bool v) { aiSearchOverviewEnabled = v; savePersistentData(); });
         connect(chkHover, &QCheckBox::toggled, this, [this](bool v) { aiHoverSummaryEnabled = v; savePersistentData(); });
+        connect(chkGpu, &QCheckBox::toggled, this, [this](bool v) { aiUseGpu = v; savePersistentData(); });
+
+        connect(btnRedetectGpu, &QPushButton::clicked, card, [this, chkGpu, statusLbl]() {
+            detectHardwareGpu();
+            if (!m_detectedGpuName.isEmpty()) {
+                chkGpu->setText("Use GPU Acceleration — Detected: " + m_detectedGpuName);
+                chkGpu->setChecked(true);
+                aiUseGpu = true;
+                savePersistentData();
+                statusLbl->setText("✔ GPU Detected: " + m_detectedGpuName + " (Ollama num_gpu acceleration enabled).");
+                statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
+            } else {
+                chkGpu->setText("Use GPU Acceleration if available (No dedicated GPU detected)");
+                statusLbl->setText("⚠ No dedicated GPU found; BraveLite AI will run in lightweight CPU mode.");
+                statusLbl->setStyleSheet("font-size: 13px; color: #faad14; border: none;");
+            }
+        });
 
         connect(btnSaveAi, &QPushButton::clicked, card, [this, endpointEdit, modelCombo, sysPromptEdit, statusLbl]() {
             ollamaEndpoint = endpointEdit->text().trimmed();
             if (ollamaEndpoint.endsWith("/")) ollamaEndpoint.chop(1);
-            ollamaModel = modelCombo->currentText().trimmed();
+            ollamaModel = modelCombo->currentText().trimmed().toLower();
+            modelCombo->setCurrentText(ollamaModel);
             aiSystemPrompt = sysPromptEdit->text().trimmed();
             savePersistentData();
-            statusLbl->setText("✔ BraveLite AI configuration saved.");
+            statusLbl->setText("✔ BraveLite AI configuration saved (Model: " + ollamaModel + ").");
             statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
         });
 
+        connect(btnStartServer, &QPushButton::clicked, card, [statusLbl]() {
+            QString ollamaBin = QStandardPaths::findExecutable("ollama");
+            if (ollamaBin.isEmpty()) {
+                statusLbl->setText("✖ 'ollama' binary was not found on your system PATH. Install Ollama first (curl -fsSL https://ollama.com/install.sh | sh).");
+                statusLbl->setStyleSheet("font-size: 13px; color: #f5222d; border: none;");
+                return;
+            }
+            bool started = QProcess::startDetached(ollamaBin, {"serve"});
+            if (started) {
+                statusLbl->setText("✔ Launched 'ollama serve' in the background! Now click '⬇ Pull / Download Selected Model' if you haven't downloaded the model yet.");
+                statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
+            } else {
+                statusLbl->setText("⚠ Could not spawn 'ollama serve' (it may already be running).");
+                statusLbl->setStyleSheet("font-size: 13px; color: #faad14; border: none;");
+            }
+        });
+
+        connect(btnPullModel, &QPushButton::clicked, card, [this, card, endpointEdit, modelCombo, statusLbl, pullProgressBar]() {
+            ensureOllamaServerRunning();
+            QString base = endpointEdit->text().trimmed();
+            if (base.endsWith("/")) base.chop(1);
+            QString modelToPull = modelCombo->currentText().trimmed().toLower();
+            modelCombo->setCurrentText(modelToPull);
+            ollamaModel = modelToPull;
+            savePersistentData();
+
+            QNetworkRequest req(QUrl(base + "/api/pull"));
+            req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+            QJsonObject body;
+            body["name"] = modelToPull;
+            body["stream"] = true;
+
+            pullProgressBar->setRange(0, 100);
+            pullProgressBar->setValue(0);
+            pullProgressBar->show();
+            statusLbl->setText("⏳ Downloading model '" + modelToPull + "' from Ollama registry...");
+            statusLbl->setStyleSheet("font-size: 13px; color: #ff9c6e; border: none;");
+
+            QNetworkReply *rep = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
+            connect(rep, &QNetworkReply::readyRead, card, [rep, statusLbl, pullProgressBar, modelToPull]() {
+                while (rep->canReadLine()) {
+                    QByteArray line = rep->readLine().trimmed();
+                    if (line.isEmpty()) continue;
+                    QJsonObject obj = QJsonDocument::fromJson(line).object();
+                    QString status = obj["status"].toString();
+                    qint64 completed = obj["completed"].toVariant().toLongLong();
+                    qint64 total = obj["total"].toVariant().toLongLong();
+                    if (total > 0) {
+                        int pct = qBound(0, static_cast<int>((completed * 100) / total), 100);
+                        pullProgressBar->setValue(pct);
+                        statusLbl->setText(QString("⏳ Pulling %1: %2 (%3%)").arg(modelToPull, status).arg(pct));
+                    } else if (!status.isEmpty()) {
+                        statusLbl->setText(QString("⏳ Pulling %1: %2").arg(modelToPull, status));
+                    }
+                }
+            });
+
+            connect(rep, &QNetworkReply::finished, card, [rep, statusLbl, pullProgressBar, modelToPull]() {
+                pullProgressBar->hide();
+                if (rep->error() == QNetworkReply::NoError) {
+                    statusLbl->setText("✔ Model '" + modelToPull + "' is downloaded and ready! Click '✨ Test BraveLite AI' to verify.");
+                    statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
+                } else {
+                    statusLbl->setText("✖ Failed to pull '" + modelToPull + "': " + rep->errorString() + " (Ensure Ollama is installed and running).");
+                    statusLbl->setStyleSheet("font-size: 13px; color: #f5222d; border: none;");
+                }
+                rep->deleteLater();
+            });
+        });
+
         connect(btnFetchModels, &QPushButton::clicked, card, [this, card, endpointEdit, modelCombo, statusLbl]() {
+            ensureOllamaServerRunning();
             QString base = endpointEdit->text().trimmed();
             if (base.endsWith("/")) base.chop(1);
             QNetworkRequest req(QUrl(base + "/api/tags"));
@@ -1760,13 +2102,14 @@ private slots:
                         for (auto m : models) {
                             modelCombo->addItem(m.toObject()["name"].toString());
                         }
-                        statusLbl->setText(QString("✔ Found %1 local Ollama models!").arg(models.size()));
+                        statusLbl->setText(QString("✔ Found %1 installed local Ollama model(s)!").arg(models.size()));
                         statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
                     } else {
-                        statusLbl->setText("⚠ Ollama is running, but no models are installed yet (run: ollama pull qwen2.5:0.5b).");
+                        statusLbl->setText("⚠ Ollama server is running, but no models are downloaded yet. Click '⬇ Pull / Download Selected Model' above!");
+                        statusLbl->setStyleSheet("font-size: 13px; color: #faad14; border: none;");
                     }
                 } else {
-                    statusLbl->setText("✖ Could not connect to Ollama at " + rep->url().toString());
+                    statusLbl->setText("✖ Could not connect to Ollama at " + rep->url().toString() + " (" + rep->errorString() + "). Click '🚀 Start Local Ollama Server' first.");
                     statusLbl->setStyleSheet("font-size: 13px; color: #f5222d; border: none;");
                 }
                 rep->deleteLater();
@@ -1774,18 +2117,21 @@ private slots:
         });
 
         connect(btnTestAi, &QPushButton::clicked, card, [this, endpointEdit, modelCombo, sysPromptEdit, statusLbl]() {
+            ensureOllamaServerRunning();
             ollamaEndpoint = endpointEdit->text().trimmed();
             if (ollamaEndpoint.endsWith("/")) ollamaEndpoint.chop(1);
-            ollamaModel = modelCombo->currentText().trimmed();
+            ollamaModel = modelCombo->currentText().trimmed().toLower();
+            modelCombo->setCurrentText(ollamaModel);
             aiSystemPrompt = sysPromptEdit->text().trimmed();
             savePersistentData();
-            statusLbl->setText("⏳ Asking BraveLite AI (" + ollamaModel + ")...");
+            statusLbl->setText(QString("⏳ Asking BraveLite AI (%1 on %2)...").arg(ollamaModel, aiUseGpu ? "GPU" : "CPU"));
+            statusLbl->setStyleSheet("font-size: 13px; color: #ff9c6e; border: none;");
             queryOllamaAsync("Say hello in one short sentence as BraveLite AI.", [statusLbl](const QString &resp, bool ok) {
                 if (ok) {
                     statusLbl->setText("✨ BraveLite AI: " + resp.trimmed());
                     statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
                 } else {
-                    statusLbl->setText("✖ Ollama test failed. Ensure `ollama serve` is running and model is pulled.");
+                    statusLbl->setText("✖ " + resp);
                     statusLbl->setStyleSheet("font-size: 13px; color: #f5222d; border: none;");
                 }
             });
@@ -2203,7 +2549,7 @@ private slots:
                 return;
             }
             if (row == 1) {
-                detailTitle->setText("BraveLite AI (Local Ollama Configuration)");
+                detailTitle->setText("BraveLite AI (Local Ollama & GPU Configuration)");
                 detailStack->setCurrentIndex(1);
                 return;
             }
@@ -2558,6 +2904,7 @@ private:
     bool m_inFullScreenTransition = false;
     QWebEngineProfile *m_profile;
     QNetworkAccessManager *m_netManager;
+    QPointer<QNetworkReply> m_activeHoverReply;
     QSet<QString> m_pendingFaviconHosts;
     AdBlocker *m_adBlocker;
     QWidget *headerContainer;
@@ -2585,13 +2932,15 @@ private:
     bool odohEnabled = true;
     QString sponsorBlockServer = "https://sponsor.ajay.app/api/skipSegments";
     QString currentThemeProfile = "BraveLite Dark";
-    QString defaultSearchEngine = "BraveLite Browser";
+    QString defaultSearchEngine = "BraveLite Engine";
 
     bool aiEnabled = true;
     bool aiSearchOverviewEnabled = true;
     bool aiHoverSummaryEnabled = true;
+    bool aiUseGpu = true;
+    QString m_detectedGpuName;
     QString ollamaEndpoint = "http://127.0.0.1:11434";
-    QString ollamaModel = "qwen2.5:0.5b";
+    QString ollamaModel = "smollm2:360m";
     QString aiSystemPrompt = "You are BraveLite AI, a fast, privacy-first browser assistant. Be concise and accurate.";
 
     void initDefaultKeybinds() {
@@ -2651,20 +3000,35 @@ private:
         QNetworkRequest req(apiUrl);
         req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
+        QJsonObject options;
+        // Pass GPU acceleration option (-1 offloads all layers to GPU if available; 0 forces CPU)
+        options["num_gpu"] = (aiUseGpu && !m_detectedGpuName.isEmpty()) ? -1 : 0;
+
         QJsonObject body;
-        body["model"] = ollamaModel;
+        body["model"] = ollamaModel.trimmed().toLower();
         body["system"] = aiSystemPrompt;
         body["prompt"] = prompt;
         body["stream"] = false;
+        body["options"] = options;
 
         QNetworkReply *reply = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
-        connect(reply, &QNetworkReply::finished, this, [reply, callback]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, callback]() {
+            QByteArray raw = reply->readAll();
             if (reply->error() == QNetworkReply::NoError) {
-                QJsonObject obj = QJsonDocument::fromJson(reply->readAll()).object();
-                QString resp = obj["response"].toString();
-                callback(resp, !resp.isEmpty());
+                QJsonObject obj = QJsonDocument::fromJson(raw).object();
+                if (obj.contains("error")) {
+                    callback("Ollama error: " + obj["error"].toString() + " — Click '⬇ Pull / Download Selected Model' in Settings.", false);
+                } else {
+                    QString resp = obj["response"].toString();
+                    callback(resp, !resp.isEmpty());
+                }
             } else {
-                callback(QString(), false);
+                QJsonObject errObj = QJsonDocument::fromJson(raw).object();
+                if (errObj.contains("error")) {
+                    callback("Model '" + ollamaModel + "' is not downloaded yet (" + errObj["error"].toString() + "). Click '⬇ Pull / Download Selected Model' in Settings!", false);
+                } else {
+                    callback("Cannot reach Ollama server at " + ollamaEndpoint + " (" + reply->errorString() + "). Click '🚀 Start Local Ollama Server' in Settings!", false);
+                }
             }
             reply->deleteLater();
         });
@@ -2714,57 +3078,42 @@ private:
             shieldScript.setWorldId(QWebEngineScript::MainWorld);
             shieldScript.setRunsOnSubFrames(false);
 
-            // Standard quoted string avoids Qt moc misinterpreting CSS 'class' selectors inside raw literals
+            // Debloated 0% Idle CPU AdBlock & YouTube Shield: Uses pure CSS + native HTML5 video events instead of 100ms polling loops
             QString jsCode =
             "(function() {\n"
             "  try {\n"
-            "    const injectStyle = () => {\n"
-            "      const root = document.head || document.documentElement;\n"
-            "      if (!root || document.getElementById('__bravelite_cosmetic')) return;\n"
+            "    const root = document.head || document.documentElement;\n"
+            "    if (root && !document.getElementById('__bravelite_cosmetic')) {\n"
             "      const s = document.createElement('style');\n"
             "      s.id = '__bravelite_cosmetic';\n"
             "      s.textContent = '.adbox, .banner_ads, .adsbox, .textads, div[id*=\"google_ads\"], div[id*=\"ad-slot\"], #ad-container, .adsbygoogle, ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, ytd-banner-promo-renderer, ytd-statement-banner-renderer, ytd-masthead-ad-v3-renderer, ytd-primetime-promo-renderer, ytd-engagement-panel-section-list-renderer[target-id=\"engagement-panel-ads\"], ytd-merch-shelf-renderer, ytd-action-companion-ad-renderer, .ytd-mealbar-promo-renderer, .ytp-ad-overlay-container, .ytp-ad-message-container, .ytp-ad-image-overlay, .ytp-ad-text-overlay, .ytp-ad-player-overlay-layout, #masthead-ad, #player-ads, .video-ads { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; pointer-events: none !important; }';\n"
             "      root.appendChild(s);\n"
-            "    };\n"
-            "    injectStyle();\n"
+            "    }\n"
             "    if (window.location.hostname.includes('youtube.com')) {\n"
-            "      let userMutedState = false;\n"
-            "      const nukeYouTubeAds = () => {\n"
-            "        try {\n"
-            "          injectStyle();\n"
-            "          const skipSelectors = ['.ytp-ad-skip-button', '.ytp-ad-skip-button-modern', '.ytp-skip-ad-button', '.videoAdUiSkipButton', '.ytp-ad-overlay-close-button', 'button[id^=\"skip-button\"]'];\n"
-            "          for (const sel of skipSelectors) {\n"
-            "            const btns = document.querySelectorAll(sel);\n"
-            "            for (let i = 0; i < btns.length; i++) btns[i].click();\n"
-            "          }\n"
-            "          const player = document.querySelector('#movie_player, .html5-video-player');\n"
-            "          const video = document.querySelector('video.html5-main-video, video');\n"
-            "          if (!player || !video) return;\n"
-            "          const isAdShowing = player.classList.contains('ad-showing') || player.classList.contains('ad-interrupting') || document.querySelector('.ad-showing, .ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info') !== null;\n"
-            "          if (isAdShowing) {\n"
-            "            video.muted = true;\n"
-            "            video.playbackRate = 16.0;\n"
-            "            if (Number.isFinite(video.duration) && video.duration > 0.5 && video.currentTime < video.duration - 0.2) {\n"
-            "              video.currentTime = video.duration - 0.05;\n"
-            "            }\n"
-            "            if (typeof player.skipAd === 'function') { try { player.skipAd(); } catch(e) {} }\n"
-            "          } else {\n"
-            "            if (video.playbackRate === 16.0) {\n"
-            "              video.playbackRate = 1.0;\n"
-            "              video.muted = userMutedState;\n"
-            "            } else {\n"
-            "              userMutedState = video.muted;\n"
-            "            }\n"
-            "          }\n"
-            "          const domAds = document.querySelectorAll('ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, #player-ads, #masthead-ad');\n"
-            "          for (let i = 0; i < domAds.length; i++) domAds[i].remove();\n"
-            "        } catch (err) {}\n"
+            "      let userMuted = false;\n"
+            "      const checkVideoAd = () => {\n"
+            "        if (document.hidden) return;\n"
+            "        const skipBtns = document.querySelectorAll('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .videoAdUiSkipButton, .ytp-ad-overlay-close-button');\n"
+            "        for (let i = 0; i < skipBtns.length; i++) skipBtns[i].click();\n"
+            "        const player = document.querySelector('#movie_player, .html5-video-player');\n"
+            "        const video = document.querySelector('video.html5-main-video, video');\n"
+            "        if (!player || !video) return;\n"
+            "        const isAd = player.classList.contains('ad-showing') || player.classList.contains('ad-interrupting');\n"
+            "        if (isAd) {\n"
+            "          video.muted = true;\n"
+            "          if (Number.isFinite(video.duration) && video.duration > 0.5) video.currentTime = video.duration - 0.05;\n"
+            "          else video.playbackRate = 16.0;\n"
+            "          if (typeof player.skipAd === 'function') { try { player.skipAd(); } catch(e) {} }\n"
+            "        } else if (video.playbackRate === 16.0) {\n"
+            "          video.playbackRate = 1.0;\n"
+            "          video.muted = userMuted;\n"
+            "        } else {\n"
+            "          userMuted = video.muted;\n"
+            "        }\n"
             "      };\n"
-            "      setInterval(nukeYouTubeAds, 100);\n"
-            "      if (document.body) {\n"
-            "        const obs = new MutationObserver(nukeYouTubeAds);\n"
-            "        obs.observe(document.body, { childList: true, subtree: true });\n"
-            "      }\n"
+            "      document.addEventListener('play', checkVideoAd, true);\n"
+            "      document.addEventListener('loadedmetadata', checkVideoAd, true);\n"
+            "      document.addEventListener('durationchange', checkVideoAd, true);\n"
             "    }\n"
             "  } catch (e) {}\n"
             "})();";
@@ -3201,7 +3550,7 @@ private:
                 });
 
                     urlBar = new QLineEdit(this);
-                    urlBar->setPlaceholderText("Search with BraveLite Browser or enter address");
+                    urlBar->setPlaceholderText("Search with BraveLite Engine or enter address");
                     connect(urlBar, &QLineEdit::returnPressed, this, &BrowserWindow::handleUrlSubmit);
 
                     QPushButton *btnBookmark = new QPushButton("★", this);
@@ -3288,8 +3637,9 @@ private:
                     setCentralWidget(centralWidget);
     }
 
+    // Debloated Start Page: Updates clock only once per minute (0% idle CPU usage) and pauses when tab is hidden
     QString getNewTabHtml() {
-        QString now = QDateTime::currentDateTime().toString("dddd, MMMM d, yyyy • hh:mm:ss AP");
+        QString now = QDateTime::currentDateTime().toString("dddd, MMMM d, yyyy • hh:mm AP");
         return QString(R"(
             <!DOCTYPE html>
             <html>
@@ -3299,7 +3649,7 @@ private:
                 <style>
                     * { box-sizing: border-box; }
                     body {
-                        margin: 0; background: #191a1c; color: #f0f0f0;
+                        margin: 0; background: #1c1c1c; color: #f0f0f0;
                         font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
                         height: 82vh; text-align: center;
@@ -3314,13 +3664,13 @@ private:
                     }
                     .search-container {
                         width: 100%;
-                        background: #2b2d30; border: 1px solid #44474f;
+                        background: #2b2b2b; border: 1px solid #3d3d3d;
                         border-radius: 28px; padding: 6px 18px;
                         display: flex; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.28);
                         margin-bottom: 24px;
                     }
                     .search-container:focus-within {
-                        border-color: #ff5500;
+                        border-color: #de5833;
                     }
                     .search-container input {
                         width: 100%; border: none; background: transparent;
@@ -3331,7 +3681,7 @@ private:
                         font-size: 1.15rem; color: #a0a4ab; margin-bottom: 8px; font-weight: 500;
                     }
                     .tagline {
-                        font-size: 0.95rem; color: #ff6a22; letter-spacing: 0.6px; font-style: italic; opacity: 0.9;
+                        font-size: 0.95rem; color: #de5833; letter-spacing: 0.6px; font-style: italic; opacity: 0.95;
                     }
                     </style>
                     </head>
@@ -3339,21 +3689,22 @@ private:
                     <div class="hero-wrapper">
                     <h1>Welcome!</h1>
                     <form onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('startSearch').value);" class="search-container">
-                    <input id="startSearch" type="text" name="q" placeholder="Search with BraveLite Browser or enter address..." autofocus autocomplete="off" />
+                    <input id="startSearch" type="text" name="q" placeholder="Search privately with BraveLite Engine or enter address..." autofocus autocomplete="off" />
                     </form>
                     <div class="datetime" id="liveClock">%1</div>
                     <div class="tagline">because privacy matters</div>
                     </div>
                     <script>
                     function updateClock() {
+                        if (document.hidden) return;
                         const now = new Date();
                         const dateOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                        const timeOpts = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                        const timeOpts = { hour: '2-digit', minute: '2-digit' };
                         document.getElementById('liveClock').textContent =
                         now.toLocaleDateString('en-US', dateOpts) + ' • ' + now.toLocaleTimeString('en-US', timeOpts);
                     }
                     updateClock();
-                    setInterval(updateClock, 1000);
+                    setInterval(updateClock, 30000);
                     </script>
                     </body>
                     </html>
@@ -3403,7 +3754,7 @@ private:
             if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->load(target);
             else addNewTab(target);
         } else {
-            if (defaultSearchEngine == "BraveLite Browser") {
+            if (defaultSearchEngine == "BraveLite Engine") {
                 runBraveLiteSearch(text);
             } else {
                 QUrl target("https://duckduckgo.com/?q=" + QUrl::toPercentEncoding(text));
@@ -3543,13 +3894,15 @@ private:
         startupContinueWhereLeftOff = root.value("startupContinueWhereLeftOff").toBool(false);
         m_isDefaultBrowserSaved = root.value("isDefaultBrowser").toBool(false);
         currentThemeProfile = root.value("themeProfile").toString("BraveLite Dark");
-        defaultSearchEngine = root.value("defaultSearchEngine").toString("BraveLite Browser");
+        defaultSearchEngine = root.value("defaultSearchEngine").toString("BraveLite Engine");
+        if (defaultSearchEngine == "BraveLite Browser") defaultSearchEngine = "BraveLite Engine";
 
         aiEnabled = root.value("aiEnabled").toBool(true);
         aiSearchOverviewEnabled = root.value("aiSearchOverviewEnabled").toBool(true);
         aiHoverSummaryEnabled = root.value("aiHoverSummaryEnabled").toBool(true);
+        aiUseGpu = root.value("aiUseGpu").toBool(true);
         ollamaEndpoint = root.value("ollamaEndpoint").toString("http://127.0.0.1:11434");
-        ollamaModel = root.value("ollamaModel").toString("qwen2.5:0.5b");
+        ollamaModel = root.value("ollamaModel").toString("smollm2:360m").toLower();
         aiSystemPrompt = root.value("aiSystemPrompt").toString(aiSystemPrompt);
 
         if (root.contains("keybinds")) {
@@ -3618,8 +3971,9 @@ private:
         root["aiEnabled"] = aiEnabled;
         root["aiSearchOverviewEnabled"] = aiSearchOverviewEnabled;
         root["aiHoverSummaryEnabled"] = aiHoverSummaryEnabled;
+        root["aiUseGpu"] = aiUseGpu;
         root["ollamaEndpoint"] = ollamaEndpoint;
-        root["ollamaModel"] = ollamaModel;
+        root["ollamaModel"] = ollamaModel.toLower();
         root["aiSystemPrompt"] = aiSystemPrompt;
 
         QJsonObject kbObj;
@@ -3698,7 +4052,7 @@ private:
 
             connect(p, &CustomWebEnginePage::linkHoverSummarizeRequested, this, &BrowserWindow::handleLinkHoverSummarize);
             connect(p, &CustomWebEnginePage::braveliteSearchRequested, this, [this](const QString &q) {
-                if (defaultSearchEngine == "BraveLite Browser") {
+                if (defaultSearchEngine == "BraveLite Engine") {
                     runBraveLiteSearch(q);
                 } else {
                     if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
@@ -3862,9 +4216,11 @@ private:
                                 }, true);
                         }
 
+                        // Fixed Hover Link Summarizer: Ignores internal child mouseout events so the timer never cancels prematurely
                         if (!window.__braveliteHoverHooked) {
                             window.__braveliteHoverHooked = true;
                             let hoverTimer = null;
+                            let activeAnchor = null;
                             let currentHoverUrl = '';
 
                     function ensureTooltip() {
@@ -3872,7 +4228,7 @@ private:
                         if (!tt) {
                             tt = document.createElement('div');
                             tt.id = '__bravelite_ai_tooltip';
-                    tt.style.cssText = 'position:fixed; z-index:2147483647; max-width:360px; background:#1e1f24; color:#f0f2f5; border:1px solid #ff5500; border-radius:10px; padding:10px 14px; font-family:sans-serif; font-size:12.5px; line-height:1.45; box-shadow:0 8px 24px rgba(0,0,0,0.65); pointer-events:none; display:none;';
+                    tt.style.cssText = 'position:fixed; z-index:2147483647; max-width:380px; background:linear-gradient(180deg,#1f242d,#181b22); color:#f0f2f5; border:1px solid #4285F4; border-radius:12px; padding:11px 15px; font-family:sans-serif; font-size:12.5px; line-height:1.5; box-shadow:0 10px 28px rgba(0,0,0,0.75); pointer-events:none; display:none;';
                     document.body.appendChild(tt);
                         }
                         return tt;
@@ -3888,53 +4244,61 @@ private:
                     document.addEventListener('mouseover', function(e) {
                         const a = e.target.closest('a[href]');
                         if (!a || !a.href || !a.href.startsWith('http')) return;
+                        if (activeAnchor === a) return;
+                        activeAnchor = a;
                         currentHoverUrl = a.href;
-                        const linkText = (a.innerText || a.textContent || '').trim().slice(0, 120);
-                        const x = Math.min(window.innerWidth - 380, e.clientX + 14);
-                        const y = Math.min(window.innerHeight - 120, e.clientY + 18);
+
+                        const linkText = (a.innerText || a.textContent || a.getAttribute('aria-label') || a.title || '').trim().slice(0, 140);
+                        const rect = a.getBoundingClientRect();
+                        const x = Math.min(window.innerWidth - 395, Math.max(12, rect.left));
+                        const y = (rect.bottom + 110 < window.innerHeight) ? (rect.bottom + 8) : Math.max(12, rect.top - 85);
 
                         clearTimeout(hoverTimer);
                         hoverTimer = setTimeout(function() {
+                            if (activeAnchor !== a) return;
                             const tt = ensureTooltip();
-                            tt.style.left = Math.max(10, x) + 'px';
-                        tt.style.top = Math.max(10, y) + 'px';
+                            tt.style.left = x + 'px';
+                        tt.style.top = y + 'px';
+                        tt.textContent = '✨ BraveLite AI is summarizing link...';
+                        tt.style.display = 'block';
                         console.log('BRAVELITE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
-                        }, 650);
+                        }, 450);
                     }, true);
 
                     document.addEventListener('mouseout', function(e) {
-                        const a = e.target.closest('a[href]');
-                        if (a) {
-                            clearTimeout(hoverTimer);
-                            currentHoverUrl = '';
+                        if (!activeAnchor) return;
+                        if (e.relatedTarget && activeAnchor.contains(e.relatedTarget)) return;
+                        clearTimeout(hoverTimer);
+                        activeAnchor = null;
+                        currentHoverUrl = '';
                     const tt = document.getElementById('__bravelite_ai_tooltip');
                     if (tt) tt.style.display = 'none';
-                        }
                     }, true);
                         }
 
+                        // Debloated SponsorBlock: Hooks native video timeupdate event instead of a 500ms background timer
                         if (window.location.hostname.includes('youtube.com') && !window.__sbActive) {
                             window.__sbActive = true;
-                            setInterval(() => {
-                                const v = document.querySelector('video');
+                            document.addEventListener('timeupdate', function(e) {
+                                const v = e.target;
+                                if (!v || v.tagName !== 'VIDEO') return;
                                 const urlParams = new URLSearchParams(window.location.search);
                                 const videoId = urlParams.get('v');
-                                if (v && videoId && v.__sbFetched !== videoId) {
+                                if (videoId && v.__sbFetched !== videoId) {
                                     v.__sbFetched = videoId;
                                     fetch('https://sponsor.ajay.app/api/skipSegments?videoID=' + videoId + '&categories=["sponsor","selfpromo"]')
                                     .then(r => r.json())
-                                    .then(segments => {
-                                        v.__sbSegments = segments;
-                                    }).catch(() => {});
+                                    .then(segments => { v.__sbSegments = segments; })
+                                    .catch(() => {});
                                 }
-                                if (v && v.__sbSegments && Array.isArray(v.__sbSegments)) {
+                                if (v.__sbSegments && Array.isArray(v.__sbSegments)) {
                                     for (let s of v.__sbSegments) {
                                         if (v.currentTime >= s.segment[0] && v.currentTime < s.segment[1]) {
                                             v.currentTime = s.segment[1];
                                         }
                                     }
                                 }
-                            }, 500);
+                            }, true);
                         }
                     })();
                 )");
@@ -3977,8 +4341,10 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 }
 
 int main(int argc, char *argv[]) {
+    // Low-CPU & smooth rendering flags
     qputenv("QTWEBENGINE_CHROMIUM_FLAGS",
-            "--enable-smooth-scrolling --disable-background-networking --autoplay-policy=no-user-gesture-required");
+            "--enable-smooth-scrolling --disable-background-networking --enable-LowPriorityIframes "
+            "--disable-renderer-backgrounding=false --autoplay-policy=no-user-gesture-required");
 
     CrashLogger::installCrashHandlers();
 
