@@ -1,0 +1,67 @@
+================================================================================
+BraveLite v1.11 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[NEW FEATURES]
+1. BraveLite AI (Integrated Local Ollama Dashboard):
+   - Added a dedicated "BraveLite AI (Ollama)" dashboard inside Settings.
+   - Configurable Ollama Endpoint URL (default: http://127.0.0.1:11434), customizable
+     lightweight LLM model selection (e.g., qwen2.5:0.5b, llama3.2:1b, smollm2:135m),
+     and custom system prompt.
+   - Added one-click "Detect Installed Ollama Models" (/api/tags) and "Test BraveLite AI".
+   - Added global toggles for BraveLite AI, Search AI Overview, and Hover Link Summarizer.
+
+2. Hover Link Summarizer (Powered by BraveLite AI):
+   - Hovering the mouse cursor over any webpage link for 650ms fetches a lightweight
+     excerpt of the destination page and displays a floating "BraveLite AI" summary
+     tooltip directly over the page.
+
+3. Dedicated Local Search Engine ("BraveLite Browser"):
+   - Added "BraveLite Browser" as the built-in search engine alongside DuckDuckGo.
+   - Displays a native dark-mode search results page with a real-time "BraveLite AI
+     Overview" card at the top (similar to Google's AI Overview) paired with web results.
+
+4. Single-Instance External Link Handling (Discord / System Links):
+   - Implemented QLocalServer / QLocalSocket IPC ("BraveLiteSingleInstanceServer_v111").
+   - Clicking external links in Discord or other desktop apps now opens the link as a
+     new tab inside your existing BraveLite window instead of spawning a new window.
+
+5. Theme Profiles in Settings:
+   - Added 5 selectable theme profiles in Settings -> Theme Profiles:
+     * BraveLite Dark (Default)
+     * Midnight OLED
+     * Cyberpunk Neon
+     * Nordic Frost
+     * Catppuccin Mocha
+
+6. Customizable Keybinds Tab in Settings:
+   - Added Settings -> Keybinds featuring interactive QKeySequenceEdit controls to
+     rebind browser shortcuts live and reset to defaults at any time.
+
+7. Drag-and-Drop Reorderable Bookmarks:
+   - Bookmarks on the bookmarks toolbar can now be dragged left and right to reorganize
+     their order just like browser tabs.
+
+[FIXES & IMPROVEMENTS]
+8. Fixed YouTube Fullscreen Unmaximizing Window on Exit:
+   - Tracked pre-fullscreen maximization state via changeEvent(QEvent::WindowStateChange)
+     with transition guards so exiting fullscreen reliably restores the maximized state.
+
+9. Expanded AdBlocker & Telemetry Filter:
+   - Blocked newly identified ad/tracking sources:
+     * pagead.js
+     * freshmarketer.com
+     * claritybt.freshmarketer.com
+     * fwtracks.freshmarketer.com
+
+10. Live Real-Time Updates in Open Downloads Tabs:
+    - Added the downloadAdded(DownloadItem*) signal so any newly started download
+      immediately appears at the top of already-open Downloads tabs without reopening.
+
+11. Extensive Crash & Diagnostic Logging:
+    - Upgraded CrashLogger to record call stack backtraces (backtrace_symbols), process
+      uptime, PID, OS/kernel version, CPU architecture, display DPR, memory/RSS usage,
+      active browser settings, and all open tab URLs into ~/.config/BraveLite/CrashLogs/.
+    - Added a "Generate Diagnostic Snapshot Log" button in Settings.
+================================================================================
