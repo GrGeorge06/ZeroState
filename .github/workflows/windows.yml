@@ -19,34 +19,34 @@ jobs:
     - name: Set up Ninja
       uses: seanmiddleditch/gha-setup-ninja@v5
 
-    - name: Install Qt 6.7.3 & WebEngine
+    - name: Install Qt 6.7.3 & Dependencies
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.7.3'
         host: 'windows'
         target: 'desktop'
         arch: 'win64_msvc2019_64'
-        modules: 'qtwebengine'
+        modules: 'qtwebengine qtwebchannel qtpositioning'
         cache: true
 
     - name: Configure CMake
       run: |
-        cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}"
+        cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${env:QT_ROOT_DIR}"
 
     - name: Compile BraveLite
       run: |
         cmake --build build --config Release
 
     - name: Package Windows Dependencies (windeployqt)
-      shell: bash
+      shell: pwsh
       run: |
-        mkdir -p dist
-        if [ -f "build/fedorabrowser.exe" ]; then
-          cp build/fedorabrowser.exe dist/BraveLite.exe
-        else
-          cp build/Release/fedorabrowser.exe dist/BraveLite.exe
-        fi
-        windeployqt.exe --webengine --release dist/BraveLite.exe
+        New-Item -ItemType Directory -Force -Path dist
+        if (Test-Path "build\fedorabrowser.exe") {
+            Copy-Item "build\fedorabrowser.exe" -Destination "dist\BraveLite.exe"
+        } elseif (Test-Path "build\Release\fedorabrowser.exe") {
+            Copy-Item "build\Release\fedorabrowser.exe" -Destination "dist\BraveLite.exe"
+        }
+        & "${env:QT_ROOT_DIR}\bin\windeployqt.exe" --webengine --release dist\BraveLite.exe
 
     - name: Upload Windows Artifact
       uses: actions/upload-artifact@v4
