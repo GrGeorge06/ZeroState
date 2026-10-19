@@ -1,4 +1,3 @@
-cat << 'EOF' > ~/Downloads/browser/gemini/mybrowser/.github/workflows/windows.yml
 name: Build Windows Release
 
 on:
@@ -69,4 +68,3 @@ jobs:
         files: BraveLite-Setup-x64.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-EOF
