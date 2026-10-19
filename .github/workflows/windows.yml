@@ -1,8 +1,11 @@
+cat << 'EOF' > ~/.github/workflows/windows.yml 2>/dev/null || cat << 'EOF' > ~/Downloads/browser/gemini/mybrowser/.github/workflows/windows.yml
 name: Build Windows Release
 
 on:
   push:
     branches: [ master, main ]
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -37,7 +40,7 @@ jobs:
       run: |
         cmake --build build --config Release
 
-    - name: Package Windows Dependencies (windeployqt)
+    - name: Package Windows Dependencies
       shell: pwsh
       run: |
         New-Item -ItemType Directory -Force -Path dist
@@ -48,8 +51,22 @@ jobs:
         }
         & "${env:QT_ROOT_DIR}\bin\windeployqt.exe" --release dist\BraveLite.exe
 
-    - name: Upload Windows Artifact
+    - name: Build Windows Installer (Inno Setup)
+      shell: pwsh
+      run: |
+        & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+    - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: BraveLite-Windows-x64
-        path: dist/
+        name: BraveLite-Installer
+        path: BraveLite-Setup-x64.exe
+
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        files: BraveLite-Setup-x64.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+EOF
