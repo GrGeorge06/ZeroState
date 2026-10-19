@@ -900,6 +900,7 @@ private slots:
     }
 
     // ---------------- IMPORT / EXPORT ----------------
+    // ---------------- IMPORT / EXPORT ----------------
     void importTop5Browsers() {
         QStringList options = {
             "Brave Browser", "Google Chrome", "Chromium", "Mozilla Firefox", "Microsoft Edge",
@@ -909,19 +910,56 @@ private slots:
         QString choice = QInputDialog::getItem(this, "Import Bookmarks & Passwords", "Select Source:", options, 0, false, &ok);
         if (!ok || choice.isEmpty()) return;
 
+        #ifdef Q_OS_WIN
+        QString localApp = QDir::homePath() + "/AppData/Local";
+        if (choice == "Brave Browser") {
+            readChromiumBookmarks(localApp + "/BraveSoftware/Brave-Browser/User Data/Default/Bookmarks");
+        } else if (choice == "Google Chrome") {
+            readChromiumBookmarks(localApp + "/Google/Chrome/User Data/Default/Bookmarks");
+        } else if (choice == "Chromium") {
+            readChromiumBookmarks(localApp + "/Chromium/User Data/Default/Bookmarks");
+        } else if (choice == "Microsoft Edge") {
+            readChromiumBookmarks(localApp + "/Microsoft/Edge/User Data/Default/Bookmarks");
+        } else if (choice == "Mozilla Firefox") {
+            QDir fxDir(QDir::homePath() + "/AppData/Roaming/Mozilla/Firefox/Profiles");
+            QStringList entries = fxDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            if (!entries.isEmpty()) {
+                QMessageBox::information(this, "Firefox Import", "Found Firefox profile. You can also export Firefox bookmarks to HTML and select 'Upload Bookmarks' for instant precision.");
+            } else {
+                QMessageBox::information(this, "Firefox", "Please export your Firefox bookmarks to an HTML file and select 'Upload Bookmarks'.");
+            }
+        }
+        #else
         QString home = QDir::homePath();
         if (choice == "Brave Browser") readChromiumBookmarks(home + "/.config/BraveSoftware/Brave-Browser/Default/Bookmarks");
         else if (choice == "Google Chrome") readChromiumBookmarks(home + "/.config/google-chrome/Default/Bookmarks");
         else if (choice == "Chromium") readChromiumBookmarks(home + "/.config/chromium/Default/Bookmarks");
         else if (choice == "Microsoft Edge") readChromiumBookmarks(home + "/.config/microsoft-edge/Default/Bookmarks");
+        else if (choice == "Mozilla Firefox") {
+            QDir fxDir(home + "/.mozilla/firefox");
+            QStringList entries = fxDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+            QString chosenProfile;
+            for (const QString &dirName : entries) {
+                if (dirName.contains("default") || dirName.contains("release")) {
+                    chosenProfile = home + "/.mozilla/firefox/" + dirName;
+                    break;
+                }
+            }
+            if (!chosenProfile.isEmpty() && QFile::exists(chosenProfile + "/bookmarkbackups")) {
+                QMessageBox::information(this, "Firefox Import", "Found Firefox profile. You can also export Firefox bookmarks to HTML and select 'Upload Bookmarks' for instant precision.");
+            } else {
+                QMessageBox::information(this, "Firefox", "Please export your Firefox bookmarks to an HTML file and select 'Upload Bookmarks'.");
+            }
+        }
+        #endif
         else if (choice.startsWith("Upload Bookmarks")) {
-            QString path = QFileDialog::getOpenFileName(this, "Select Bookmarks", home, "Web Bookmarks (*.html *.json)");
+            QString path = QFileDialog::getOpenFileName(this, "Select Bookmarks", QDir::homePath(), "Web Bookmarks (*.html *.json)");
             if (!path.isEmpty()) {
                 if (path.endsWith(".json")) readChromiumBookmarks(path);
                 else readHtmlBookmarks(path);
             }
         } else if (choice.startsWith("Upload Passwords")) {
-            QString path = QFileDialog::getOpenFileName(this, "Select Passwords CSV", home, "CSV Files (*.csv)");
+            QString path = QFileDialog::getOpenFileName(this, "Select Passwords CSV", QDir::homePath(), "CSV Files (*.csv)");
             if (!path.isEmpty()) readPasswordsCsv(path);
         }
     }
