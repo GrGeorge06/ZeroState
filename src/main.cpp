@@ -10,6 +10,8 @@
 #include <QDateTime>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QUrl>
+#include <QUrlQuery>
 #include <QWebEngineView>
 #include <QWebEngineProfile>
 #include <QWebEnginePage>
@@ -22,6 +24,9 @@
 #include <QWebEngineScript>
 #include <QWebEngineScriptCollection>
 #include <QWebEngineCookieStore>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#include <QWebEnginePermission>
+#endif
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -83,132 +88,132 @@
 
 // ---------------- EXTENSIVE CRASH & DIAGNOSTIC LOGGER ----------------
 namespace CrashLogger {
-static QElapsedTimer s_appUptime;
-static std::function<QStringList()> s_openTabsProvider;
-static std::function<QString()> s_activeStateProvider;
+    static QElapsedTimer s_appUptime;
+    static std::function<QStringList()> s_openTabsProvider;
+    static std::function<QString()> s_activeStateProvider;
 
-inline QString crashLogDir() {
-    QString base = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
-    if (base.isEmpty()) base = QDir::homePath() + "/.config";
-    QString dir = base + "/BraveLite/CrashLogs";
-    QDir().mkpath(dir);
-    return dir;
-}
+    inline QString crashLogDir() {
+        QString base = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+        if (base.isEmpty()) base = QDir::homePath() + "/.config";
+        QString dir = base + "/BraveLite/CrashLogs";
+        QDir().mkpath(dir);
+        return dir;
+    }
 
-inline QString readLinuxMemoryUsage() {
-#if defined(__linux__)
-    QFile f("/proc/self/status");
-    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QString content = QString::fromUtf8(f.readAll());
-        QStringList lines = content.split('\n');
-        QStringList memLines;
-        for (const QString &l : lines) {
-            if (l.startsWith("VmPeak:") || l.startsWith("VmSize:") ||
-                l.startsWith("VmRSS:") || l.startsWith("Threads:")) {
-                memLines.append(l.trimmed());
+    inline QString readLinuxMemoryUsage() {
+        #if defined(__linux__)
+        QFile f("/proc/self/status");
+        if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QString content = QString::fromUtf8(f.readAll());
+            QStringList lines = content.split('\n');
+            QStringList memLines;
+            for (const QString &l : lines) {
+                if (l.startsWith("VmPeak:") || l.startsWith("VmSize:") ||
+                    l.startsWith("VmRSS:") || l.startsWith("Threads:")) {
+                    memLines.append(l.trimmed());
+                    }
             }
+            return memLines.join(" | ");
         }
-        return memLines.join(" | ");
+        #endif
+        return "N/A";
     }
-#endif
-    return "N/A";
-}
 
-inline QString captureStackTrace() {
-#if defined(__linux__) || defined(__unix__)
-    void *array[64];
-    int size = backtrace(array, 64);
-    char **messages = backtrace_symbols(array, size);
-    QStringList trace;
-    for (int i = 0; i < size && messages != nullptr; ++i) {
-        trace.append(QString("  #%1 %2").arg(i, 2, 10, QChar('0')).arg(QString::fromUtf8(messages[i])));
+    inline QString captureStackTrace() {
+        #if defined(__linux__) || defined(__unix__)
+        void *array[64];
+        int size = backtrace(array, 64);
+        char **messages = backtrace_symbols(array, size);
+        QStringList trace;
+        for (int i = 0; i < size && messages != nullptr; ++i) {
+            trace.append(QString("  #%1 %2").arg(i, 2, 10, QChar('0')).arg(QString::fromUtf8(messages[i])));
+        }
+        free(messages);
+        return trace.join("\n");
+        #else
+        return "  [Native stack trace unavailable on this OS build]";
+        #endif
     }
-    free(messages);
-    return trace.join("\n");
-#else
-    return "  [Native stack trace unavailable on this OS build]";
-#endif
-}
 
-inline void writeCrashEntry(const QString &reason, const QString &details = QString()) {
-    QString dir = crashLogDir();
-    QString stamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss-zzz");
-    QString filePath = QString("%1/crash_%2.log").arg(dir, stamp);
-    QFile f(filePath);
-    if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        QTextStream out(&f);
-        out << "====================================================================\n";
-        out << "BraveLite v1.11 Extensive Crash & Diagnostic Report\n";
-        out << "====================================================================\n";
-        out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
-        out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
-        out << "Application PID:  " << QCoreApplication::applicationPid() << "\n";
-        out << "OS / Kernel:      " << QSysInfo::prettyProductName() << " (" << QSysInfo::kernelType() << " " << QSysInfo::kernelVersion() << ")\n";
-        out << "CPU Architecture: " << QSysInfo::currentCpuArchitecture() << "\n";
-        out << "Qt Version:       " << qVersion() << "\n";
-        out << "Chromium Flags:   " << QString::fromUtf8(qgetenv("QTWEBENGINE_CHROMIUM_FLAGS")) << "\n";
-        out << "Memory / Threads: " << readLinuxMemoryUsage() << "\n";
-        if (QGuiApplication::primaryScreen()) {
-            QSize sz = QGuiApplication::primaryScreen()->size();
-            out << "Primary Display:  " << sz.width() << "x" << sz.height()
+    inline void writeCrashEntry(const QString &reason, const QString &details = QString()) {
+        QString dir = crashLogDir();
+        QString stamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss-zzz");
+        QString filePath = QString("%1/crash_%2.log").arg(dir, stamp);
+        QFile f(filePath);
+        if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+            QTextStream out(&f);
+            out << "====================================================================\n";
+            out << "BraveLite v1.11 Extensive Crash & Diagnostic Report\n";
+            out << "====================================================================\n";
+            out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
+            out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
+            out << "Application PID:  " << QCoreApplication::applicationPid() << "\n";
+            out << "OS / Kernel:      " << QSysInfo::prettyProductName() << " (" << QSysInfo::kernelType() << " " << QSysInfo::kernelVersion() << ")\n";
+            out << "CPU Architecture: " << QSysInfo::currentCpuArchitecture() << "\n";
+            out << "Qt Version:       " << qVersion() << "\n";
+            out << "Chromium Flags:   " << QString::fromUtf8(qgetenv("QTWEBENGINE_CHROMIUM_FLAGS")) << "\n";
+            out << "Memory / Threads: " << readLinuxMemoryUsage() << "\n";
+            if (QGuiApplication::primaryScreen()) {
+                QSize sz = QGuiApplication::primaryScreen()->size();
+                out << "Primary Display:  " << sz.width() << "x" << sz.height()
                 << " @ " << QGuiApplication::primaryScreen()->devicePixelRatio() << "x DPR\n";
-        }
-        out << "--------------------------------------------------------------------\n";
-        out << "Reason:           " << reason << "\n";
-        if (!details.isEmpty()) {
-            out << "Details:          " << details << "\n";
-        }
-        if (s_activeStateProvider) {
-            out << "Browser State:    " << s_activeStateProvider() << "\n";
-        }
-        if (s_openTabsProvider) {
-            QStringList tabs = s_openTabsProvider();
-            out << "Open Tabs (" << tabs.size() << "):\n";
-            for (int i = 0; i < tabs.size(); ++i) {
-                out << "  [" << i << "] " << tabs[i] << "\n";
             }
+            out << "--------------------------------------------------------------------\n";
+            out << "Reason:           " << reason << "\n";
+            if (!details.isEmpty()) {
+                out << "Details:          " << details << "\n";
+            }
+            if (s_activeStateProvider) {
+                out << "Browser State:    " << s_activeStateProvider() << "\n";
+            }
+            if (s_openTabsProvider) {
+                QStringList tabs = s_openTabsProvider();
+                out << "Open Tabs (" << tabs.size() << "):\n";
+                for (int i = 0; i < tabs.size(); ++i) {
+                    out << "  [" << i << "] " << tabs[i] << "\n";
+                }
+            }
+            out << "--------------------------------------------------------------------\n";
+            out << "Call Stack Backtrace:\n" << captureStackTrace() << "\n";
+            out << "====================================================================\n\n";
+            f.flush();
         }
-        out << "--------------------------------------------------------------------\n";
-        out << "Call Stack Backtrace:\n" << captureStackTrace() << "\n";
-        out << "====================================================================\n\n";
-        f.flush();
     }
-}
 
-inline void posixSignalHandler(int sig) {
-    QString sigName = "Unknown Signal";
-    if (sig == SIGSEGV) sigName = "SIGSEGV (Segmentation Fault)";
-    else if (sig == SIGABRT) sigName = "SIGABRT (Abort)";
-    else if (sig == SIGFPE)  sigName = "SIGFPE (Floating Point Exception)";
-    else if (sig == SIGILL)  sigName = "SIGILL (Illegal Instruction)";
-    writeCrashEntry("Fatal Signal Received", QString("Signal %1: %2").arg(sig).arg(sigName));
-    std::signal(sig, SIG_DFL);
-    std::raise(sig);
-}
-
-inline void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg) {
-    if (type == QtFatalMsg) {
-        writeCrashEntry("QtFatalMsg",
-                        QString("%1 (%2:%3, %4)").arg(msg,
-                                                      ctx.file ? ctx.file : "unknown",
-                                                      QString::number(ctx.line),
-                                                      ctx.function ? ctx.function : "unknown"));
+    inline void posixSignalHandler(int sig) {
+        QString sigName = "Unknown Signal";
+        if (sig == SIGSEGV) sigName = "SIGSEGV (Segmentation Fault)";
+        else if (sig == SIGABRT) sigName = "SIGABRT (Abort)";
+        else if (sig == SIGFPE)  sigName = "SIGFPE (Floating Point Exception)";
+        else if (sig == SIGILL)  sigName = "SIGILL (Illegal Instruction)";
+        writeCrashEntry("Fatal Signal Received", QString("Signal %1: %2").arg(sig).arg(sigName));
+        std::signal(sig, SIG_DFL);
+        std::raise(sig);
     }
-}
 
-inline void installCrashHandlers() {
-    s_appUptime.start();
-    crashLogDir();
-    std::signal(SIGSEGV, posixSignalHandler);
-    std::signal(SIGABRT, posixSignalHandler);
-    std::signal(SIGFPE,  posixSignalHandler);
-    std::signal(SIGILL,  posixSignalHandler);
-    std::set_terminate([]() {
-        writeCrashEntry("Unhandled C++ Exception (std::terminate)");
-        std::_Exit(EXIT_FAILURE);
-    });
-    qInstallMessageHandler(qtMessageHandler);
-}
+    inline void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg) {
+        if (type == QtFatalMsg) {
+            writeCrashEntry("QtFatalMsg",
+                            QString("%1 (%2:%3, %4)").arg(msg,
+                                                          ctx.file ? ctx.file : "unknown",
+                                                          QString::number(ctx.line),
+                                                          ctx.function ? ctx.function : "unknown"));
+        }
+    }
+
+    inline void installCrashHandlers() {
+        s_appUptime.start();
+        crashLogDir();
+        std::signal(SIGSEGV, posixSignalHandler);
+        std::signal(SIGABRT, posixSignalHandler);
+        std::signal(SIGFPE,  posixSignalHandler);
+        std::signal(SIGILL,  posixSignalHandler);
+        std::set_terminate([]() {
+            writeCrashEntry("Unhandled C++ Exception (std::terminate)");
+            std::_Exit(EXIT_FAILURE);
+        });
+        qInstallMessageHandler(qtMessageHandler);
+    }
 }
 
 // ---------------- 1. AD, SPAM REDIRECT & DEVICE TELEMETRY BLOCKER ----------------
@@ -217,9 +222,7 @@ class AdBlocker : public QWebEngineUrlRequestInterceptor {
 public:
     explicit AdBlocker(QObject *parent = nullptr) : QWebEngineUrlRequestInterceptor(parent), m_enabled(true) {
         blocklist = {
-            // Newly requested adblock sources
             "freshmarketer.com", "claritybt.freshmarketer.com", "fwtracks.freshmarketer.com",
-            // Device & corporate telemetry
             "iot-logser.realme.com", "bdapi-ads.realmemobile.com", "bdapi-in-ads.realmemobile.com", "iot-eu-logser.realme.com",
             "ck.ads.oppomobile.com", "data.ads.oppomobile.com", "adsfs.oppomobile.com", "adx.ads.oppomobile.com",
             "data.mistat.xiaomi.com", "data.mistat.india.xiaomi.com", "data.mistat.rus.xiaomi.com",
@@ -258,7 +261,6 @@ public:
             "casalemedia.com", "moatads.com", "smartadserver.com", "chartbeat.com", "quantserve.com",
             "advertising.com", "revcontent.com", "popads.net", "propellerads.com", "ad-delivery.net",
             "hotjar.com", "clarity.ms", "stats.wp.com", "yandex.ru", "metrika.yandex.ru",
-            // Spam redirect, pop-under & malvertising networks
             "onclickads.net", "exoclick.com", "syndication.exoclick.com", "juicyads.com",
             "trafficjunky.net", "adcash.com", "hilltopads.net", "popcash.net", "popmyads.com",
             "clickadu.com", "adsterra.com", "highperformanceformat.com", "profitablecpmrate.com",
@@ -307,10 +309,10 @@ protected:
                 fullUrl.contains("/youtubei/v1/player/ad_break") ||
                 fullUrl.contains("pubads.g.doubleclick.net") ||
                 (host.contains("youtube.com") &&
-                 (fullUrl.contains("&adformat=") || fullUrl.contains("?adformat=") ||
-                  fullUrl.contains("/pagead/lvz") || fullUrl.contains("/ptracking")))) {
+                (fullUrl.contains("&adformat=") || fullUrl.contains("?adformat=") ||
+                fullUrl.contains("/pagead/lvz") || fullUrl.contains("/ptracking")))) {
                 shouldBlock = true;
-            }
+                }
         }
 
         if (shouldBlock) {
@@ -333,7 +335,7 @@ class CustomWebEnginePage : public QWebEnginePage {
     Q_OBJECT
 public:
     explicit CustomWebEnginePage(QWebEngineProfile *profile, AdBlocker *blocker, QObject *parent = nullptr)
-        : QWebEnginePage(profile, parent), m_blocker(blocker) {}
+    : QWebEnginePage(profile, parent), m_blocker(blocker) {}
 
 signals:
     void loginCaptured(const QString &site, const QString &user, const QString &pass);
@@ -344,8 +346,8 @@ signals:
 protected:
     bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override {
         if (url.scheme() == "bravelite" && url.host() == "search") {
-            QString q = QUrlQuery(url).queryItemValue("q");
-            emit braveliteSearchRequested(q);
+            QUrlQuery q(url);
+            emit braveliteSearchRequested(q.queryItemValue("q"));
             return false;
         }
 
@@ -362,7 +364,7 @@ protected:
                         url.toString().contains("afu.php", Qt::CaseInsensitive) ||
                         url.toString().contains("popunder", Qt::CaseInsensitive)) {
                         return false;
-                    }
+                        }
                 }
             }
         }
@@ -450,7 +452,7 @@ class BookmarkToolButton : public QToolButton {
     Q_OBJECT
 public:
     explicit BookmarkToolButton(int index, QWidget *parent = nullptr)
-        : QToolButton(parent), m_index(index) {}
+    : QToolButton(parent), m_index(index) {}
 
     int bookmarkIndex() const { return m_index; }
 
@@ -529,7 +531,7 @@ public:
                 "QPushButton { background-color: #e81123; border: none; border-radius: 8px; "
                 "color: white; font-size: 9px; font-weight: bold; margin: 0; padding: 0; } "
                 "QPushButton:hover { background-color: #ff5460; }"
-                );
+            );
         } else {
             setStyleSheet("QPushButton { background: transparent; border: none; color: transparent; }");
         }
@@ -636,7 +638,7 @@ struct SavedCredential {
     QString password;
 };
 
-struct DownloadItem : public QObject {
+class DownloadItem : public QObject {
     Q_OBJECT
 public:
     explicit DownloadItem(QObject *parent = nullptr) : QObject(parent) {}
@@ -671,7 +673,7 @@ public:
     static QList<BrowserWindow*> s_openWindows;
 
     BrowserWindow(bool isIncognito = false, bool openDefaultTab = true, const QList<QUrl> &startupUrls = {}, QWidget *parent = nullptr)
-        : QMainWindow(parent), m_isIncognito(isIncognito), m_profile(nullptr) {
+    : QMainWindow(parent), m_isIncognito(isIncognito), m_profile(nullptr) {
 
         s_openWindows.append(this);
         setAttribute(Qt::WA_DeleteOnClose, true);
@@ -700,7 +702,6 @@ public:
         applyThemeProfile(currentThemeProfile);
         rebuildShortcuts();
 
-        // Register diagnostic state providers for extensive crash logs
         CrashLogger::s_openTabsProvider = [this]() {
             QStringList urls;
             if (!tabStack) return urls;
@@ -780,7 +781,6 @@ signals:
     void downloadAdded(DownloadItem *item);
 
 protected:
-    // Track maximized state reliably before any fullscreen transition overwrites windowState()
     void changeEvent(QEvent *event) override {
         if (event->type() == QEvent::WindowStateChange) {
             if (!isFullScreen() && !m_inFullScreenTransition) {
@@ -851,7 +851,7 @@ public slots:
         msgBox.setWindowTitle("Autofill Credentials");
         msgBox.setText("Do you want to fill credentials?");
         msgBox.setInformativeText(QString("Account: %1\nSite: %2")
-                                      .arg(matches.first().username.isEmpty() ? "(saved password)" : matches.first().username, site));
+        .arg(matches.first().username.isEmpty() ? "(saved password)" : matches.first().username, site));
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
         msgBox.setStyleSheet("QMessageBox { background-color: #242529; color: #fff; } QLabel { color: #fff; } QPushButton { background: #35373c; color: #fff; border-radius: 6px; padding: 6px 16px; font-weight: bold; } QPushButton:hover { background: #ff5500; }");
@@ -872,8 +872,8 @@ public slots:
                     return;
                 }
                 existingIndex = i;
-                break;
-            }
+            break;
+                }
         }
 
         QDialog dlg(this);
@@ -883,8 +883,8 @@ public slots:
         QFormLayout form(&dlg);
 
         QLabel header(existingIndex != -1
-                          ? QString("Update saved password for %1?").arg(site)
-                          : QString("Do you want BraveLite to save this login for %1?").arg(site));
+        ? QString("Update saved password for %1?").arg(site)
+        : QString("Do you want BraveLite to save this login for %1?").arg(site));
         header.setWordWrap(true);
         header.setStyleSheet("font-weight: bold; color: #fff;");
         form.addRow(&header);
@@ -931,15 +931,14 @@ public slots:
         QUrl url(targetUrl);
         if (!url.isValid() || (!url.scheme().startsWith("http"))) return;
 
-        // Show immediate loading status in floating tooltip on page
+        QJsonObject initPayload;
+        initPayload["url"] = targetUrl;
+        initPayload["summary"] = QString("✨ BraveLite AI (%1) is summarizing page...").arg(ollamaModel);
+        QString initJson = QString::fromUtf8(QJsonDocument(initPayload).toJson(QJsonDocument::Compact));
         view->page()->runJavaScript(
-            QString("if (window.__updateBraveLiteAiTooltip) window.__updateBraveLiteAiTooltip(%1, %2);")
-                .arg(QString::fromUtf8(QJsonDocument(QJsonArray{targetUrl}).toJson(QJsonDocument::Compact)).mid(1).chopped(1),
-                     QString("\"'✨ BraveLite AI (' + %1 + ') is summarizing page...'\"")
-                         .arg(QString::fromUtf8(QJsonDocument(QJsonArray{ollamaModel}).toJson(QJsonDocument::Compact)).mid(1).chopped(1)))
-            );
+            QString("if (window.__updateBraveLiteAiTooltipObj) window.__updateBraveLiteAiTooltipObj(%1);").arg(initJson)
+        );
 
-        // Fetch target URL HTML snippet first so BraveLite AI summarizes real page content
         QNetworkRequest pageReq(url);
         pageReq.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
         pageReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (BraveLite AI Summarizer)");
@@ -959,22 +958,22 @@ public slots:
             pageReply->deleteLater();
 
             QString prompt = QString(
-                                 "Summarize what this linked webpage is about in 2 short, clear sentences.\n"
-                                 "URL: %1\nLink Title: %2\nPage Content Excerpt: %3"
-                                 ).arg(targetUrl, linkText, extractedText.isEmpty() ? "(Use URL and Title context)" : extractedText);
+                "Summarize what this linked webpage is about in 2 short, clear sentences.\n"
+                "URL: %1\nLink Title: %2\nPage Content Excerpt: %3"
+            ).arg(targetUrl, linkText, extractedText.isEmpty() ? "(Use URL and Title context)" : extractedText);
 
             queryOllamaAsync(prompt, [safeView, targetUrl](const QString &aiResponse, bool ok) {
                 if (!safeView || !safeView->page()) return;
                 QString display = ok
-                                      ? ("✨ BraveLite AI: " + aiResponse.trimmed())
-                                      : ("⚠ BraveLite AI: Could not reach Ollama. Check Settings -> BraveLite AI.");
+                ? ("✨ BraveLite AI: " + aiResponse.trimmed())
+                : ("⚠ BraveLite AI: Could not reach Ollama. Check Settings -> BraveLite AI.");
                 QJsonObject payload;
                 payload["url"] = targetUrl;
                 payload["summary"] = display;
                 QString jsonArg = QString::fromUtf8(QJsonDocument(payload).toJson(QJsonDocument::Compact));
                 safeView->page()->runJavaScript(
                     QString("if (window.__updateBraveLiteAiTooltipObj) window.__updateBraveLiteAiTooltipObj(%1);").arg(jsonArg)
-                    );
+                );
             });
         });
     }
@@ -992,134 +991,79 @@ public slots:
         if (i != -1) tabBar->setTabText(i, (query.left(12) + " - BraveLite"));
 
         QString escapedQuery = query.toHtmlEscaped();
-        QString aiSectionHtml = (aiEnabled && aiSearchOverviewEnabled) ? QString(R"(
-            <div class="ai-overview-card" id="aiOverviewCard">
-                <div class="ai-header">
-                    <span class="ai-badge">✨ BraveLite AI Overview</span>
-                    <span class="ai-model">Model: %1 (Local Ollama)</span>
-                </div>
-                <div class="ai-body" id="aiOverviewText">
-                    <span class="ai-thinking">⏳ BraveLite AI is generating a direct answer for <b>"%2"</b>...</span>
-                </div>
-            </div>
-        )").arg(ollamaModel.toHtmlEscaped(), escapedQuery) : QString();
+        QString aiSectionHtml = (aiEnabled && aiSearchOverviewEnabled) ? QString(
+            "<div id='aiOverviewCard' style='max-width:780px; background:linear-gradient(135deg,#232028 0%,#1e2229 100%); border:1px solid #ff5500; border-radius:12px; padding:18px 22px; margin-bottom:26px;'>"
+            "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>"
+            "<span style='background:#ff5500; color:#fff; font-weight:700; font-size:12px; padding:4px 10px; border-radius:12px;'>✨ BraveLite AI Overview</span>"
+            "<span style='font-size:12px; color:#9aa0a6;'>Model: %1 (Local Ollama)</span>"
+            "</div>"
+            "<div id='aiOverviewText' style='font-size:14.5px; line-height:1.6; color:#f0f2f5; white-space:pre-wrap;'>"
+            "<span style='color:#ff9c6e; font-style:italic;'>⏳ BraveLite AI is generating a direct answer for <b>\"%2\"</b>...</span>"
+            "</div></div>"
+        ).arg(ollamaModel.toHtmlEscaped(), escapedQuery) : QString();
 
-        QString searchPageHtml = QString(R"(
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <title>%1 - BraveLite Browser Search</title>
-                <style>
-                    * { box-sizing: border-box; }
-                    body {
-                        margin: 0; padding: 28px 60px; background: #16171a; color: #e8eaed;
-                        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-                    }
-                    .top-bar {
-                        display: flex; align-items: center; gap: 18px; margin-bottom: 24px;
-                        border-bottom: 1px solid #2b2d33; padding-bottom: 18px;
-                    }
-                    .brand {
-                        font-size: 22px; font-weight: 700; color: #ff5500; white-space: nowrap;
-                    }
-                    .search-box {
-                        flex: 1; max-width: 640px; display: flex; background: #24262b;
-                        border: 1px solid #3c4043; border-radius: 24px; padding: 8px 18px;
-                    }
-                    .search-box input {
-                        width: 100%; background: transparent; border: none; outline: none;
-                        color: #fff; font-size: 15px;
-                    }
-                    .ai-overview-card {
-                        max-width: 780px; background: linear-gradient(135deg, #232028 0%, #1e2229 100%);
-                        border: 1px solid #ff5500; border-radius: 12px; padding: 18px 22px;
-                        margin-bottom: 26px; box-shadow: 0 6px 20px rgba(255, 85, 0, 0.12);
-                    }
-                    .ai-header {
-                        display: flex; justify-content: space-between; align-items: center;
-                        margin-bottom: 10px;
-                    }
-                    .ai-badge {
-                        background: #ff5500; color: #fff; font-weight: 700; font-size: 12px;
-                        padding: 4px 10px; border-radius: 12px;
-                    }
-                    .ai-model { font-size: 12px; color: #9aa0a6; }
-                    .ai-body {
-                        font-size: 14.5px; line-height: 1.6; color: #f0f2f5; white-space: pre-wrap;
-                    }
-                    .ai-thinking { color: #ff9c6e; font-style: italic; }
-                    .results-container { max-width: 780px; }
-                    .result-card {
-                        background: #1f2126; border: 1px solid #2d3037; border-radius: 10px;
-                        padding: 16px 20px; margin-bottom: 14px;
-                    }
-                    .result-url { font-size: 12px; color: #8e9297; margin-bottom: 4px; }
-                    .result-title {
-                        font-size: 18px; color: #8ab4f8; text-decoration: none; font-weight: 600;
-                        display: inline-block; margin-bottom: 6px;
-                    }
-                    .result-title:hover { text-decoration: underline; }
-                    .result-snippet { font-size: 14px; color: #bdc1c6; line-height: 1.5; }
-                </style>
-            </head>
-            <body>
-                <div class="top-bar">
-                    <div class="brand">🦁 BraveLite Browser</div>
-                    <form class="search-box" onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);">
-                        <input id="qInput" type="text" value="%1" placeholder="Search with BraveLite Browser..." />
-                    </form>
-                </div>
-                %2
-                <div class="results-container" id="webResults">
-                    <div class="result-card">
-                        <div class="result-snippet">Loading web results for <b>%1</b>...</div>
-                    </div>
-                </div>
-                <script>
-                    window.__setAiOverview = function(text) {
-                        var el = document.getElementById('aiOverviewText');
-                        if (el) el.textContent = text;
-                    };
-                    window.__setWebResults = function(items) {
-                        var container = document.getElementById('webResults');
-                        if (!container) return;
-                        container.innerHTML = '';
-                        if (!items || items.length === 0) {
-                            container.innerHTML = '<div class="result-card"><div class="result-snippet">No instant results found. <a class="result-title" href="https://duckduckgo.com/?q=%3">Open full DuckDuckGo results</a></div></div>';
-                            return;
-                        }
-                        items.forEach(function(it) {
-                            var card = document.createElement('div');
-                            card.className = 'result-card';
-                            card.innerHTML = '<div class="result-url">' + it.url + '</div>' +
-                                             '<a class="result-title" href="' + it.url + '">' + it.title + '</a>' +
-                                             '<div class="result-snippet">' + it.snippet + '</div>';
-                            container.appendChild(card);
-                        });
-                    };
-                </script>
-            </body>
-            </html>
-        )").arg(escapedQuery, aiSectionHtml, QString::fromUtf8(QUrl::toPercentEncoding(query)));
+        QString searchPageHtml = QString(
+            "<!DOCTYPE html><html><head><meta charset='utf-8'>"
+            "<title>%1 - BraveLite Browser Search</title>"
+            "<style>"
+            "* { box-sizing: border-box; }"
+            "body { margin: 0; padding: 28px 60px; background: #16171a; color: #e8eaed; font-family: 'Segoe UI', sans-serif; }"
+            ".top-bar { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; border-bottom: 1px solid #2b2d33; padding-bottom: 18px; }"
+            ".brand { font-size: 22px; font-weight: 700; color: #ff5500; white-space: nowrap; }"
+            ".search-box { flex: 1; max-width: 640px; display: flex; background: #24262b; border: 1px solid #3c4043; border-radius: 24px; padding: 8px 18px; }"
+            ".search-box input { width: 100%; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; }"
+            ".results-container { max-width: 780px; }"
+            ".result-card { background: #1f2126; border: 1px solid #2d3037; border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; }"
+            ".result-url { font-size: 12px; color: #8e9297; margin-bottom: 4px; }"
+            ".result-title { font-size: 18px; color: #8ab4f8; text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 6px; }"
+            ".result-title:hover { text-decoration: underline; }"
+            ".result-snippet { font-size: 14px; color: #bdc1c6; line-height: 1.5; }"
+            "</style></head><body>"
+            "<div class='top-bar'>"
+            "<div class='brand'>🦁 BraveLite Browser</div>"
+            "<form class='search-box' onsubmit=\"event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);\">"
+            "<input id='qInput' type='text' value=\"%1\" placeholder='Search with BraveLite Browser...' />"
+            "</form></div>"
+            "%2"
+            "<div class='results-container' id='webResults'>"
+            "<div class='result-card'><div class='result-snippet'>Loading web results for <b>%1</b>...</div></div>"
+            "</div>"
+            "<script>"
+            "window.__setAiOverview = function(text) { var el = document.getElementById('aiOverviewText'); if (el) el.textContent = text; };"
+            "window.__setWebResults = function(items) {"
+            "  var container = document.getElementById('webResults'); if (!container) return;"
+            "  container.innerHTML = '';"
+            "  if (!items || items.length === 0) {"
+            "    container.innerHTML = '<div class=\"result-card\"><div class=\"result-snippet\">No instant results found. <a class=\"result-title\" href=\"https://duckduckgo.com/?q=%3\">Open full DuckDuckGo results</a></div></div>';"
+            "    return;"
+            "  }"
+            "  items.forEach(function(it) {"
+            "    var card = document.createElement('div');"
+            "    card.setAttribute('class', 'result-card');"
+            "    card.innerHTML = '<div class=\"result-url\">' + it.url + '</div>' +"
+            "                     '<a class=\"result-title\" href=\"' + it.url + '\">' + it.title + '</a>' +"
+            "                     '<div class=\"result-snippet\">' + it.snippet + '</div>';"
+            "    container.appendChild(card);"
+            "  });"
+            "};"
+            "</script></body></html>"
+        ).arg(escapedQuery, aiSectionHtml, QString::fromUtf8(QUrl::toPercentEncoding(query)));
 
         view->setHtml(searchPageHtml, QUrl("https://search.bravelite.local/"));
 
         QPointer<CustomWebView> safeView(view);
 
-        // 1. Trigger BraveLite AI Overview via local Ollama
         if (aiEnabled && aiSearchOverviewEnabled) {
             QString aiPrompt = QString(
-                                   "You are BraveLite AI inside the BraveLite Browser search engine. "
-                                   "Provide a concise, accurate, helpful AI Overview answering the user's search query in 3-5 sentences:\nQuery: %1"
-                                   ).arg(query);
+                "You are BraveLite AI inside the BraveLite Browser search engine. "
+                "Provide a concise, accurate, helpful AI Overview answering the user's search query in 3-5 sentences:\nQuery: %1"
+            ).arg(query);
 
             queryOllamaAsync(aiPrompt, [safeView](const QString &answer, bool ok) {
                 if (!safeView || !safeView->page()) return;
                 QString out = ok
-                                  ? answer.trimmed()
-                                  : "BraveLite AI could not connect to your local Ollama server (" +
-                                        QString("check Settings -> BraveLite AI to ensure Ollama is running and the model is pulled).");
+                ? answer.trimmed()
+                : "BraveLite AI could not connect to your local Ollama server (check Settings -> BraveLite AI to ensure Ollama is running and the model is pulled).";
                 QJsonArray arr{out};
                 QString escaped = QString::fromUtf8(QJsonDocument(arr).toJson(QJsonDocument::Compact));
                 escaped = escaped.mid(1, escaped.length() - 2);
@@ -1127,13 +1071,12 @@ public slots:
             });
         }
 
-        // 2. Fetch live web search results from DuckDuckGo Lite HTML & parse cards
         QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(query));
         QNetworkRequest req(ddgUrl);
         req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36");
         QNetworkReply *reply = m_netManager->get(req);
 
-        connect(reply, &QNetworkReply::finished, this, [reply, safeView, query]() {
+        connect(reply, &QNetworkReply::finished, this, [reply, safeView]() {
             if (!safeView || !safeView->page()) {
                 reply->deleteLater();
                 return;
@@ -1142,10 +1085,10 @@ public slots:
             if (reply->error() == QNetworkReply::NoError) {
                 QString html = QString::fromUtf8(reply->readAll());
                 QRegularExpression re(
-                    "<a[^>]*class=\"[^\"]*result__a[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
-                    "<a[^>]*class=\"[^\"]*result__snippet[^\"]*\"[^>]*>([\\s\\S]*?)</a>",
-                    QRegularExpression::CaseInsensitiveOption
-                    );
+                    "<a[^>]*result__a[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
+                    "<a[^>]*result__snippet[^>]*>([\\s\\S]*?)</a>",
+                                      QRegularExpression::CaseInsensitiveOption
+                );
                 auto it = re.globalMatch(html);
                 int count = 0;
                 while (it.hasNext() && count < 10) {
@@ -1153,7 +1096,8 @@ public slots:
                     QString rawHref = match.captured(1);
                     if (rawHref.contains("uddg=")) {
                         QUrl parsed("https://duckduckgo.com" + rawHref);
-                        QString uddg = QUrlQuery(parsed).queryItemValue("uddg", QUrl::FullyDecoded);
+                        QUrlQuery q(parsed);
+                        QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
                         if (!uddg.isEmpty()) rawHref = uddg;
                     }
                     QString title = match.captured(2);
@@ -1225,11 +1169,11 @@ private slots:
 
         btnPrivacyGrade->setText(grade);
         btnPrivacyGrade->setToolTip(QString("Privacy Grade: %1\nBlocked trackers: %2\nEncrypted: %3")
-                                        .arg(grade, QString::number(blocked), isHttps ? "Yes (HTTPS)" : "No (Insecure HTTP)"));
+        .arg(grade, QString::number(blocked), isHttps ? "Yes (HTTPS)" : "No (Insecure HTTP)"));
         btnPrivacyGrade->setStyleSheet(QString(
-                                           "QPushButton { background-color: %1; color: #ffffff; font-weight: bold; border-radius: 5px; padding: 3px 8px; font-size: 11px; border: none; } "
-                                           "QPushButton:hover { opacity: 0.85; }"
-                                           ).arg(color));
+            "QPushButton { background-color: %1; color: #ffffff; font-weight: bold; border-radius: 5px; padding: 3px 8px; font-size: 11px; border: none; } "
+            "QPushButton:hover { opacity: 0.85; }"
+        ).arg(color));
     }
 
     void showPrivacyDetails() {
@@ -1241,11 +1185,11 @@ private slots:
 
             QMessageBox::information(this, "Site Privacy Report",
                                      QString("<b>Domain:</b> %1<br>"
-                                             "<b>Privacy Grade:</b> %2<br>"
-                                             "<b>Blocked Trackers & Ads:</b> %3<br>"
-                                             "<b>Encrypted Connection:</b> %4<br><br>"
-                                             "<i>Protected by BraveLite Shield.</i>")
-                                         .arg(host, btnPrivacyGrade->text(), QString::number(blocked), isHttps ? "HTTPS (Secure)" : "HTTP (Unencrypted)"));
+                                     "<b>Privacy Grade:</b> %2<br>"
+                                     "<b>Blocked Trackers & Ads:</b> %3<br>"
+                                     "<b>Encrypted Connection:</b> %4<br><br>"
+                                     "<i>Protected by BraveLite Shield.</i>")
+                                     .arg(host, btnPrivacyGrade->text(), QString::number(blocked), isHttps ? "HTTPS (Secure)" : "HTTP (Unencrypted)"));
         }
     }
 
@@ -1284,7 +1228,7 @@ private slots:
                 emit item->updated();
             });
 
-            connect(download, &QWebEngineDownloadRequest::stateChanged, item, [this, item, download](QWebEngineDownloadRequest::DownloadState state) {
+            connect(download, &QWebEngineDownloadRequest::stateChanged, item, [this, item](QWebEngineDownloadRequest::DownloadState state) {
                 if (state == QWebEngineDownloadRequest::DownloadCompleted) {
                     item->isFinished = true;
                     item->isPaused = false;
@@ -1292,12 +1236,12 @@ private slots:
                     btnDownload->setStyleSheet("QPushButton { background-color: #2b2d30; border: 1px solid #52c41a; border-radius: 6px; padding: 4px 10px; font-size: 14px; color: #52c41a; font-weight: bold; }");
                     savePersistentData();
                 } else if (state == QWebEngineDownloadRequest::DownloadCancelled ||
-                           state == QWebEngineDownloadRequest::DownloadInterrupted) {
+                    state == QWebEngineDownloadRequest::DownloadInterrupted) {
                     item->isCanceled = true;
-                    item->speedBytesPerSec = 0.0;
-                    savePersistentData();
-                }
-                emit item->updated();
+                item->speedBytesPerSec = 0.0;
+                savePersistentData();
+                    }
+                    emit item->updated();
             });
 
             connect(download, &QWebEngineDownloadRequest::isPausedChanged, item, [item, download]() {
@@ -1306,7 +1250,6 @@ private slots:
                 emit item->updated();
             });
 
-            // Notify any already-open Downloads tabs immediately!
             emit downloadAdded(item);
             savePersistentData();
         } else {
@@ -1390,8 +1333,8 @@ private slots:
                 double mbTot = d->totalBytes / (1024.0 * 1024.0);
                 double mbSpeed = d->speedBytesPerSec / (1024.0 * 1024.0);
                 QString speedStr = mbSpeed >= 0.1
-                                       ? QString("%1 MB/s").arg(mbSpeed, 0, 'f', 2)
-                                       : QString("%1 KB/s").arg(d->speedBytesPerSec / 1024.0, 0, 'f', 0);
+                ? QString("%1 MB/s").arg(mbSpeed, 0, 'f', 2)
+                : QString("%1 KB/s").arg(d->speedBytesPerSec / 1024.0, 0, 'f', 0);
 
                 if (d->isPaused) {
                     statusLabel->setText(QString("⏸ Paused — %1 MB of %2 MB").arg(mbRec, 0, 'f', 1).arg(mbTot, 0, 'f', 1));
@@ -1401,7 +1344,7 @@ private slots:
                     pbar->setRange(0, 100);
                     pbar->setValue(pct);
                     statusLabel->setText(QString("Downloading (%1%) — %2 MB / %3 MB • %4")
-                                             .arg(pct).arg(mbRec, 0, 'f', 1).arg(mbTot, 0, 'f', 1).arg(speedStr));
+                    .arg(pct).arg(mbRec, 0, 'f', 1).arg(mbTot, 0, 'f', 1).arg(speedStr));
                     statusLabel->setStyleSheet("color: #ff9c6e; font-size: 13px; margin-top: 4px; background: transparent;");
                 } else {
                     pbar->setRange(0, 0);
@@ -1420,28 +1363,28 @@ private slots:
             else d->request->pause();
         });
 
-        connect(btnCancel, &QPushButton::clicked, card, [d]() {
-            if (d->request) d->request->cancel();
-            else {
-                d->isCanceled = true;
-                emit d->updated();
-            }
-        });
+            connect(btnCancel, &QPushButton::clicked, card, [d]() {
+                if (d->request) d->request->cancel();
+                else {
+                    d->isCanceled = true;
+                    emit d->updated();
+                }
+            });
 
-        connect(btnCopyLink, &QPushButton::clicked, card, [d, btnCopyLink]() {
-            QApplication::clipboard()->setText(d->url);
-            btnCopyLink->setText("✔ Copied!");
-        });
+            connect(btnCopyLink, &QPushButton::clicked, card, [d, btnCopyLink]() {
+                QApplication::clipboard()->setText(d->url);
+                btnCopyLink->setText("✔ Copied!");
+            });
 
-        QString path = d->path;
-        connect(folderBtn, &QPushButton::clicked, [path]() {
-            QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(path).path()));
-        });
+            QString path = d->path;
+            connect(folderBtn, &QPushButton::clicked, [path]() {
+                QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(path).path()));
+            });
 
-        cLayout->addWidget(icon);
-        cLayout->addLayout(infoLayout, 1);
-        cLayout->addLayout(actionsLayout);
-        return card;
+            cLayout->addWidget(icon);
+            cLayout->addLayout(infoLayout, 1);
+            cLayout->addLayout(actionsLayout);
+            return card;
     }
 
     void openDownloadsPopup() {
@@ -1488,7 +1431,6 @@ private slots:
         }
         cardsLayout->addStretch();
 
-        // Live-insert any new download started while this tab is already open!
         connect(this, &BrowserWindow::downloadAdded, cardsContainer, [this, cardsContainer, cardsLayout](DownloadItem *newItem) {
             cardsLayout->insertWidget(0, createDownloadCardWidget(newItem, cardsContainer));
         });
@@ -1587,13 +1529,13 @@ private slots:
 
     bool isCurrentlyDefaultBrowser() const {
         if (m_isDefaultBrowserSaved) return true;
-#ifdef Q_OS_WIN
+        #ifdef Q_OS_WIN
         QSettings reg("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice", QSettings::NativeFormat);
         QString progId = reg.value("ProgId").toString();
         if (progId.contains("BraveLite", Qt::CaseInsensitive) || progId.contains("fedorabrowser", Qt::CaseInsensitive)) {
             return true;
         }
-#else
+        #else
         QProcess proc;
         proc.start("xdg-settings", {"get", "default-web-browser"});
         if (proc.waitForFinished(1000)) {
@@ -1602,18 +1544,16 @@ private slots:
                 return true;
             }
         }
-#endif
+        #endif
         return false;
     }
 
-    // "Get started" First Page in Settings
     QWidget* createGetStartedWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(container);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(18);
 
-        // Card 1: Make Default Browser
         QWidget *defaultCard = new QWidget(container);
         defaultCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QHBoxLayout *defLayout = new QHBoxLayout(defaultCard);
@@ -1625,8 +1565,8 @@ private slots:
 
         bool alreadyDefault = isCurrentlyDefaultBrowser();
         QLabel *defSub = new QLabel(alreadyDefault
-                                        ? "BraveLite is currently your default web browser."
-                                        : "Make BraveLite your default web browser for opening web links.", defaultCard);
+        ? "BraveLite is currently your default web browser."
+        : "Make BraveLite your default web browser for opening web links.", defaultCard);
         defSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         defTextLayout->addWidget(defTitle);
         defTextLayout->addWidget(defSub);
@@ -1641,11 +1581,11 @@ private slots:
         }
 
         connect(btnMakeDefault, &QPushButton::clicked, this, [this, btnMakeDefault, defSub]() {
-#ifdef Q_OS_WIN
+            #ifdef Q_OS_WIN
             QDesktopServices::openUrl(QUrl("ms-settings:defaultapps"));
-#else
+            #else
             QProcess::execute("xdg-settings", {"set", "default-web-browser", "bravelite.desktop"});
-#endif
+            #endif
             m_isDefaultBrowserSaved = true;
             savePersistentData();
             defSub->setText("BraveLite is currently your default web browser.");
@@ -1658,7 +1598,6 @@ private slots:
         defLayout->addWidget(btnMakeDefault);
         layout->addWidget(defaultCard);
 
-        // Card 2: On Startup Action
         QWidget *startupCard = new QWidget(container);
         startupCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QVBoxLayout *startLayout = new QVBoxLayout(startupCard);
@@ -1694,7 +1633,6 @@ private slots:
         startLayout->addWidget(rbContinue);
         layout->addWidget(startupCard);
 
-        // Card 3: Default Search Engine ("BraveLite Browser" vs "DuckDuckGo")
         QWidget *searchCard = new QWidget(container);
         searchCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QHBoxLayout *searchLayout = new QHBoxLayout(searchCard);
@@ -1725,7 +1663,6 @@ private slots:
         return container;
     }
 
-    // ---------------- BRAVELITE AI (OLLAMA) DASHBOARD WIDGET ----------------
     QWidget* createBraveLiteAiDashboardWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(container);
@@ -1808,7 +1745,7 @@ private slots:
             statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
         });
 
-        connect(btnFetchModels, &QPushButton::clicked, card, [this, endpointEdit, modelCombo, statusLbl]() {
+        connect(btnFetchModels, &QPushButton::clicked, card, [this, card, endpointEdit, modelCombo, statusLbl]() {
             QString base = endpointEdit->text().trimmed();
             if (base.endsWith("/")) base.chop(1);
             QNetworkRequest req(QUrl(base + "/api/tags"));
@@ -1859,7 +1796,6 @@ private slots:
         return container;
     }
 
-    // ---------------- THEME PROFILES WIDGET ----------------
     QWidget* createThemeProfilesWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(container);
@@ -1903,20 +1839,11 @@ private slots:
         return container;
     }
 
-    // ---------------- KEYBINDS SETTINGS WIDGET ----------------
     QWidget* createKeybindsWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(container);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(12);
-
-        QTableWidget *table = new QTableWidget(keybindsMap.size(), 2, container);
-        table->setHorizontalHeaderLabels({"Action", "Keybind Shortcut (Click to Edit)"});
-        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        table->setStyleSheet(
-            "QTableWidget { background-color: #242529; border: 1px solid #32353b; border-radius: 8px; color: #fff; gridline-color: #32353b; font-size: 13px; }"
-            "QHeaderView::section { background-color: #2b2d30; color: #fff; font-weight: bold; padding: 8px; border: none; border-bottom: 1px solid #32353b; }"
-            );
 
         struct ActionLabel { QString id; QString name; };
         QList<ActionLabel> actions = {
@@ -1933,7 +1860,14 @@ private slots:
             {"ZoomReset", "Reset Zoom (100%)"}
         };
 
-        table->setRowCount(actions.size());
+        QTableWidget *table = new QTableWidget(actions.size(), 2, container);
+        table->setHorizontalHeaderLabels({"Action", "Keybind Shortcut (Click to Edit)"});
+        table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        table->setStyleSheet(
+            "QTableWidget { background-color: #242529; border: 1px solid #32353b; border-radius: 8px; color: #fff; gridline-color: #32353b; font-size: 13px; }"
+            "QHeaderView::section { background-color: #2b2d30; color: #fff; font-weight: bold; padding: 8px; border: none; border-bottom: 1px solid #32353b; }"
+        );
+
         for (int i = 0; i < actions.size(); ++i) {
             QTableWidgetItem *nameItem = new QTableWidgetItem(actions[i].name);
             nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
@@ -1974,7 +1908,6 @@ private slots:
         return container;
     }
 
-    // Integrated Local Password Manager Widget
     QWidget* createPasswordManagerWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(container);
@@ -2013,7 +1946,7 @@ private slots:
             "QHeaderView::section { background-color: #2b2d30; color: #fff; font-weight: bold; padding: 8px; border: none; border-bottom: 1px solid #32353b; }"
             "QTableWidget::item { padding: 6px; }"
             "QTableWidget::item:selected { background-color: #ff5500; color: #fff; }"
-            );
+        );
         layout->addWidget(table, 1);
 
         auto refreshTable = [this, table, chkShowPass, searchFilter]() {
@@ -2200,19 +2133,11 @@ private slots:
 
         QStackedWidget *detailStack = new QStackedWidget(content);
 
-        // Stack Page 0: "Get started"
         detailStack->addWidget(createGetStartedWidget(detailStack));
-
-        // Stack Page 1: "BraveLite AI (Ollama)"
         detailStack->addWidget(createBraveLiteAiDashboardWidget(detailStack));
-
-        // Stack Page 2: "Theme Profiles"
         detailStack->addWidget(createThemeProfilesWidget(detailStack));
-
-        // Stack Page 3: "Keybinds"
         detailStack->addWidget(createKeybindsWidget(detailStack));
 
-        // Stack Page 4: Integrated Password Manager
         QWidget *passPage = new QWidget(detailStack);
         QVBoxLayout *passLayout = new QVBoxLayout(passPage);
         passLayout->setContentsMargins(0, 0, 0, 0);
@@ -2230,7 +2155,6 @@ private slots:
         passLayout->addLayout(passIoRow);
         detailStack->addWidget(passPage);
 
-        // Stack Page 5: Generic List View for remaining categories
         QWidget *listPage = new QWidget(detailStack);
         QVBoxLayout *listLayout = new QVBoxLayout(listPage);
         listLayout->setContentsMargins(0, 0, 0, 0);
@@ -2255,7 +2179,6 @@ private slots:
         listLayout->addWidget(btnRow);
         detailStack->addWidget(listPage);
 
-        // Bottom-right small print: "made by GrGeorge"
         QHBoxLayout *footerLayout = new QHBoxLayout();
         footerLayout->addStretch();
         QLabel *signatureLabel = new QLabel("made by GrGeorge", content);
@@ -2455,7 +2378,7 @@ private slots:
         QString choice = QInputDialog::getItem(this, "Import Bookmarks & Passwords", "Select Source:", options, 0, false, &ok);
         if (!ok || choice.isEmpty()) return;
 
-#ifdef Q_OS_WIN
+        #ifdef Q_OS_WIN
         QString localApp = QDir::homePath() + "/AppData/Local";
         if (choice == "Brave Browser") {
             readChromiumBookmarks(localApp + "/BraveSoftware/Brave-Browser/User Data/Default/Bookmarks");
@@ -2474,7 +2397,7 @@ private slots:
                 QMessageBox::information(this, "Firefox", "Please export your Firefox bookmarks to an HTML file and select 'Upload Bookmarks'.");
             }
         }
-#else
+        #else
         QString home = QDir::homePath();
         if (choice == "Brave Browser") readChromiumBookmarks(home + "/.config/BraveSoftware/Brave-Browser/Default/Bookmarks");
         else if (choice == "Google Chrome") readChromiumBookmarks(home + "/.config/google-chrome/Default/Bookmarks");
@@ -2496,7 +2419,7 @@ private slots:
                 QMessageBox::information(this, "Firefox", "Please export your Firefox bookmarks to an HTML file and select 'Upload Bookmarks'.");
             }
         }
-#endif
+        #endif
         else if (choice.startsWith("Upload Bookmarks")) {
             QString path = QFileDialog::getOpenFileName(this, "Select Bookmarks", QDir::homePath(), "Web Bookmarks (*.html *.json)");
             if (!path.isEmpty()) {
@@ -2657,7 +2580,6 @@ private:
     QList<QShortcut*> activeShortcuts;
     QMap<QString, QString> keybindsMap;
 
-    // Configurable Settings State
     bool autofillEnabled = true;
     bool startupContinueWhereLeftOff = false;
     bool odohEnabled = true;
@@ -2665,7 +2587,6 @@ private:
     QString currentThemeProfile = "BraveLite Dark";
     QString defaultSearchEngine = "BraveLite Browser";
 
-    // BraveLite AI (Ollama) Configuration State
     bool aiEnabled = true;
     bool aiSearchOverviewEnabled = true;
     bool aiHoverSummaryEnabled = true;
@@ -2708,18 +2629,18 @@ private:
         bindKey(keybindsMap.value("Reload"), [this]() {
             if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->reload();
         });
-        bindKey(keybindsMap.value("ZoomIn"), [this]() { zoomIn(); });
-        bindKey("Ctrl+=", [this]() { zoomIn(); });
-        bindKey(keybindsMap.value("ZoomOut"), [this]() { zoomOut(); });
-        bindKey(keybindsMap.value("ZoomReset"), [this]() { zoomReset(); });
-        bindKey("Esc", [this]() {
-            if (isFullScreen()) {
-                if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
-                    v->page()->triggerAction(QWebEnginePage::ExitFullScreen);
+            bindKey(keybindsMap.value("ZoomIn"), [this]() { zoomIn(); });
+            bindKey("Ctrl+=", [this]() { zoomIn(); });
+            bindKey(keybindsMap.value("ZoomOut"), [this]() { zoomOut(); });
+            bindKey(keybindsMap.value("ZoomReset"), [this]() { zoomReset(); });
+            bindKey("Esc", [this]() {
+                if (isFullScreen()) {
+                    if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
+                        v->page()->triggerAction(QWebEnginePage::ExitFullScreen);
+                    }
+                    exitBrowserFullScreen();
                 }
-                exitBrowserFullScreen();
-            }
-        });
+            });
     }
 
     void queryOllamaAsync(const QString &prompt, std::function<void(const QString&, bool)> callback) {
@@ -2792,111 +2713,67 @@ private:
             shieldScript.setInjectionPoint(QWebEngineScript::DocumentReady);
             shieldScript.setWorldId(QWebEngineScript::MainWorld);
             shieldScript.setRunsOnSubFrames(false);
-            shieldScript.setSourceCode(R"(
-                (function() {
-                    try {
-                        const injectStyle = () => {
-                            const root = document.head || document.documentElement;
-                            if (!root || document.getElementById('__bravelite_cosmetic')) return;
-                            const s = document.createElement('style');
-                            s.id = '__bravelite_cosmetic';
-                            s.textContent = `
-                                .adbox, .banner_ads, .adsbox, .textads,
-                                [class*="banner_ads"], [class*="adbox"],
-                                div[id*="google_ads"], div[id*="ad-slot"],
-                                #ad-container, .adsbygoogle,
-                                ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer,
-                                ytd-banner-promo-renderer, ytd-statement-banner-renderer,
-                                ytd-masthead-ad-v3-renderer, ytd-primetime-promo-renderer,
-                                ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-ads"],
-                                ytd-merch-shelf-renderer, ytd-action-companion-ad-renderer,
-                                .ytd-mealbar-promo-renderer, .ytp-ad-overlay-container,
-                                .ytp-ad-message-container, .ytp-ad-image-overlay,
-                                .ytp-ad-text-overlay, .ytp-ad-player-overlay-layout,
-                                #masthead-ad, #player-ads, .video-ads {
-                                    display: none !important;
-                                    visibility: hidden !important;
-                                    height: 0 !important;
-                                    width: 0 !important;
-                                    pointer-events: none !important;
-                                }
-                            `;
-                            root.appendChild(s);
-                        };
-                        injectStyle();
 
-                        // Dedicated YouTube AdBlocker Engine
-                        if (window.location.hostname.includes('youtube.com')) {
-                            let userMutedState = false;
+            // Standard quoted string avoids Qt moc misinterpreting CSS 'class' selectors inside raw literals
+            QString jsCode =
+            "(function() {\n"
+            "  try {\n"
+            "    const injectStyle = () => {\n"
+            "      const root = document.head || document.documentElement;\n"
+            "      if (!root || document.getElementById('__bravelite_cosmetic')) return;\n"
+            "      const s = document.createElement('style');\n"
+            "      s.id = '__bravelite_cosmetic';\n"
+            "      s.textContent = '.adbox, .banner_ads, .adsbox, .textads, div[id*=\"google_ads\"], div[id*=\"ad-slot\"], #ad-container, .adsbygoogle, ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, ytd-banner-promo-renderer, ytd-statement-banner-renderer, ytd-masthead-ad-v3-renderer, ytd-primetime-promo-renderer, ytd-engagement-panel-section-list-renderer[target-id=\"engagement-panel-ads\"], ytd-merch-shelf-renderer, ytd-action-companion-ad-renderer, .ytd-mealbar-promo-renderer, .ytp-ad-overlay-container, .ytp-ad-message-container, .ytp-ad-image-overlay, .ytp-ad-text-overlay, .ytp-ad-player-overlay-layout, #masthead-ad, #player-ads, .video-ads { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; pointer-events: none !important; }';\n"
+            "      root.appendChild(s);\n"
+            "    };\n"
+            "    injectStyle();\n"
+            "    if (window.location.hostname.includes('youtube.com')) {\n"
+            "      let userMutedState = false;\n"
+            "      const nukeYouTubeAds = () => {\n"
+            "        try {\n"
+            "          injectStyle();\n"
+            "          const skipSelectors = ['.ytp-ad-skip-button', '.ytp-ad-skip-button-modern', '.ytp-skip-ad-button', '.videoAdUiSkipButton', '.ytp-ad-overlay-close-button', 'button[id^=\"skip-button\"]'];\n"
+            "          for (const sel of skipSelectors) {\n"
+            "            const btns = document.querySelectorAll(sel);\n"
+            "            for (let i = 0; i < btns.length; i++) btns[i].click();\n"
+            "          }\n"
+            "          const player = document.querySelector('#movie_player, .html5-video-player');\n"
+            "          const video = document.querySelector('video.html5-main-video, video');\n"
+            "          if (!player || !video) return;\n"
+            "          const isAdShowing = player.classList.contains('ad-showing') || player.classList.contains('ad-interrupting') || document.querySelector('.ad-showing, .ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info') !== null;\n"
+            "          if (isAdShowing) {\n"
+            "            video.muted = true;\n"
+            "            video.playbackRate = 16.0;\n"
+            "            if (Number.isFinite(video.duration) && video.duration > 0.5 && video.currentTime < video.duration - 0.2) {\n"
+            "              video.currentTime = video.duration - 0.05;\n"
+            "            }\n"
+            "            if (typeof player.skipAd === 'function') { try { player.skipAd(); } catch(e) {} }\n"
+            "          } else {\n"
+            "            if (video.playbackRate === 16.0) {\n"
+            "              video.playbackRate = 1.0;\n"
+            "              video.muted = userMutedState;\n"
+            "            } else {\n"
+            "              userMutedState = video.muted;\n"
+            "            }\n"
+            "          }\n"
+            "          const domAds = document.querySelectorAll('ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, #player-ads, #masthead-ad');\n"
+            "          for (let i = 0; i < domAds.length; i++) domAds[i].remove();\n"
+            "        } catch (err) {}\n"
+            "      };\n"
+            "      setInterval(nukeYouTubeAds, 100);\n"
+            "      if (document.body) {\n"
+            "        const obs = new MutationObserver(nukeYouTubeAds);\n"
+            "        obs.observe(document.body, { childList: true, subtree: true });\n"
+            "      }\n"
+            "    }\n"
+            "  } catch (e) {}\n"
+            "})();";
 
-                            const nukeYouTubeAds = () => {
-                                try {
-                                    injectStyle();
-
-                                    const skipSelectors = [
-                                        '.ytp-ad-skip-button',
-                                        '.ytp-ad-skip-button-modern',
-                                        '.ytp-skip-ad-button',
-                                        '.videoAdUiSkipButton',
-                                        '.ytp-ad-overlay-close-button',
-                                        'button[id^="skip-button"]'
-                                    ];
-                                    for (const sel of skipSelectors) {
-                                        const btns = document.querySelectorAll(sel);
-                                        for (let i = 0; i < btns.length; i++) {
-                                            btns[i].click();
-                                        }
-                                    }
-
-                                    const player = document.querySelector('#movie_player, .html5-video-player');
-                                    const video = document.querySelector('video.html5-main-video, video');
-                                    if (!player || !video) return;
-
-                                    const isAdShowing = player.classList.contains('ad-showing') ||
-                                                        player.classList.contains('ad-interrupting') ||
-                                                        document.querySelector('.ad-showing, .ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info') !== null;
-
-                                    if (isAdShowing) {
-                                        video.muted = true;
-                                        video.playbackRate = 16.0;
-                                        if (Number.isFinite(video.duration) && video.duration > 0.5 && video.currentTime < video.duration - 0.2) {
-                                            video.currentTime = video.duration - 0.05;
-                                        }
-                                        if (typeof player.skipAd === 'function') {
-                                            try { player.skipAd(); } catch(e) {}
-                                        }
-                                    } else {
-                                        if (video.playbackRate === 16.0) {
-                                            video.playbackRate = 1.0;
-                                            video.muted = userMutedState;
-                                        } else {
-                                            userMutedState = video.muted;
-                                        }
-                                    }
-
-                                    const domAds = document.querySelectorAll(
-                                        'ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, #player-ads, #masthead-ad, ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-ads"]'
-                                    );
-                                    for (let i = 0; i < domAds.length; i++) {
-                                        domAds[i].remove();
-                                    }
-                                } catch (err) {}
-                            };
-
-                            setInterval(nukeYouTubeAds, 100);
-                            if (document.body) {
-                                const obs = new MutationObserver(nukeYouTubeAds);
-                                obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-                            }
-                        }
-                    } catch (e) {}
-                })();
-            )");
-            m_profile->scripts()->insert(shieldScript);
+        shieldScript.setSourceCode(jsCode);
+        m_profile->scripts()->insert(shieldScript);
         }
     }
 
-    // ---------------- FAVICON PRELOADING & DISK CACHE ----------------
     QString getFaviconCacheFile(const QUrl &url) const {
         QString favDir = getConfigDir() + "/favicons";
         QDir().mkpath(favDir);
@@ -2932,7 +2809,7 @@ private:
         m_pendingFaviconHosts.insert(hostKey);
 
         QUrl favUrl(QString("https://www.google.com/s2/favicons?sz=64&domain_url=%1")
-                        .arg(QString::fromUtf8(QUrl::toPercentEncoding(url.toString()))));
+        .arg(QString::fromUtf8(QUrl::toPercentEncoding(url.toString()))));
 
         QNetworkRequest req(favUrl);
         req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
@@ -2981,7 +2858,6 @@ private:
         }
     }
 
-    // ---------------- PASSWORD AUTOFILL CLICK-PROMPT & FILL ENGINE ----------------
     void setupPasswordClickPromptForView(CustomWebView *view) {
         if (!view || !view->page() || !autofillEnabled) return;
 
@@ -3076,7 +2952,6 @@ private:
         view->page()->runJavaScript(script);
     }
 
-    // Reliable Fullscreen Enter/Exit that never loses maximized state on Linux or Windows
     void enterBrowserFullScreen() {
         if (!isFullScreen()) {
             m_inFullScreenTransition = true;
@@ -3093,7 +2968,6 @@ private:
         m_inFullScreenTransition = true;
         headerContainer->show();
 
-        // First clear FullScreen state, then explicitly restore Maximized if it was maximized prior
         if (m_wasMaximizedBeforeFullScreen) {
             showNormal();
             QTimer::singleShot(10, this, [this]() {
@@ -3117,7 +2991,7 @@ private:
                 "QPushButton { background-color: #2b211d; border: 1px solid #ff5500; border-radius: 6px; "
                 "color: #ff6a22; font-size: 12px; font-weight: bold; padding: 4px 10px; } "
                 "QPushButton:hover { background-color: #ff5500; color: #ffffff; }"
-                );
+            );
         } else {
             btnShield->setText("🛡 OFF");
             btnShield->setToolTip("BraveLite Shield: OFF (Click to enable protection)");
@@ -3125,11 +2999,10 @@ private:
                 "QPushButton { background-color: #25272b; border: 1px solid #3e4146; border-radius: 6px; "
                 "color: #8e9297; font-size: 12px; font-weight: bold; padding: 4px 10px; } "
                 "QPushButton:hover { background-color: #35373c; color: #ffffff; }"
-                );
+            );
         }
     }
 
-    // ---------------- THEME PROFILES ENGINE ----------------
     void applyThemeProfile(const QString &profileName) {
         QString bgMain = "#1a1a1e";
         QString bgHeader = "#161719";
@@ -3273,7 +3146,6 @@ private:
         headerLayout->setContentsMargins(0, 2, 0, 0);
         headerLayout->setSpacing(0);
 
-        // 1. TOP TABS ROW
         QWidget *tabRow = new QWidget(this);
         QHBoxLayout *tabRowLayout = new QHBoxLayout(tabRow);
         tabRowLayout->setContentsMargins(8, 0, 8, 0);
@@ -3297,7 +3169,6 @@ private:
         tabRowLayout->addWidget(newTabBtn);
         tabRowLayout->addStretch();
 
-        // 2. NAVIGATION BAR
         QWidget *navBar = new QWidget(this);
         QHBoxLayout *navLayout = new QHBoxLayout(navBar);
         navLayout->setContentsMargins(8, 5, 8, 5);
@@ -3313,111 +3184,108 @@ private:
             if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->back();
         });
 
-        QPushButton *btnForward = new QPushButton("→", this);
-        btnForward->setToolTip("Forward (Alt+Right)");
-        btnForward->setCursor(Qt::PointingHandCursor);
-        btnForward->setStyleSheet(navBtnStyle);
-        connect(btnForward, &QPushButton::clicked, [this]() {
-            if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->forward();
-        });
+            QPushButton *btnForward = new QPushButton("→", this);
+            btnForward->setToolTip("Forward (Alt+Right)");
+            btnForward->setCursor(Qt::PointingHandCursor);
+            btnForward->setStyleSheet(navBtnStyle);
+            connect(btnForward, &QPushButton::clicked, [this]() {
+                if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->forward();
+            });
 
-        QPushButton *btnReload = new QPushButton("↻", this);
-        btnReload->setToolTip("Reload (Ctrl+R)");
-        btnReload->setCursor(Qt::PointingHandCursor);
-        btnReload->setStyleSheet(navBtnStyle);
-        connect(btnReload, &QPushButton::clicked, [this]() {
-            if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->reload();
-        });
+                QPushButton *btnReload = new QPushButton("↻", this);
+                btnReload->setToolTip("Reload (Ctrl+R)");
+                btnReload->setCursor(Qt::PointingHandCursor);
+                btnReload->setStyleSheet(navBtnStyle);
+                connect(btnReload, &QPushButton::clicked, [this]() {
+                    if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->reload();
+                });
 
-        urlBar = new QLineEdit(this);
-        urlBar->setPlaceholderText("Search with BraveLite Browser or enter address");
-        connect(urlBar, &QLineEdit::returnPressed, this, &BrowserWindow::handleUrlSubmit);
+                    urlBar = new QLineEdit(this);
+                    urlBar->setPlaceholderText("Search with BraveLite Browser or enter address");
+                    connect(urlBar, &QLineEdit::returnPressed, this, &BrowserWindow::handleUrlSubmit);
 
-        QPushButton *btnBookmark = new QPushButton("★", this);
-        btnBookmark->setToolTip("Bookmark this page");
-        btnBookmark->setCursor(Qt::PointingHandCursor);
-        btnBookmark->setStyleSheet(navBtnStyle);
-        connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
+                    QPushButton *btnBookmark = new QPushButton("★", this);
+                    btnBookmark->setToolTip("Bookmark this page");
+                    btnBookmark->setCursor(Qt::PointingHandCursor);
+                    btnBookmark->setStyleSheet(navBtnStyle);
+                    connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
 
-        btnPasswords = new QPushButton("🔑", this);
-        btnPasswords->setToolTip("Password Manager & Autofill");
-        btnPasswords->setCursor(Qt::PointingHandCursor);
-        btnPasswords->setStyleSheet(navBtnStyle);
-        connect(btnPasswords, &QPushButton::clicked, this, &BrowserWindow::openPasswordManagerDialog);
+                    btnPasswords = new QPushButton("🔑", this);
+                    btnPasswords->setToolTip("Password Manager & Autofill");
+                    btnPasswords->setCursor(Qt::PointingHandCursor);
+                    btnPasswords->setStyleSheet(navBtnStyle);
+                    connect(btnPasswords, &QPushButton::clicked, this, &BrowserWindow::openPasswordManagerDialog);
 
-        btnShield = new QPushButton(this);
-        btnShield->setCursor(Qt::PointingHandCursor);
-        updateShieldButtonAppearance();
-        connect(btnShield, &QPushButton::clicked, this, &BrowserWindow::toggleShield);
+                    btnShield = new QPushButton(this);
+                    btnShield->setCursor(Qt::PointingHandCursor);
+                    updateShieldButtonAppearance();
+                    connect(btnShield, &QPushButton::clicked, this, &BrowserWindow::toggleShield);
 
-        btnPrivacyGrade = new QPushButton("A", this);
-        btnPrivacyGrade->setToolTip("Site Privacy Grade: A");
-        btnPrivacyGrade->setCursor(Qt::PointingHandCursor);
-        btnPrivacyGrade->setStyleSheet("QPushButton { background-color: #52c41a; color: white; font-weight: bold; border-radius: 5px; padding: 3px 8px; font-size: 11px; border: none; }");
-        btnPrivacyGrade->hide();
-        connect(btnPrivacyGrade, &QPushButton::clicked, this, &BrowserWindow::showPrivacyDetails);
+                    btnPrivacyGrade = new QPushButton("A", this);
+                    btnPrivacyGrade->setToolTip("Site Privacy Grade: A");
+                    btnPrivacyGrade->setCursor(Qt::PointingHandCursor);
+                    btnPrivacyGrade->setStyleSheet("QPushButton { background-color: #52c41a; color: white; font-weight: bold; border-radius: 5px; padding: 3px 8px; font-size: 11px; border: none; }");
+                    btnPrivacyGrade->hide();
+                    connect(btnPrivacyGrade, &QPushButton::clicked, this, &BrowserWindow::showPrivacyDetails);
 
-        QPushButton *btnZoomOut = new QPushButton("−", this);
-        btnZoomOut->setToolTip("Zoom Out");
-        btnZoomOut->setCursor(Qt::PointingHandCursor);
-        btnZoomOut->setStyleSheet(navBtnStyle);
-        connect(btnZoomOut, &QPushButton::clicked, this, &BrowserWindow::zoomOut);
+                    QPushButton *btnZoomOut = new QPushButton("−", this);
+                    btnZoomOut->setToolTip("Zoom Out");
+                    btnZoomOut->setCursor(Qt::PointingHandCursor);
+                    btnZoomOut->setStyleSheet(navBtnStyle);
+                    connect(btnZoomOut, &QPushButton::clicked, this, &BrowserWindow::zoomOut);
 
-        QPushButton *btnZoomIn = new QPushButton("+", this);
-        btnZoomIn->setToolTip("Zoom In");
-        btnZoomIn->setCursor(Qt::PointingHandCursor);
-        btnZoomIn->setStyleSheet(navBtnStyle);
-        connect(btnZoomIn, &QPushButton::clicked, this, &BrowserWindow::zoomIn);
+                    QPushButton *btnZoomIn = new QPushButton("+", this);
+                    btnZoomIn->setToolTip("Zoom In");
+                    btnZoomIn->setCursor(Qt::PointingHandCursor);
+                    btnZoomIn->setStyleSheet(navBtnStyle);
+                    connect(btnZoomIn, &QPushButton::clicked, this, &BrowserWindow::zoomIn);
 
-        btnDownload = new QPushButton("⤓", this);
-        btnDownload->setToolTip("Downloads (Ctrl+J)");
-        btnDownload->setCursor(Qt::PointingHandCursor);
-        btnDownload->setStyleSheet(navBtnStyle);
-        connect(btnDownload, &QPushButton::clicked, this, &BrowserWindow::openDownloadsPopup);
+                    btnDownload = new QPushButton("⤓", this);
+                    btnDownload->setToolTip("Downloads (Ctrl+J)");
+                    btnDownload->setCursor(Qt::PointingHandCursor);
+                    btnDownload->setStyleSheet(navBtnStyle);
+                    connect(btnDownload, &QPushButton::clicked, this, &BrowserWindow::openDownloadsPopup);
 
-        btnMenu = new QPushButton("☰", this);
-        btnMenu->setToolTip("BraveLite Menu");
-        btnMenu->setCursor(Qt::PointingHandCursor);
-        btnMenu->setStyleSheet(navBtnStyle);
-        connect(btnMenu, &QPushButton::clicked, this, &BrowserWindow::openAppMenu);
+                    btnMenu = new QPushButton("☰", this);
+                    btnMenu->setToolTip("BraveLite Menu");
+                    btnMenu->setCursor(Qt::PointingHandCursor);
+                    btnMenu->setStyleSheet(navBtnStyle);
+                    connect(btnMenu, &QPushButton::clicked, this, &BrowserWindow::openAppMenu);
 
-        navLayout->addWidget(btnBack);
-        navLayout->addWidget(btnForward);
-        navLayout->addWidget(btnReload);
-        navLayout->addWidget(btnPrivacyGrade);
-        navLayout->addWidget(urlBar, 1);
-        navLayout->addWidget(btnBookmark);
-        navLayout->addWidget(btnPasswords);
-        navLayout->addWidget(btnShield);
-        navLayout->addWidget(btnZoomOut);
-        navLayout->addWidget(btnZoomIn);
-        navLayout->addWidget(btnDownload);
-        navLayout->addWidget(btnMenu);
+                    navLayout->addWidget(btnBack);
+                    navLayout->addWidget(btnForward);
+                    navLayout->addWidget(btnReload);
+                    navLayout->addWidget(btnPrivacyGrade);
+                    navLayout->addWidget(urlBar, 1);
+                    navLayout->addWidget(btnBookmark);
+                    navLayout->addWidget(btnPasswords);
+                    navLayout->addWidget(btnShield);
+                    navLayout->addWidget(btnZoomOut);
+                    navLayout->addWidget(btnZoomIn);
+                    navLayout->addWidget(btnDownload);
+                    navLayout->addWidget(btnMenu);
 
-        // 3. BOOKMARKS BAR (Movable via drag-and-drop)
-        bookmarksBar = new QToolBar("Bookmarks", this);
-        bookmarksBar->setMovable(false);
-        bookmarksBar->setIconSize(QSize(16, 16));
-        bookmarksBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-        renderBookmarks();
+                    bookmarksBar = new QToolBar("Bookmarks", this);
+                    bookmarksBar->setMovable(false);
+                    bookmarksBar->setIconSize(QSize(16, 16));
+                    bookmarksBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+                    renderBookmarks();
 
-        // 4. PROGRESS BAR
-        progressBar = new QProgressBar(this);
-        progressBar->setMaximumHeight(2);
-        progressBar->setTextVisible(false);
+                    progressBar = new QProgressBar(this);
+                    progressBar->setMaximumHeight(2);
+                    progressBar->setTextVisible(false);
 
-        headerLayout->addWidget(tabRow);
-        headerLayout->addWidget(navBar);
-        headerLayout->addWidget(bookmarksBar);
-        headerLayout->addWidget(progressBar);
+                    headerLayout->addWidget(tabRow);
+                    headerLayout->addWidget(navBar);
+                    headerLayout->addWidget(bookmarksBar);
+                    headerLayout->addWidget(progressBar);
 
-        // 5. STACKED WEB VIEW
-        tabStack = new QStackedWidget(this);
+                    tabStack = new QStackedWidget(this);
 
-        mainLayout->addWidget(headerContainer);
-        mainLayout->addWidget(tabStack, 1);
+                    mainLayout->addWidget(headerContainer);
+                    mainLayout->addWidget(tabStack, 1);
 
-        setCentralWidget(centralWidget);
+                    setCentralWidget(centralWidget);
     }
 
     QString getNewTabHtml() {
@@ -3465,30 +3333,30 @@ private:
                     .tagline {
                         font-size: 0.95rem; color: #ff6a22; letter-spacing: 0.6px; font-style: italic; opacity: 0.9;
                     }
-                </style>
-            </head>
-            <body>
-                <div class="hero-wrapper">
+                    </style>
+                    </head>
+                    <body>
+                    <div class="hero-wrapper">
                     <h1>Welcome!</h1>
                     <form onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('startSearch').value);" class="search-container">
-                        <input id="startSearch" type="text" name="q" placeholder="Search with BraveLite Browser or enter address..." autofocus autocomplete="off" />
+                    <input id="startSearch" type="text" name="q" placeholder="Search with BraveLite Browser or enter address..." autofocus autocomplete="off" />
                     </form>
                     <div class="datetime" id="liveClock">%1</div>
                     <div class="tagline">because privacy matters</div>
-                </div>
-                <script>
+                    </div>
+                    <script>
                     function updateClock() {
                         const now = new Date();
                         const dateOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                         const timeOpts = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
                         document.getElementById('liveClock').textContent =
-                            now.toLocaleDateString('en-US', dateOpts) + ' • ' + now.toLocaleTimeString('en-US', timeOpts);
+                        now.toLocaleDateString('en-US', dateOpts) + ' • ' + now.toLocaleTimeString('en-US', timeOpts);
                     }
                     updateClock();
                     setInterval(updateClock, 1000);
-                </script>
-            </body>
-            </html>
+                    </script>
+                    </body>
+                    </html>
         )").arg(now);
     }
 
@@ -3571,7 +3439,7 @@ private:
 
         if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
 
-        QIcon pageIcon = v->icon();
+            QIcon pageIcon = v->icon();
         if (!pageIcon.isNull()) {
             QPixmap px = pageIcon.pixmap(32, 32);
             if (!px.isNull()) {
@@ -3588,7 +3456,6 @@ private:
         preloadBookmarkFavicon(addedIdx);
     }
 
-    // Bookmarks Bar: Icon on Left + 16-char Name + Middle-Click + Drag-and-Drop Reordering
     void renderBookmarks() {
         bookmarksBar->clear();
         for (int i = 0; i < bookmarksList.size(); ++i) {
@@ -3617,14 +3484,13 @@ private:
                 addNewTab(QUrl(bm.url));
             });
 
-            // Reorder bookmarks when dragged left/right
             connect(btn, &BookmarkToolButton::bookmarkMoved, this, [this](int fromIdx, int toIdx) {
                 if (fromIdx >= 0 && fromIdx < bookmarksList.size() &&
                     toIdx >= 0 && toIdx < bookmarksList.size() && fromIdx != toIdx) {
                     bookmarksList.move(fromIdx, toIdx);
-                    savePersistentData();
-                    renderBookmarks();
-                }
+                savePersistentData();
+                renderBookmarks();
+                    }
             });
 
             btn->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -3647,7 +3513,7 @@ private:
                     QString nUrl = QInputDialog::getText(this, "Edit Bookmark", "URL:", QLineEdit::Normal, bookmarksList[i].url, &ok);
                     if (ok && !nUrl.isEmpty()) {
                         if (!nUrl.startsWith("http://") && !nUrl.startsWith("https://")) nUrl = "https://" + nUrl;
-                        bookmarksList[i].url = nUrl;
+                            bookmarksList[i].url = nUrl;
                         bookmarksList[i].icon = loadCachedFavicon(QUrl(nUrl));
                     }
                     savePersistentData();
@@ -3679,7 +3545,6 @@ private:
         currentThemeProfile = root.value("themeProfile").toString("BraveLite Dark");
         defaultSearchEngine = root.value("defaultSearchEngine").toString("BraveLite Browser");
 
-        // BraveLite AI settings
         aiEnabled = root.value("aiEnabled").toBool(true);
         aiSearchOverviewEnabled = root.value("aiSearchOverviewEnabled").toBool(true);
         aiHoverSummaryEnabled = root.value("aiHoverSummaryEnabled").toBool(true);
@@ -3687,7 +3552,6 @@ private:
         ollamaModel = root.value("ollamaModel").toString("qwen2.5:0.5b");
         aiSystemPrompt = root.value("aiSystemPrompt").toString(aiSystemPrompt);
 
-        // Custom Keybinds
         if (root.contains("keybinds")) {
             QJsonObject kbObj = root["keybinds"].toObject();
             for (auto it = kbObj.begin(); it != kbObj.end(); ++it) {
@@ -3846,7 +3710,7 @@ private:
             connect(view, &QWebEngineView::renderProcessTerminated, this, [view](QWebEnginePage::RenderProcessTerminationStatus status, int exitCode) {
                 CrashLogger::writeCrashEntry("WebEngine Render Process Terminated",
                                              QString("URL: %1 | Status: %2 | ExitCode: %3")
-                                                 .arg(view->url().toString()).arg(status).arg(exitCode));
+                                             .arg(view->url().toString()).arg(status).arg(exitCode));
                 if (status != QWebEnginePage::NormalTerminationStatus) {
                     QTimer::singleShot(400, view, [view]() {
                         view->reload();
@@ -3857,6 +3721,24 @@ private:
             if (!m_isIncognito) {
                 connect(p, &CustomWebEnginePage::loginCaptured, this, &BrowserWindow::promptSaveCredentials);
                 connect(p, &CustomWebEnginePage::autofillRequested, this, &BrowserWindow::promptAutofillCredentials);
+
+                #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+                connect(p, &QWebEnginePage::permissionRequested, this, [this](QWebEnginePermission perm) {
+                    QString name = "Unknown";
+                    using PT = QWebEnginePermission::PermissionType;
+                    if (perm.permissionType() == PT::MediaAudioCapture) name = "Microphone";
+                    else if (perm.permissionType() == PT::MediaVideoCapture) name = "Camera";
+                    else if (perm.permissionType() == PT::Geolocation) name = "Location";
+                    else if (perm.permissionType() == PT::Notifications) name = "Notifications";
+
+                    int ret = QMessageBox::question(this, "Permission Request",
+                                                    QString("%1 requests access to: %2\nAllow?").arg(perm.origin().host(), name));
+                    bool grant = (ret == QMessageBox::Yes);
+                    if (grant) perm.grant();
+                    else perm.deny();
+                    sitePermissions.append({perm.origin().toString(), name, grant});
+                });
+                #else
                 connect(p, &QWebEnginePage::featurePermissionRequested, this, [this, p](const QUrl &securityOrigin, QWebEnginePage::Feature feature) {
                     QString name = "Unknown";
                     if (feature == QWebEnginePage::MediaAudioCapture) name = "Microphone";
@@ -3869,6 +3751,7 @@ private:
                     p->setFeaturePermission(securityOrigin, feature, grant ? QWebEnginePage::PermissionGrantedByUser : QWebEnginePage::PermissionDeniedByUser);
                     sitePermissions.append({securityOrigin.toString(), name, grant});
                 });
+                #endif
             }
         }
 
@@ -3901,8 +3784,8 @@ private:
                 if (bm.url == pageUrl.toString() ||
                     (!pageUrl.host().isEmpty() && QUrl(bm.url).host().toLower() == pageUrl.host().toLower())) {
                     bm.icon = icon;
-                    updated = true;
-                }
+                updated = true;
+                    }
             }
             if (updated) {
                 renderBookmarks();
@@ -3973,69 +3856,61 @@ private:
                             document.addEventListener('keydown', function(e) {
                                 if (e.key === 'Enter') captureActiveCredentials();
                             }, true);
-                            document.addEventListener('click', function(e) {
-                                const btn = e.target.closest('button, input[type="submit"], [role="button"]');
-                                if (btn) captureActiveCredentials();
-                            }, true);
+                                document.addEventListener('click', function(e) {
+                                    const btn = e.target.closest('button, input[type="submit"], [role="button"]');
+                                    if (btn) captureActiveCredentials();
+                                }, true);
                         }
 
-                        // BraveLite AI Hover Link Summarizer Hook
                         if (!window.__braveliteHoverHooked) {
                             window.__braveliteHoverHooked = true;
                             let hoverTimer = null;
                             let currentHoverUrl = '';
 
-                            function ensureTooltip() {
-                                let tt = document.getElementById('__bravelite_ai_tooltip');
-                                if (!tt) {
-                                    tt = document.createElement('div');
-                                    tt.id = '__bravelite_ai_tooltip';
-                                    tt.style.cssText = 'position:fixed; z-index:2147483647; max-width:360px; background:#1e1f24; color:#f0f2f5; border:1px solid #ff5500; border-radius:10px; padding:10px 14px; font-family:sans-serif; font-size:12.5px; line-height:1.45; box-shadow:0 8px 24px rgba(0,0,0,0.65); pointer-events:none; display:none;';
-                                    document.body.appendChild(tt);
-                                }
-                                return tt;
-                            }
+                    function ensureTooltip() {
+                        let tt = document.getElementById('__bravelite_ai_tooltip');
+                        if (!tt) {
+                            tt = document.createElement('div');
+                            tt.id = '__bravelite_ai_tooltip';
+                    tt.style.cssText = 'position:fixed; z-index:2147483647; max-width:360px; background:#1e1f24; color:#f0f2f5; border:1px solid #ff5500; border-radius:10px; padding:10px 14px; font-family:sans-serif; font-size:12.5px; line-height:1.45; box-shadow:0 8px 24px rgba(0,0,0,0.65); pointer-events:none; display:none;';
+                    document.body.appendChild(tt);
+                        }
+                        return tt;
+                    }
 
-                            window.__updateBraveLiteAiTooltip = function(url, text) {
-                                if (url !== currentHoverUrl) return;
-                                const tt = ensureTooltip();
-                                tt.textContent = text;
-                                tt.style.display = 'block';
-                            };
+                    window.__updateBraveLiteAiTooltipObj = function(obj) {
+                        if (!obj || obj.url !== currentHoverUrl) return;
+                        const tt = ensureTooltip();
+                        tt.textContent = obj.summary;
+                        tt.style.display = 'block';
+                    };
 
-                            window.__updateBraveLiteAiTooltipObj = function(obj) {
-                                if (!obj || obj.url !== currentHoverUrl) return;
-                                const tt = ensureTooltip();
-                                tt.textContent = obj.summary;
-                                tt.style.display = 'block';
-                            };
+                    document.addEventListener('mouseover', function(e) {
+                        const a = e.target.closest('a[href]');
+                        if (!a || !a.href || !a.href.startsWith('http')) return;
+                        currentHoverUrl = a.href;
+                        const linkText = (a.innerText || a.textContent || '').trim().slice(0, 120);
+                        const x = Math.min(window.innerWidth - 380, e.clientX + 14);
+                        const y = Math.min(window.innerHeight - 120, e.clientY + 18);
 
-                            document.addEventListener('mouseover', function(e) {
-                                const a = e.target.closest('a[href]');
-                                if (!a || !a.href || !a.href.startsWith('http')) return;
-                                currentHoverUrl = a.href;
-                                const linkText = (a.innerText || a.textContent || '').trim().slice(0, 120);
-                                const x = Math.min(window.innerWidth - 380, e.clientX + 14);
-                                const y = Math.min(window.innerHeight - 120, e.clientY + 18);
+                        clearTimeout(hoverTimer);
+                        hoverTimer = setTimeout(function() {
+                            const tt = ensureTooltip();
+                            tt.style.left = Math.max(10, x) + 'px';
+                        tt.style.top = Math.max(10, y) + 'px';
+                        console.log('BRAVELITE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
+                        }, 650);
+                    }, true);
 
-                                clearTimeout(hoverTimer);
-                                hoverTimer = setTimeout(function() {
-                                    const tt = ensureTooltip();
-                                    tt.style.left = Math.max(10, x) + 'px';
-                                    tt.style.top = Math.max(10, y) + 'px';
-                                    console.log('BRAVELITE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
-                                }, 650);
-                            }, true);
-
-                            document.addEventListener('mouseout', function(e) {
-                                const a = e.target.closest('a[href]');
-                                if (a) {
-                                    clearTimeout(hoverTimer);
-                                    currentHoverUrl = '';
-                                    const tt = document.getElementById('__bravelite_ai_tooltip');
-                                    if (tt) tt.style.display = 'none';
-                                }
-                            }, true);
+                    document.addEventListener('mouseout', function(e) {
+                        const a = e.target.closest('a[href]');
+                        if (a) {
+                            clearTimeout(hoverTimer);
+                            currentHoverUrl = '';
+                    const tt = document.getElementById('__bravelite_ai_tooltip');
+                    if (tt) tt.style.display = 'none';
+                        }
+                    }, true);
                         }
 
                         if (window.location.hostname.includes('youtube.com') && !window.__sbActive) {
@@ -4047,10 +3922,10 @@ private:
                                 if (v && videoId && v.__sbFetched !== videoId) {
                                     v.__sbFetched = videoId;
                                     fetch('https://sponsor.ajay.app/api/skipSegments?videoID=' + videoId + '&categories=["sponsor","selfpromo"]')
-                                        .then(r => r.json())
-                                        .then(segments => {
-                                            v.__sbSegments = segments;
-                                        }).catch(() => {});
+                                    .then(r => r.json())
+                                    .then(segments => {
+                                        v.__sbSegments = segments;
+                                    }).catch(() => {});
                                 }
                                 if (v && v.__sbSegments && Array.isArray(v.__sbSegments)) {
                                     for (let s of v.__sbSegments) {
@@ -4122,7 +3997,6 @@ int main(int argc, char *argv[]) {
     if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
     app.setWindowIcon(appIcon);
 
-    // Parse URLs passed from external apps (e.g. clicking a link in Discord)
     QList<QUrl> startupUrls;
     const QStringList args = app.arguments();
     for (int i = 1; i < args.size(); ++i) {
@@ -4133,14 +4007,13 @@ int main(int argc, char *argv[]) {
             arg.startsWith("https://", Qt::CaseInsensitive) ||
             arg.startsWith("file://", Qt::CaseInsensitive)) {
             startupUrls.append(QUrl(arg));
-        } else if (QFileInfo::exists(arg)) {
-            startupUrls.append(QUrl::fromLocalFile(QFileInfo(arg).absoluteFilePath()));
-        } else if (arg.contains(".") && !arg.contains(" ")) {
-            startupUrls.append(QUrl("https://" + arg));
-        }
+            } else if (QFileInfo::exists(arg)) {
+                startupUrls.append(QUrl::fromLocalFile(QFileInfo(arg).absoluteFilePath()));
+            } else if (arg.contains(".") && !arg.contains(" ")) {
+                startupUrls.append(QUrl("https://" + arg));
+            }
     }
 
-    // Single-Instance IPC: Forward Discord / external links to existing open window instead of opening a new window
     const QString ipcServerName = "BraveLiteSingleInstanceServer_v111";
     {
         QLocalSocket socket;
@@ -4152,7 +4025,7 @@ int main(int argc, char *argv[]) {
             socket.write(QJsonDocument(urlArr).toJson(QJsonDocument::Compact));
             socket.flush();
             socket.waitForBytesWritten(250);
-            return 0; // Handed off to existing BraveLite window
+            return 0;
         }
     }
 
