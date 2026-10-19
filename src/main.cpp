@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QDateTime>
 #include <QElapsedTimer>
+#include <QTimer>
 #include <QWebEngineView>
 #include <QWebEngineProfile>
 #include <QWebEnginePage>
@@ -59,6 +60,7 @@
 #include <QStyle>
 #include <QStyleFactory>
 #include <QProcess>
+#include <QSettings>
 #include <QScrollArea>
 #include <QPointer>
 #include <csignal>
@@ -108,14 +110,14 @@ namespace CrashLogger {
     }
 
     inline void qtMessageHandler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg) {
-        if (type == QtFatalMsg || type == QtCriticalMsg) {
-            writeCrashEntry(type == QtFatalMsg ? "QtFatalMsg" : "QtCriticalMsg",
+        if (type == QtFatalMsg) {
+            writeCrashEntry("QtFatalMsg",
                             QString("%1 (%2:%3)").arg(msg, ctx.file ? ctx.file : "unknown", QString::number(ctx.line)));
         }
     }
 
     inline void installCrashHandlers() {
-        crashLogDir(); // Ensure directory exists on startup
+        crashLogDir();
         std::signal(SIGSEGV, posixSignalHandler);
         std::signal(SIGABRT, posixSignalHandler);
         std::signal(SIGFPE,  posixSignalHandler);
@@ -172,13 +174,13 @@ public:
             "casalemedia.com", "moatads.com", "smartadserver.com", "chartbeat.com", "quantserve.com",
             "advertising.com", "revcontent.com", "popads.net", "propellerads.com", "ad-delivery.net",
             "hotjar.com", "clarity.ms", "stats.wp.com", "yandex.ru", "metrika.yandex.ru",
-            // Spam redirect & pop-under networks
+            // Spam redirect, pop-under & malvertising networks
             "onclickads.net", "exoclick.com", "syndication.exoclick.com", "juicyads.com",
             "trafficjunky.net", "adcash.com", "hilltopads.net", "popcash.net", "popmyads.com",
             "clickadu.com", "adsterra.com", "highperformanceformat.com", "profitablecpmrate.com",
-            " pushwhy.com", "pushengage.com", "richpush.co", "evadav.com", "ero-advertising.com",
+            "pushwhy.com", "pushengage.com", "richpush.co", "evadav.com", "ero-advertising.com",
             "bidvertiser.com", "chitika.com", "infolinks.com", "viglink.com", "skimresources.com",
-            "redirectvoluum.com", "bemobtrk.com", "binom.org", "voluum.com"
+            "redirectvoluum.com", "bemobtrk.com", "binom.org", "voluum.com", "network.nutaku.net"
         };
     }
 
@@ -190,7 +192,8 @@ public:
     }
 
     bool isHostBlocked(const QString &host) const {
-        QString h = host.toLower();
+        QString h = host.toLower().trimmed();
+        if (h.isEmpty()) return false;
         for (const QString &domain : blocklist) {
             if (h == domain || h.endsWith("." + domain)) return true;
         }
@@ -209,15 +212,17 @@ protected:
 
         bool shouldBlock = isHostBlocked(host);
 
-        // Block YouTube Ad pings, midroll/preroll ad fetches & general ad scripts
         if (!shouldBlock) {
             if (fullUrl.contains("/pagead/") || fullUrl.contains("/widget/ads") ||
                 fullUrl.contains("/ads.js") || fullUrl.contains("/adserver/") ||
                 fullUrl.contains("googleads.g.doubleclick.net") ||
                 fullUrl.contains("/api/stats/ads") ||
                 fullUrl.contains("/get_midroll_info") ||
+                fullUrl.contains("/youtubei/v1/player/ad_break") ||
                 fullUrl.contains("pubads.g.doubleclick.net") ||
-                (host.contains("youtube.com") && (fullUrl.contains("&adformat=") || fullUrl.contains("?adformat=") || fullUrl.contains("/pagead/lvz")))) {
+                (host.contains("youtube.com") &&
+                (fullUrl.contains("&adformat=") || fullUrl.contains("?adformat=") ||
+                fullUrl.contains("/pagead/lvz") || fullUrl.contains("/ptracking")))) {
                 shouldBlock = true;
                 }
         }
@@ -237,7 +242,7 @@ private:
     QMap<QString, int> siteBlockedCounts;
 };
 
-// ---------------- 2. CUSTOM WEB ENGINE PAGE (Login, Autofill Prompt & Redirect Shield) ----------------
+// ---------------- 2. CUSTOM WEB ENGINE PAGE ----------------
 class CustomWebEnginePage : public QWebEnginePage {
     Q_OBJECT
 public:
@@ -253,9 +258,8 @@ protected:
         if (m_blocker && m_blocker->isEnabled()) {
             QString targetHost = url.host().toLower();
             if (m_blocker->isHostBlocked(targetHost)) {
-                return false; // Block navigation to known spam/ad-redirect hosts
+                return false;
             }
-            // Block automatic main-frame cross-origin spam redirects not initiated by a link click or typed URL
             if (isMainFrame && type == QWebEnginePage::NavigationTypeRedirect) {
                 QString currentHost = this->url().host().toLower();
                 if (!currentHost.isEmpty() && !targetHost.isEmpty() && currentHost != targetHost) {
@@ -433,7 +437,6 @@ protected:
             }
         }
 
-        // If user drags a tab vertically outside the tab bar (> 42px down/up), detach or re-attach
         if ((event->buttons() & Qt::LeftButton) && m_dragIndex >= 0 && !m_detachedDuringDrag) {
             int verticalDist = qAbs(event->pos().y() - m_dragStartPos.y());
             if (verticalDist > 42) {
@@ -515,7 +518,7 @@ class BrowserWindow : public QMainWindow {
 public:
     static QList<BrowserWindow*> s_openWindows;
 
-    BrowserWindow(bool isIncognito = false, bool openDefaultTab = true, QWidget *parent = nullptr)
+    BrowserWindow(bool isIncognito = false, bool openDefaultTab = true, const QList<QUrl> &startupUrls = {}, QWidget *parent = nullptr)
     : QMainWindow(parent), m_isIncognito(isIncognito), m_profile(nullptr) {
 
         s_openWindows.append(this);
@@ -549,7 +552,12 @@ public:
             preloadAllBookmarkIcons();
         }
 
-        if (openDefaultTab) {
+        // Open external links (e.g. from Discord) if passed on command line
+        if (!startupUrls.isEmpty()) {
+            for (const QUrl &u : startupUrls) {
+                addNewTab(u);
+            }
+        } else if (openDefaultTab) {
             if (!m_isIncognito && startupContinueWhereLeftOff && !lastSessionUrls.isEmpty()) {
                 for (const QString &u : lastSessionUrls) {
                     addNewTab(QUrl(u));
@@ -570,7 +578,6 @@ public:
 
     CustomWebView* createNewTabWithView(const QUrl &url = QUrl());
 
-    // Attach an existing WebView from another window (Tab Re-Attach)
     void attachExistingWebView(CustomWebView *view, const QString &title, const QIcon &icon) {
         if (!view) return;
         view->setParent(this);
@@ -586,16 +593,14 @@ public:
     }
 
 public slots:
-    // Detach tab when dragged down, or merge into another BrowserWindow if dropped over its tab bar
     void handleTabDetach(int idx, const QPoint &globalPos) {
         QWidget *w = tabStack->widget(idx);
         CustomWebView *view = qobject_cast<CustomWebView*>(w);
-        if (!view) return; // Only detach web tabs
+        if (!view) return;
 
         QString tabTitle = tabBar->tabText(idx);
         QIcon tabIcon = tabBar->tabIcon(idx);
 
-        // 1. Check if cursor is hovering over another open BrowserWindow's tab bar
         for (BrowserWindow *otherWin : s_openWindows) {
             if (otherWin == this || otherWin->m_isIncognito != this->m_isIncognito) continue;
             QRect otherTabBarRect(otherWin->getTabBar()->mapToGlobal(QPoint(0, 0)), otherWin->getTabBar()->size());
@@ -611,14 +616,12 @@ public slots:
             }
         }
 
-        // 2. If this window only has 1 tab and wasn't dropped into another window, move the window
         if (tabBar->count() <= 1) {
             if (isMaximized()) showNormal();
             move(globalPos - QPoint(120, 20));
             return;
         }
 
-        // 3. Otherwise, detach into a brand-new BrowserWindow
         view->disconnect();
         if (view->page()) view->page()->disconnect();
         tabStack->removeWidget(view);
@@ -631,7 +634,6 @@ public slots:
         newWin->attachExistingWebView(view, tabTitle, tabIcon);
     }
 
-    // Prompt "Do you want to fill credentials?" when user clicks username/email or password field
     void promptAutofillCredentials(const QString &site) {
         if (!autofillEnabled) return;
         auto *view = qobject_cast<CustomWebView*>(tabStack->currentWidget());
@@ -669,7 +671,7 @@ public slots:
             if (savedPasswords[i].site.compare(site, Qt::CaseInsensitive) == 0 &&
                 savedPasswords[i].username == user) {
                 if (savedPasswords[i].password == pass) {
-                    return; // Already saved
+                    return;
                 }
                 existingIndex = i;
             break;
@@ -985,7 +987,7 @@ private slots:
                         .arg(pct).arg(mbRec, 0, 'f', 1).arg(mbTot, 0, 'f', 1).arg(speedStr));
                         statusLabel->setStyleSheet("color: #ff9c6e; font-size: 13px; margin-top: 4px; background: transparent;");
                     } else {
-                        pbar->setRange(0, 0); // Indeterminate animation if total size is unknown
+                        pbar->setRange(0, 0);
                         statusLabel->setText(QString("Downloading — %1 MB received • %2").arg(mbRec, 0, 'f', 1).arg(speedStr));
                         statusLabel->setStyleSheet("color: #ff9c6e; font-size: 13px; margin-top: 4px; background: transparent;");
                     }
@@ -1117,6 +1119,28 @@ private slots:
         tabBar->setCurrentIndex(idx);
     }
 
+    // Check OS + persistent state to see if BraveLite is already the default browser
+    bool isCurrentlyDefaultBrowser() const {
+        if (m_isDefaultBrowserSaved) return true;
+        #ifdef Q_OS_WIN
+        QSettings reg("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice", QSettings::NativeFormat);
+        QString progId = reg.value("ProgId").toString();
+        if (progId.contains("BraveLite", Qt::CaseInsensitive) || progId.contains("fedorabrowser", Qt::CaseInsensitive)) {
+            return true;
+        }
+        #else
+        QProcess proc;
+        proc.start("xdg-settings", {"get", "default-web-browser"});
+        if (proc.waitForFinished(1000)) {
+            QString out = QString::fromUtf8(proc.readAllStandardOutput()).trimmed().toLower();
+            if (out.contains("bravelite") || out.contains("mybrowser") || out.contains("fedorabrowser")) {
+                return true;
+            }
+        }
+        #endif
+        return false;
+    }
+
     // "Get started" First Page in Settings
     QWidget* createGetStartedWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
@@ -1133,23 +1157,36 @@ private slots:
         QVBoxLayout *defTextLayout = new QVBoxLayout();
         QLabel *defTitle = new QLabel("Default browser", defaultCard);
         defTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *defSub = new QLabel("Make BraveLite your default web browser for opening web links.", defaultCard);
+
+        bool alreadyDefault = isCurrentlyDefaultBrowser();
+        QLabel *defSub = new QLabel(alreadyDefault
+        ? "BraveLite is currently your default web browser."
+        : "Make BraveLite your default web browser for opening web links.", defaultCard);
         defSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         defTextLayout->addWidget(defTitle);
         defTextLayout->addWidget(defSub);
 
-        QPushButton *btnMakeDefault = new QPushButton("Make default", defaultCard);
+        QPushButton *btnMakeDefault = new QPushButton(alreadyDefault ? "✔ Default Browser" : "Make default", defaultCard);
         btnMakeDefault->setCursor(Qt::PointingHandCursor);
-        btnMakeDefault->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; } QPushButton:hover { background: #ff6a22; }");
-        connect(btnMakeDefault, &QPushButton::clicked, this, [this, btnMakeDefault]() {
+        if (alreadyDefault) {
+            btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
+            btnMakeDefault->setEnabled(false);
+        } else {
+            btnMakeDefault->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; } QPushButton:hover { background: #ff6a22; }");
+        }
+
+        connect(btnMakeDefault, &QPushButton::clicked, this, [this, btnMakeDefault, defSub]() {
             #ifdef Q_OS_WIN
             QDesktopServices::openUrl(QUrl("ms-settings:defaultapps"));
-            QMessageBox::information(this, "Default Browser", "Windows Default Apps settings opened. Select BraveLite under Web browser.");
             #else
             QProcess::execute("xdg-settings", {"set", "default-web-browser", "bravelite.desktop"});
-            btnMakeDefault->setText("✔ Default Browser Set");
-            btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
             #endif
+            m_isDefaultBrowserSaved = true;
+            savePersistentData();
+            defSub->setText("BraveLite is currently your default web browser.");
+            btnMakeDefault->setText("✔ Default Browser");
+            btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
+            btnMakeDefault->setEnabled(false);
         });
 
         defLayout->addLayout(defTextLayout, 1);
@@ -1568,6 +1605,7 @@ private slots:
                     historyList.clear();
                     bookmarksList.clear();
                     savedPasswords.clear();
+                    m_isDefaultBrowserSaved = false;
                     qDeleteAll(downloadsList);
                     downloadsList.clear();
                     renderBookmarks();
@@ -1815,6 +1853,7 @@ private slots:
 
 private:
     bool m_isIncognito;
+    bool m_isDefaultBrowserSaved = false;
     Qt::WindowStates m_preFullScreenState = Qt::WindowNoState;
     QWebEngineProfile *m_profile;
     QNetworkAccessManager *m_netManager;
@@ -1878,64 +1917,116 @@ private:
         settings->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
         settings->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, true);
         settings->setAttribute(QWebEngineSettings::PlaybackRequiresUserGesture, false);
-        settings->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
-        settings->setAttribute(QWebEngineSettings::WebGLEnabled, true);
 
         if (!m_isIncognito && m_profile->scripts()->find("BraveLiteCosmeticAndYTShield").isEmpty()) {
-            // Injected Cosmetic Filter + YouTube AdBlocker + Popup/Redirect Blocker
+            // Safe DocumentReady injection prevents SIGTRAP (ExitCode 133) on sites with sandboxed subframes like vimm.net
             QWebEngineScript shieldScript;
             shieldScript.setName("BraveLiteCosmeticAndYTShield");
-            shieldScript.setInjectionPoint(QWebEngineScript::DocumentCreation);
+            shieldScript.setInjectionPoint(QWebEngineScript::DocumentReady);
             shieldScript.setWorldId(QWebEngineScript::MainWorld);
-            shieldScript.setRunsOnSubFrames(true);
+            shieldScript.setRunsOnSubFrames(false);
             shieldScript.setSourceCode(R"(
                 (function() {
-                    const injectStyle = () => {
-                        if (document.getElementById('__bravelite_cosmetic')) return;
-                        const s = document.createElement('style');
-                        s.id = '__bravelite_cosmetic';
-                        s.innerHTML = `
-                            .adbox, .banner_ads, .adsbox, .textads,
-                            [class*="banner_ads"], [class*="adbox"],
-                            div[id*="google_ads"], div[id*="ad-slot"],
-                            #ad-container, .adsbygoogle,
-                            ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer,
-                            ytd-banner-promo-renderer, ytd-statement-banner-renderer,
-                            ytd-masthead-ad-v3-renderer, ytd-primetime-promo-renderer,
-                            .ytp-ad-overlay-container, .ytp-ad-message-container,
-                            #masthead-ad, #player-ads, .video-ads {
-                                display: none !important;
-                                visibility: hidden !important;
-                                height: 0 !important;
-                                width: 0 !important;
-                            }
-                        `;
-                        (document.head || document.documentElement).appendChild(s);
-                    };
-                    injectStyle();
-                    window.addEventListener('DOMContentLoaded', injectStyle);
-
-                    // YouTube Video Ad Skipper & Fast-Forwarder
-                    if (window.location.hostname.includes('youtube.com')) {
-                        const skipYouTubeAds = () => {
-                            const skipBtns = document.querySelectorAll(
-                                '.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .videoAdUiSkipButton'
-                            );
-                            skipBtns.forEach(btn => { try { btn.click(); } catch(e) {} });
-
-                            const player = document.querySelector('#movie_player, .html5-video-player');
-                            const video = document.querySelector('video');
-                            if (player && player.classList.contains('ad-showing') && video) {
-                                video.muted = true;
-                                if (isFinite(video.duration) && video.duration > 0) {
-                                    video.currentTime = video.duration;
-                                } else {
-                                    video.playbackRate = 16.0;
+                    try {
+                        const injectStyle = () => {
+                            const root = document.head || document.documentElement;
+                            if (!root || document.getElementById('__bravelite_cosmetic')) return;
+                            const s = document.createElement('style');
+                            s.id = '__bravelite_cosmetic';
+                            s.textContent = `
+                                .adbox, .banner_ads, .adsbox, .textads,
+                                [class*="banner_ads"], [class*="adbox"],
+                                div[id*="google_ads"], div[id*="ad-slot"],
+                                #ad-container, .adsbygoogle,
+                                ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer,
+                                ytd-banner-promo-renderer, ytd-statement-banner-renderer,
+                                ytd-masthead-ad-v3-renderer, ytd-primetime-promo-renderer,
+                                ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-ads"],
+                                ytd-merch-shelf-renderer, ytd-action-companion-ad-renderer,
+                                .ytd-mealbar-promo-renderer, .ytp-ad-overlay-container,
+                                .ytp-ad-message-container, .ytp-ad-image-overlay,
+                                .ytp-ad-text-overlay, .ytp-ad-player-overlay-layout,
+                                #masthead-ad, #player-ads, .video-ads {
+                                    display: none !important;
+                                    visibility: hidden !important;
+                                    height: 0 !important;
+                                    width: 0 !important;
+                                    pointer-events: none !important;
                                 }
-                            }
+                                `;
+                                root.appendChild(s);
                         };
-                        setInterval(skipYouTubeAds, 250);
-                    }
+                        injectStyle();
+
+                        // Dedicated YouTube AdBlocker Engine
+                        if (window.location.hostname.includes('youtube.com')) {
+                            let userMutedState = false;
+
+                            const nukeYouTubeAds = () => {
+                                try {
+                                    injectStyle();
+
+                                    // 1. Click all known skip / overlay close buttons immediately
+                                    const skipSelectors = [
+                                        '.ytp-ad-skip-button',
+                                        '.ytp-ad-skip-button-modern',
+                                        '.ytp-skip-ad-button',
+                                        '.videoAdUiSkipButton',
+                                        '.ytp-ad-overlay-close-button',
+                                        'button[id^="skip-button"]'
+                                    ];
+                                    for (const sel of skipSelectors) {
+                                        const btns = document.querySelectorAll(sel);
+                                        for (let i = 0; i < btns.length; i++) {
+                                            btns[i].click();
+                                        }
+                                    }
+
+                                    // 2. Detect active video ad and fast-forward / skip stream
+                                    const player = document.querySelector('#movie_player, .html5-video-player');
+                                    const video = document.querySelector('video.html5-main-video, video');
+                                    if (!player || !video) return;
+
+                                    const isAdShowing = player.classList.contains('ad-showing') ||
+                                    player.classList.contains('ad-interrupting') ||
+                                    document.querySelector('.ad-showing, .ytp-ad-player-overlay, .ytp-ad-player-overlay-instream-info') !== null;
+
+                                    if (isAdShowing) {
+                                        video.muted = true;
+                                        video.playbackRate = 16.0;
+                                        if (Number.isFinite(video.duration) && video.duration > 0.5 && video.currentTime < video.duration - 0.2) {
+                                            video.currentTime = video.duration - 0.05;
+                                        }
+                                        if (typeof player.cancelPlayback === 'function' && player.getAdState && player.getAdState() === 1) {
+                                            // Force skip via player API if available
+                                            try { player.skipAd(); } catch(e) {}
+                                        }
+                                    } else {
+                                        if (video.playbackRate === 16.0) {
+                                            video.playbackRate = 1.0;
+                                            video.muted = userMutedState;
+                                        } else {
+                                            userMutedState = video.muted;
+                                        }
+                                    }
+
+                                    // 3. Remove feed & sidebar ad nodes
+                                    const domAds = document.querySelectorAll(
+                                        'ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, #player-ads, #masthead-ad, ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-ads"]'
+                                    );
+                                    for (let i = 0; i < domAds.length; i++) {
+                                        domAds[i].remove();
+                                    }
+                                } catch (err) {}
+                            };
+
+                            setInterval(nukeYouTubeAds, 100);
+                            if (document.body) {
+                                const obs = new MutationObserver(nukeYouTubeAds);
+                                obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+                            }
+                        }
+                    } catch (e) {}
                 })();
             )");
             m_profile->scripts()->insert(shieldScript);
@@ -2044,7 +2135,6 @@ private:
         }
         if (!hasSavedForSite) return;
 
-        // Attach click listener to username/email and password fields on this site
         view->page()->runJavaScript(R"(
             (function() {
                 if (window.__bravelitePromptHooked) return;
@@ -2060,11 +2150,10 @@ private:
 
                     if (!isPass && !isUser) return;
 
-                    // Verify there is a password field on the page so we don't prompt on regular search bars
                     const passField = document.querySelector('input[type="password"]');
                     if (!passField) return;
 
-                    if (el.value && passField.value) return; // Already filled
+                    if (el.value && passField.value) return;
 
                     const now = Date.now();
                     if (window.__lastAutofillPromptTime && (now - window.__lastAutofillPromptTime < 1500)) return;
@@ -2431,7 +2520,6 @@ private:
                     setCentralWidget(centralWidget);
     }
 
-    // Start Page HTML: Centered "Welcome!", Real-time Clock, and "because privacy matters"
     QString getNewTabHtml() {
         QString now = QDateTime::currentDateTime().toString("dddd, MMMM d, yyyy • hh:mm:ss AP");
         return QString(R"(
@@ -2594,7 +2682,6 @@ private:
         preloadBookmarkFavicon(addedIdx);
     }
 
-    // Bookmarks Bar: Icon on Left + Name Next to Icon (Truncated at 16th char) + Middle-Click for New Tab
     void renderBookmarks() {
         bookmarksBar->clear();
         for (int i = 0; i < bookmarksList.size(); ++i) {
@@ -2611,7 +2698,6 @@ private:
             btn->setToolTip(bm.title + "\n" + bm.url + "\n(Middle-click to open in new tab)");
             btn->setCursor(Qt::PointingHandCursor);
 
-            // Left-click loads in current tab
             connect(btn, &QToolButton::clicked, this, [this, bm]() {
                 if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
                     v->load(QUrl(bm.url));
@@ -2620,12 +2706,10 @@ private:
                 }
             });
 
-            // Middle-click (scroll-wheel click) opens in a new tab
             connect(btn, &BookmarkToolButton::middleClicked, this, [this, bm]() {
                 addNewTab(QUrl(bm.url));
             });
 
-            // Right-click menu
             btn->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(btn, &QToolButton::customContextMenuRequested, this, [this, i, btn](const QPoint &pos) {
                 QMenu menu(btn);
@@ -2663,7 +2747,7 @@ private:
         }
     }
 
-    QString getStorageFile() {
+    QString getStorageFile() const {
         return getConfigDir() + "/data.json";
     }
 
@@ -2674,6 +2758,7 @@ private:
         QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
         autofillEnabled = root.value("autofillEnabled").toBool(true);
         startupContinueWhereLeftOff = root.value("startupContinueWhereLeftOff").toBool(false);
+        m_isDefaultBrowserSaved = root.value("isDefaultBrowser").toBool(false);
 
         lastSessionUrls.clear();
         for (auto v : root["lastSessionUrls"].toArray()) {
@@ -2727,6 +2812,7 @@ private:
         QJsonObject root;
         root["autofillEnabled"] = autofillEnabled;
         root["startupContinueWhereLeftOff"] = startupContinueWhereLeftOff;
+        root["isDefaultBrowser"] = m_isDefaultBrowserSaved;
 
         QJsonArray sessionArr;
         if (tabStack) {
@@ -2787,7 +2873,6 @@ private:
         if (p) {
             p->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
 
-            // Fullscreen handler that remembers and restores maximized window state
             connect(p, &QWebEnginePage::fullScreenRequested, this, [this](QWebEngineFullScreenRequest request) {
                 request.accept();
                 if (request.toggleOn()) {
@@ -2797,11 +2882,16 @@ private:
                 }
             });
 
-            // Log renderer crashes into the separate CrashLogs folder
+            // Log renderer crashes and automatically reload the tab so it never stays dead
             connect(view, &QWebEngineView::renderProcessTerminated, this, [view](QWebEnginePage::RenderProcessTerminationStatus status, int exitCode) {
                 CrashLogger::writeCrashEntry("WebEngine Render Process Terminated",
                                              QString("URL: %1 | Status: %2 | ExitCode: %3")
                                              .arg(view->url().toString()).arg(status).arg(exitCode));
+                if (status != QWebEnginePage::NormalTerminationStatus) {
+                    QTimer::singleShot(400, view, [view]() {
+                        view->reload();
+                    });
+                }
             });
 
             if (!m_isIncognito) {
@@ -2968,7 +3058,6 @@ QWebEngineView* CustomWebView::createWindow(QWebEnginePage::WebWindowType type) 
     BrowserWindow *win = qobject_cast<BrowserWindow*>(window());
     if (!win) return nullptr;
 
-    // Block background spam pop-unders when BraveLite Shield is enabled
     if (win->adBlocker() && win->adBlocker()->isEnabled() && type == QWebEnginePage::WebBrowserBackgroundTab) {
         return nullptr;
     }
@@ -2994,10 +3083,9 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 }
 
 int main(int argc, char *argv[]) {
-    // Performance & GPU Acceleration flags (eliminates Windows UI/scrolling lag & enables YouTube ad-skipping smoothness)
+    // Safe Chromium flags: smooth scrolling & popup blocking without unstable zero-copy GPU SIGTRAPs
     qputenv("QTWEBENGINE_CHROMIUM_FLAGS",
-            "--enable-gpu-rasterization --enable-zero-copy --enable-smooth-scrolling "
-            "--ignore-gpu-blocklist --disable-background-networking --disable-PopupBlocking=false");
+            "--enable-smooth-scrolling --disable-background-networking --autoplay-policy=no-user-gesture-required");
 
     CrashLogger::installCrashHandlers();
 
@@ -3006,7 +3094,6 @@ int main(int argc, char *argv[]) {
     app.setApplicationVersion("1.0");
     app.setOrganizationName("BraveLite");
 
-    // Use Fusion style across platforms so Windows never renders legacy Win95/Win32 bevel buttons
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
         app.setStyle(fusion);
     }
@@ -3017,7 +3104,25 @@ int main(int argc, char *argv[]) {
     if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
     app.setWindowIcon(appIcon);
 
-    BrowserWindow *window = new BrowserWindow(false);
+    // Parse URLs passed from external apps (e.g. clicking a link in Discord)
+    QList<QUrl> startupUrls;
+    const QStringList args = app.arguments();
+    for (int i = 1; i < args.size(); ++i) {
+        QString arg = args[i].trimmed();
+        if (arg.isEmpty() || arg.startsWith("-")) continue;
+
+        if (arg.startsWith("http://", Qt::CaseInsensitive) ||
+            arg.startsWith("https://", Qt::CaseInsensitive) ||
+            arg.startsWith("file://", Qt::CaseInsensitive)) {
+            startupUrls.append(QUrl(arg));
+            } else if (QFileInfo::exists(arg)) {
+                startupUrls.append(QUrl::fromLocalFile(QFileInfo(arg).absoluteFilePath()));
+            } else if (arg.contains(".") && !arg.contains(" ")) {
+                startupUrls.append(QUrl("https://" + arg));
+            }
+    }
+
+    BrowserWindow *window = new BrowserWindow(false, startupUrls.isEmpty(), startupUrls);
     window->show();
 
     return app.exec();

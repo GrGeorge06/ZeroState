@@ -1,0 +1,1 @@
+make it so when you open links for example discord links it opens in the existing window not a new one,
