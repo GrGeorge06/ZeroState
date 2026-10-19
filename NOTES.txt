@@ -1,4 +1,4 @@
-make it so when you open links for example discord links it opens in the existing window not a new one, I am intrested in creating a dashboard in settings that you can configure your own llms via ollama to sumarize web pages when you hover your mouse over the links, give an overview after the search to give the answer you are searching for just like google's AI overview all that with a very light llm, the intergrated llms should be toggleable in the dashboard and everything needed sould be configurable inside of the browser, name the ai "BraveLite AI". also the youtube fullscreen issue has not been resolved - exiting fullscreen still unmaximizes the window. change the version to v1.11,
+When you open links for example discord links it opens in the existing window not a new one, I am intrested in creating a dashboard in settings that you can configure your own llms via ollama to sumarize web pages when you hover your mouse over the links, give an overview after the search to give the answer you are searching for just like google's AI overview all that with a very light llm, the intergrated llms should be toggleable in the dashboard and everything needed sould be configurable inside of the browser, name the ai "BraveLite AI". also the youtube fullscreen issue has not been resolved - exiting fullscreen still unmaximizes the window. change the version to v1.11,
 
 --------------------------------------------
 adblock sources that are not yet blocked:
@@ -8,3 +8,17 @@ freshmarketer.com
 claritybt.freshmarketer.com
 fwtracks.freshmarketer.com
 --------------------------------
+
+maybe even make a dedicated local search engine to work with the ai overview name the search engine "BraveLite Browser"
+
+Add different theme profiles in the settings.
+
+make more extensive and detailed crash logs
+
+Also if you open the downloads tab and then start a new download it does not show it, you need to open a new tab to see it, make it so that it shows all the new downloads the moment you start it even if the downloads tab was opened 5 days ago
+
+make it so that the bookmarks are movable like tabs so that they become easier to orginize
+
+generate a Changelog.txt and state every change in this update
+
+add a keybinds tab in the settings
