@@ -1,4 +1,4 @@
-cat << 'EOF' > ~/.github/workflows/windows.yml 2>/dev/null || cat << 'EOF' > ~/Downloads/browser/gemini/mybrowser/.github/workflows/windows.yml
+cat << 'EOF' > ~/Downloads/browser/gemini/mybrowser/.github/workflows/windows.yml
 name: Build Windows Release
 
 on:
