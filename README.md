@@ -1,16 +1,16 @@
 # BraveLite - GrGeorge
 
-A fast, lightweight, debloated web browser for Fedora Linux built natively with **C++** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted AI services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration.
+A fast, lightweight, debloated web browser for Linux built natively with **C++** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions.
 
 ![Version](https://img.shields.io/badge/version-v0.84--beta-orange)
-![Platform](https://img.shields.io/badge/platform-Fedora%20Linux-blue)
+![Platform](https://img.shields.io/badge/platform-Linux%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE)-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
 ## Key Features
 
-* **Built-in Ad & Telemetry Blocker:** Full network request interception blocking advertising networks, analytics scripts, social widgets, and device-maker telemetry (Xiaomi, Realme, Oppo, Huawei, Apple, Samsung) with zero setup.
+* **Built-in Ad & Telemetry Blocker:** Full network request interception blocking advertising networks, analytics scripts, social widgets, and device-maker telemetry (Xiaomi, Realme, Oppo, Huawei, Apple, Samsung) out of the box.
 * **Per-Site Privacy Grade (A–F):** Real-time letter grade displayed directly inside the address bar showing site tracking behavior, blocked scripts, and encryption status. Click the badge for a detailed breakdown report.
 * **DuckDuckGo by Default:** Instant search integration via the URL bar and start page with no promotional redirects.
 * **Clean, Minimalist UI:**
@@ -28,14 +28,43 @@ A fast, lightweight, debloated web browser for Fedora Linux built natively with 
 
 ---
 
-## Prerequisites (Fedora Linux)
+## Prerequisites & Distro Dependencies
 
-Ensure your system has the standard C++ compiler, build tools, and Qt6 WebEngine development libraries installed:
+BraveLite compiles on any modern Linux distribution with standard C++17, CMake, and Qt6 (Widgets + WebEngine). Install the required development packages for your distribution:
 
+### Fedora / RHEL / CentOS Stream
 ```bash
 sudo dnf install -y gcc-c++ cmake ninja-build \
     qt6-qtbase-devel qt6-qtwebengine-devel \
     qt6-qtsvg-devel ImageMagick
+```
+
+### Ubuntu / Debian / Linux Mint / Pop!_OS
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake ninja-build \
+    qt6-base-dev qt6-webengine-dev qt6-webengine-dev-tools \
+    libqt6svg6-dev imagemagick
+```
+
+### Arch Linux / Manjaro / EndeavourOS
+```bash
+sudo pacman -S --needed base-devel cmake ninja \
+    qt6-base qt6-webengine qt6-svg imagemagick
+```
+
+### openSUSE (Tumbleweed / Leap)
+```bash
+sudo zypper install -y gcc-c++ cmake ninja \
+    qt6-base-devel qt6-webengine-devel \
+    qt6-svg-devel ImageMagick
+```
+
+### Alpine Linux
+```bash
+sudo apk add g++ cmake ninja \
+    qt6-qtbase-dev qt6-qtwebengine-dev \
+    qt6-qtsvg-dev imagemagick
 ```
 
 ---
@@ -51,7 +80,7 @@ cd mybrowser
 
 ### 2. Compile the Binary
 
-Compile the source using CMake and the Ninja build system:
+Compile the source using CMake and Ninja:
 
 ```bash
 mkdir -p build && cd build
@@ -59,7 +88,7 @@ cmake .. -G Ninja
 ninja
 ```
 
-You can test-run the browser directly from the build directory:
+You can test-run the browser directly from the build folder:
 
 ```bash
 ./fedorabrowser
@@ -69,16 +98,18 @@ You can test-run the browser directly from the build directory:
 
 ## Desktop Integration (Install as a System App)
 
-To make BraveLite appear in your application launcher (GNOME App Grid / KDE Application Launcher) with its custom icon and automatic update support:
+To make BraveLite appear in your application launcher (GNOME, KDE Plasma, XFCE, Cinnamon, or tiling window managers) with its custom icon and automatic update support:
 
-### 1. Link the Binary to Your PATH
+### 1. Link the Binary to Your Local PATH
 
-Creating a symbolic link ensures that whenever you run `ninja`, your installed application updates automatically:
+Creating a symbolic link ensures that whenever you run `ninja`, your installed application updates automatically without having to re-copy files:
 
 ```bash
 mkdir -p ~/.local/bin
 ln -sf $(pwd)/fedorabrowser ~/.local/bin/bravelite
 ```
+
+*(Ensure `~/.local/bin` is in your `$PATH`. Most modern distros include it by default).*
 
 ### 2. Install Desktop Icons
 
@@ -95,7 +126,7 @@ magick -background none -resize 128x128 ../assets/bravelite.svg ~/.local/share/i
 magick -background none -resize 256x256 ../assets/bravelite.svg ~/.local/share/icons/hicolor/256x256/apps/bravelite.png
 magick -background none -resize 512x512 ../assets/bravelite.svg ~/.local/share/icons/hicolor/512x512/apps/bravelite.png
 
-gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor
+gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor 2>/dev/null || true
 ```
 
 ### 3. Create the Desktop Launcher Entry
@@ -118,9 +149,9 @@ StartupNotify=true
 StartupWMClass=bravelite
 EOF
 
-# Substitute your active username and update the database
+# Substitute active username and update desktop database
 sed -i "s/\$USER/$USER/g" ~/.local/share/applications/bravelite.desktop
-update-desktop-database ~/.local/share/applications
+update-desktop-database ~/.local/share/applications 2>/dev/null || true
 ```
 
 BraveLite is now installed and accessible from your system application menu.
@@ -146,7 +177,7 @@ BraveLite is now installed and accessible from your system application menu.
 
 ## File Storage Locations
 
-All user configuration, persistent cookies, and bookmarks are kept locally within your user profile:
+All user configuration, persistent cookies, and bookmarks are kept locally within your user profile in standard XDG directories:
 
 * **Configuration & Saved Data:** `~/.config/BraveLite/data.json`
 * **Persistent Web Storage & Cookies:** `~/.config/BraveLite/Storage/`
@@ -164,4 +195,4 @@ cd build
 ninja
 ```
 
-The next time you open BraveLite from your system menu or terminal, the updated build runs immediately.
+The next time you open BraveLite from your application menu or terminal, the updated build runs immediately.
