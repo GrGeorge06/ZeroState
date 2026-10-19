@@ -1,0 +1,9 @@
+build/
+CMakeFiles/
+CMakeCache.txt
+*.ninja
+*.ninja_deps
+*.ninja_log
+.cache/
+*.user
+fedorabrowser
