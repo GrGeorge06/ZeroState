@@ -38,6 +38,7 @@
 #include <QTextStream>
 #include <QShortcut>
 #include <QMap>
+#include <QStackedWidget>
 #include <functional>
 #include <memory>
 
@@ -47,7 +48,6 @@ class AdBlocker : public QWebEngineUrlRequestInterceptor {
 public:
     explicit AdBlocker(QObject *parent = nullptr) : QWebEngineUrlRequestInterceptor(parent), m_enabled(true) {
         blocklist = {
-            // Device maker telemetry
             "iot-logser.realme.com", "bdapi-ads.realmemobile.com", "bdapi-in-ads.realmemobile.com", "iot-eu-logser.realme.com",
             "ck.ads.oppomobile.com", "data.ads.oppomobile.com", "adsfs.oppomobile.com", "adx.ads.oppomobile.com",
             "data.mistat.xiaomi.com", "data.mistat.india.xiaomi.com", "data.mistat.rus.xiaomi.com",
@@ -58,37 +58,29 @@ public:
             "books-analytics-events.apple.com", "weather-analytics-events.apple.com", "notes-analytics-events.apple.com",
             "smetrics.samsung.com", "samsung-com.112.2o7.net", "analytics-api.samsunghealthcn.com", "samsungads.com", "nmetrics.samsung.com",
             "click.oneplus.cn",
-            // Amazon / S3 Analytics
             "adtago.s3.amazonaws.com", "analyticsengine.s3.amazonaws.com", "analytics.s3.amazonaws.com",
             "advice-ads.s3.amazonaws.com", "amazon-adsystem.com",
-            // Google / Doubleclick
             "doubleclick.net", "googleadservices.com", "googlesyndication.com",
             "adservice.google.com", "adservice.google", "pagead2.googlesyndication.com",
             "pagead2.googleadservices.com", "afs.googlesyndication.com", "stats.g.doubleclick.net",
             "mediavisor.doubleclick.net", "ad.doubleclick.net", "static.doubleclick.net", "m.doubleclick.net",
             "google-analytics.com", "analytics.google.com", "click.googleanalytics.com", "ssl.google-analytics.com",
-            // Adcolony & Media.net
             "adcolony.com", "wd.adcolony.com", "ads30.adcolony.com", "adc3-launch.adcolony.com", "events3alt.adcolony.com",
             "media.net", "static.media.net", "adservetx.media.net",
-            // Mouseflow & Luckyorange
             "mouseflow.com", "tools.mouseflow.com", "o2.mouseflow.com", "cdn.mouseflow.com", "cdn-test.mouseflow.com", "api.mouseflow.com", "gtm.mouseflow.com",
             "luckyorange.com", "cdn.luckyorange.com", "realtime.luckyorange.com", "api.luckyorange.com",
             "w1.luckyorange.com", "upload.luckyorange.net", "cs.luckyorange.net", "settings.luckyorange.net",
-            // Sentry & Bugsnag
             "browser.sentry-cdn.com", "app.getsentry.com", "sentry.io",
             "notify.bugsnag.com", "sessions.bugsnag.com", "api.bugsnag.com", "app.bugsnag.com",
-            // Social Networks & Trackers
             "pixel.facebook.com", "an.facebook.com", "static.ads-twitter.com", "ads-api.twitter.com",
             "ads.linkedin.com", "analytics.pointdrive.linkedin.com", "ads.pinterest.com", "log.pinterest.com", "trk.pinterest.com",
             "events.reddit.com", "events.redditmedia.com", "ads.youtube.com",
             "ads-api.tiktok.com", "analytics.tiktok.com", "ads-sg.tiktok.com", "analytics-sg.tiktok.com",
             "business-api.tiktok.com", "ads.tiktok.com", "log.byteoversea.com",
-            // Yahoo & Unity
             "ads.yahoo.com", "analytics.yahoo.com", "geo.yahoo.com", "udcm.yahoo.com",
             "analytics.query.yahoo.com", "partnerads.ysm.yahoo.com", "log.fc.yahoo.com",
             "gemini.yahoo.com", "adtech.yahooinc.com",
             "auction.unityads.unity3d.com", "webview.unityads.unity3d.com", "config.unityads.unity3d.com", "adserver.unityads.unity3d.com",
-            // General ad networks
             "adnxs.com", "scorecardresearch.com", "zedo.com", "outbrain.com", "taboola.com",
             "adroll.com", "rubiconproject.com", "openx.net", "pubmatic.com", "criteo.com",
             "casalemedia.com", "moatads.com", "smartadserver.com", "chartbeat.com", "quantserve.com",
@@ -233,12 +225,13 @@ public:
     }
 };
 
-// ---------------- 5. TAB BAR WITH CLEAN HOVER CLOSING ----------------
+// ---------------- 5. CUSTOM TAB BAR ----------------
 class CustomTabBar : public QTabBar {
     Q_OBJECT
 public:
     explicit CustomTabBar(QWidget *parent = nullptr) : QTabBar(parent) {
         setMouseTracking(true);
+        setExpanding(false);
     }
 
 protected:
@@ -278,17 +271,10 @@ protected:
     }
 };
 
-class CustomTabWidget : public QTabWidget {
-    Q_OBJECT
-public:
-    explicit CustomTabWidget(QWidget *parent = nullptr) : QTabWidget(parent) {
-        setTabBar(new CustomTabBar(this));
-    }
-};
-
 struct Bookmark {
     QString title;
     QString url;
+    QIcon icon;
 };
 
 struct SavedCredential {
@@ -320,7 +306,13 @@ public:
     : QMainWindow(parent), m_isIncognito(isIncognito) {
 
         resize(1260, 840);
-        setWindowTitle(m_isIncognito ? "BraveLite - GrGeorge (beta v0.84) [Incognito]" : "BraveLite - GrGeorge (beta v0.84)");
+        setWindowTitle(m_isIncognito ? "BraveLite [Incognito]" : "BraveLite");
+
+        // Set Cross-Platform App Window Icon
+        QIcon appIcon = QIcon::fromTheme("bravelite");
+        if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
+        if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
+        setWindowIcon(appIcon);
 
         m_adBlocker = new AdBlocker(this);
         connect(m_adBlocker, &AdBlocker::trackerBlocked, this, &BrowserWindow::onTrackerBlocked);
@@ -376,9 +368,9 @@ public:
 public slots:
     void promptSaveCredentials(const QString &site, const QString &user, const QString &pass) {
         QDialog dlg(this);
-        dlg.setWindowTitle("Save password?");
+        dlg.setWindowTitle("Save Password?");
         dlg.resize(360, 180);
-        dlg.setStyleSheet("background-color: #242529; color: #fff; font-family: sans-serif;");
+        dlg.setStyleSheet("background-color: #242529; color: #fff;");
         QFormLayout form(&dlg);
 
         QLabel header("Do you want BraveLite to save this login?");
@@ -416,7 +408,7 @@ public slots:
 private slots:
     void onTrackerBlocked(const QString &originHost, int totalBlocked) {
         Q_UNUSED(totalBlocked);
-        if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) {
+        if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
             if (v->url().host().toLower() == originHost) {
                 updatePrivacyBadge(v->url());
             }
@@ -439,7 +431,7 @@ private slots:
 
         if (!isHttps) {
             grade = "F";
-            color = "#f5222d"; // Insecure connection
+            color = "#f5222d";
         } else if (blocked >= 20) {
             grade = "F";
             color = "#f5222d";
@@ -467,7 +459,7 @@ private slots:
     }
 
     void showPrivacyDetails() {
-        if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) {
+        if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
             QUrl url = v->url();
             QString host = url.host();
             int blocked = m_adBlocker->getBlockedCount(host.toLower());
@@ -542,7 +534,7 @@ private slots:
     }
 
     void openDownloadsTab() {
-        QWidget *page = new QWidget(tabWidget);
+        QWidget *page = new QWidget(this);
         page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(page);
         layout->setContentsMargins(60, 40, 60, 40);
@@ -619,13 +611,14 @@ private slots:
         layout->addWidget(cardsContainer);
         layout->addStretch();
 
-        int idx = tabWidget->addTab(page, "Downloads");
-        tabWidget->setCurrentIndex(idx);
+        int idx = tabStack->addWidget(page);
+        tabBar->addTab("Downloads");
+        tabBar->setCurrentIndex(idx);
     }
 
     void openHistoryTab() {
-        QWidget *page = new QWidget(tabWidget);
-        page->setStyleSheet("background-color: #1a1a1e; color: #fff; font-family: sans-serif;");
+        QWidget *page = new QWidget(this);
+        page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(page);
         layout->setContentsMargins(60, 40, 60, 40);
         layout->setSpacing(20);
@@ -664,13 +657,14 @@ private slots:
             }
         });
 
-        int idx = tabWidget->addTab(page, "History");
-        tabWidget->setCurrentIndex(idx);
+        int idx = tabStack->addWidget(page);
+        tabBar->addTab("History");
+        tabBar->setCurrentIndex(idx);
     }
 
     void openPermissionsTab() {
-        QWidget *page = new QWidget(tabWidget);
-        page->setStyleSheet("background-color: #1a1a1e; color: #fff; font-family: sans-serif;");
+        QWidget *page = new QWidget(this);
+        page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(page);
         layout->setContentsMargins(60, 40, 60, 40);
         layout->setSpacing(20);
@@ -701,13 +695,14 @@ private slots:
         });
         layout->addWidget(btnRevoke);
 
-        int idx = tabWidget->addTab(page, "Permissions");
-        tabWidget->setCurrentIndex(idx);
+        int idx = tabStack->addWidget(page);
+        tabBar->addTab("Permissions");
+        tabBar->setCurrentIndex(idx);
     }
 
     void openSettingsTab() {
-        QWidget *page = new QWidget(tabWidget);
-        page->setStyleSheet("background-color: #1a1a1e; color: #fff; font-family: sans-serif;");
+        QWidget *page = new QWidget(this);
+        page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QHBoxLayout *hLayout = new QHBoxLayout(page);
         hLayout->setContentsMargins(40, 30, 40, 30);
         hLayout->setSpacing(30);
@@ -855,8 +850,9 @@ private slots:
         hLayout->addWidget(sidebar);
         hLayout->addWidget(content, 1);
 
-        int idx = tabWidget->addTab(page, "Settings");
-        tabWidget->setCurrentIndex(idx);
+        int idx = tabStack->addWidget(page);
+        tabBar->addTab("Settings");
+        tabBar->setCurrentIndex(idx);
     }
 
     void openAppMenu() {
@@ -899,7 +895,6 @@ private slots:
         menu.exec(btnMenu->mapToGlobal(QPoint(0, btnMenu->height() + 4)));
     }
 
-    // ---------------- IMPORT / EXPORT ----------------
     // ---------------- IMPORT / EXPORT ----------------
     void importTop5Browsers() {
         QStringList options = {
@@ -977,7 +972,7 @@ private slots:
             for (auto item : arr) {
                 QJsonObject obj = item.toObject();
                 if (obj["type"].toString() == "url") {
-                    bookmarksList.append({obj["name"].toString(), obj["url"].toString()});
+                    bookmarksList.append({obj["name"].toString(), obj["url"].toString(), style()->standardIcon(QStyle::SP_FileIcon)});
                     count++;
                 } else if (obj["children"].isArray()) {
                     self(self, obj["children"].toArray());
@@ -1005,7 +1000,7 @@ private slots:
                 if (endHref != -1 && closeTag != -1 && endTag != -1) {
                     QString url = line.mid(hrefIdx + 6, endHref - (hrefIdx + 6));
                     QString title = line.mid(closeTag + 1, endTag - (closeTag + 1));
-                    bookmarksList.append({title, url});
+                    bookmarksList.append({title, url, style()->standardIcon(QStyle::SP_FileIcon)});
                     count++;
                 }
             }
@@ -1059,19 +1054,19 @@ private slots:
 
     // ---------------- ZOOM CONTROLS ----------------
     void zoomIn() {
-        if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) {
+        if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
             v->setZoomFactor(v->zoomFactor() + 0.1);
         }
     }
 
     void zoomOut() {
-        if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) {
+        if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
             if (v->zoomFactor() > 0.3) v->setZoomFactor(v->zoomFactor() - 0.1);
         }
     }
 
     void zoomReset() {
-        if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) {
+        if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
             v->setZoomFactor(1.0);
         }
     }
@@ -1079,13 +1074,15 @@ private slots:
 private:
     bool m_isIncognito;
     AdBlocker *m_adBlocker;
-    CustomTabWidget *tabWidget;
+    CustomTabBar *tabBar;
+    QStackedWidget *tabStack;
     QLineEdit *urlBar;
     QPushButton *btnPrivacyGrade;
     QPushButton *btnShield;
     QPushButton *btnDownload;
     QPushButton *btnMenu;
     QToolBar *bookmarksBar;
+    QProgressBar *progressBar;
     QStringList historyList;
     QVector<Bookmark> bookmarksList;
     QVector<DownloadItem> downloadsList;
@@ -1097,25 +1094,28 @@ private:
     void setupShortcuts() {
         new QShortcut(QKeySequence::ZoomIn, this, SLOT(zoomIn()));
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal), this, SLOT(zoomIn()));
-        new QShortcut(QKeySequence::ZoomOut, this, SLOT(zoomOut()));
+        new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus), this, SLOT(zoomOut()));
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_0), this, SLOT(zoomReset()));
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_T), this, [this]() { addNewTab(); });
-        new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_W), this, [this]() { closeTab(tabWidget->currentIndex()); });
+        new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_W), this, [this]() { closeTab(tabBar->currentIndex()); });
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_J), this, [this]() { openDownloadsTab(); });
         new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_H), this, [this]() { openHistoryTab(); });
+        new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_L), this, [this]() { urlBar->setFocus(); urlBar->selectAll(); });
     }
 
     void applyStyling() {
         setStyleSheet(R"(
-            QMainWindow { background-color: #1e1f22; }
-            QWidget { background-color: #1e1f22; color: #dfdfdf; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, sans-serif; }
+            QMainWindow { background-color: #1a1a1e; }
+            QWidget { background-color: #1a1a1e; color: #dfdfdf; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, sans-serif; }
+            QWidget#headerContainer { background-color: #161719; }
             QLineEdit {
                 background-color: #2b2d30;
                 border: 1px solid #3e4146;
                 border-radius: 14px;
-                padding: 4px 12px;
+                padding: 5px 14px;
                 color: #ffffff;
                 font-size: 13px;
+                selection-background-color: #ff5500;
             }
             QLineEdit:focus { border: 1px solid #ff5500; }
             QPushButton {
@@ -1128,24 +1128,29 @@ private:
             }
             QPushButton:hover { background-color: #35373c; color: #ffffff; }
             QToolBar {
-                background-color: #242629;
-                border-bottom: 1px solid #2f3136;
-                padding: 2px 8px;
+                background-color: #1e1f22;
+                border: none;
+                padding: 3px 8px;
                 spacing: 6px;
             }
             QTabBar::tab {
                 background: #242629;
                 color: #9aa0a6;
-                padding: 6px 18px 6px 12px;
-                margin-right: 2px;
-                border-top-left-radius: 6px;
-                border-top-right-radius: 6px;
+                padding: 7px 18px 7px 12px;
+                margin-right: 3px;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
                 min-width: 120px;
                 max-width: 200px;
+                font-size: 12px;
             }
             QTabBar::tab:selected {
-                background: #2f3136;
+                background: #2d3035;
                 color: #ffffff;
+                font-weight: 500;
+            }
+            QTabBar::tab:hover:!selected {
+                background: #282a2e;
             }
             QTabBar::close-button {
                 image: none;
@@ -1156,103 +1161,146 @@ private:
                 min-height: 14px;
                 max-height: 14px;
             }
+            QProgressBar {
+                border: none;
+                background: transparent;
+                height: 2px;
+            }
+            QProgressBar::chunk {
+                background-color: #ff5500;
+            }
         )");
     }
 
     void setupUI() {
-        QWidget *topNav = new QWidget(this);
-        QHBoxLayout *navLayout = new QHBoxLayout(topNav);
-        navLayout->setContentsMargins(6, 6, 6, 4);
-        navLayout->setSpacing(4);
+        QWidget *centralWidget = new QWidget(this);
+        QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+        mainLayout->setContentsMargins(0, 0, 0, 0);
+        mainLayout->setSpacing(0);
 
-        btnShield = new QPushButton("🛡", this);
-        btnShield->setToolTip("Brave Shields: Active");
-        btnShield->setStyleSheet("QPushButton { font-size: 16px; color: #ff5500; padding: 4px 8px; } QPushButton:hover { background: #35373c; }");
-        connect(btnShield, &QPushButton::clicked, this, &BrowserWindow::toggleShield);
+        // Header container (Tabs at absolute top, then Nav Bar, then Bookmarks)
+        QWidget *headerContainer = new QWidget(this);
+        headerContainer->setObjectName("headerContainer");
+        QVBoxLayout *headerLayout = new QVBoxLayout(headerContainer);
+        headerLayout->setContentsMargins(0, 2, 0, 0);
+        headerLayout->setSpacing(0);
 
-        QPushButton *btnBack = new QPushButton("←", this);
-        QPushButton *btnForward = new QPushButton("→", this);
-        QPushButton *btnReload = new QPushButton("↻", this);
+        // 1. TOP TABS ROW (Tabs on Top, like Photo 1)
+        QWidget *tabRow = new QWidget(this);
+        QHBoxLayout *tabRowLayout = new QHBoxLayout(tabRow);
+        tabRowLayout->setContentsMargins(8, 0, 8, 0);
+        tabRowLayout->setSpacing(4);
 
-        // Privacy Grade Badge (DuckDuckGo style A-F)
-        btnPrivacyGrade = new QPushButton("A", this);
-        btnPrivacyGrade->setToolTip("Site Privacy Grade: A");
-        btnPrivacyGrade->setCursor(Qt::PointingHandCursor);
-        btnPrivacyGrade->setStyleSheet("QPushButton { background-color: #52c41a; color: white; font-weight: bold; border-radius: 4px; padding: 2px 7px; font-size: 11px; }");
-        btnPrivacyGrade->hide();
-        connect(btnPrivacyGrade, &QPushButton::clicked, this, &BrowserWindow::showPrivacyDetails);
+        tabBar = new CustomTabBar(this);
+        tabBar->setTabsClosable(true);
+        tabBar->setMovable(true);
+        connect(tabBar, &QTabBar::tabCloseRequested, this, &BrowserWindow::closeTab);
+        connect(tabBar, &QTabBar::currentChanged, this, &BrowserWindow::tabSwitched);
 
-        urlBar = new QLineEdit(this);
-        urlBar->setPlaceholderText("Search with DuckDuckGo or enter address");
-        connect(urlBar, &QLineEdit::returnPressed, this, &BrowserWindow::handleUrlSubmit);
-
-        QPushButton *btnBookmark = new QPushButton("★", this);
-        connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
-
-        QPushButton *btnZoomOut = new QPushButton("−", this);
-        connect(btnZoomOut, &QPushButton::clicked, this, &BrowserWindow::zoomOut);
-        QPushButton *btnZoomIn = new QPushButton("+", this);
-        connect(btnZoomIn, &QPushButton::clicked, this, &BrowserWindow::zoomIn);
-
-        btnDownload = new QPushButton("⤓", this);
-        btnDownload->setStyleSheet("QPushButton { font-size: 17px; font-weight: bold; }");
-        connect(btnDownload, &QPushButton::clicked, this, &BrowserWindow::openDownloadsPopup);
-
-        btnMenu = new QPushButton("☰", this);
-        btnMenu->setStyleSheet("QPushButton { font-size: 16px; font-weight: bold; }");
-        connect(btnMenu, &QPushButton::clicked, this, &BrowserWindow::openAppMenu);
-
-        navLayout->addWidget(btnShield);
-        navLayout->addWidget(btnBack);
-        navLayout->addWidget(btnForward);
-        navLayout->addWidget(btnReload);
-        navLayout->addWidget(btnPrivacyGrade);
-        navLayout->addWidget(urlBar);
-        navLayout->addWidget(btnBookmark);
-        navLayout->addWidget(btnZoomOut);
-        navLayout->addWidget(btnZoomIn);
-        navLayout->addWidget(btnDownload);
-        navLayout->addWidget(btnMenu);
-
-        bookmarksBar = new QToolBar("Bookmarks", this);
-        bookmarksBar->setMovable(false);
-        renderBookmarks();
-
-        tabWidget = new CustomTabWidget(this);
-        tabWidget->setTabsClosable(true);
-        tabWidget->setMovable(true);
-
-        // Native TopLeftCorner docking for '+' button (clean, fixed, reliable)
         QPushButton *newTabBtn = new QPushButton("+", this);
         newTabBtn->setFixedSize(26, 26);
         newTabBtn->setCursor(Qt::PointingHandCursor);
         newTabBtn->setToolTip("New tab (Ctrl+T)");
         newTabBtn->setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; color: #9aa0a6; background: transparent; border-radius: 4px; } QPushButton:hover { background-color: #35373c; color: #fff; }");
         connect(newTabBtn, &QPushButton::clicked, this, [this]() { addNewTab(); });
-        tabWidget->setCornerWidget(newTabBtn, Qt::TopLeftCorner);
 
-        connect(tabWidget, &QTabWidget::tabCloseRequested, this, &BrowserWindow::closeTab);
-        connect(tabWidget, &QTabWidget::currentChanged, this, &BrowserWindow::tabSwitched);
+        tabRowLayout->addWidget(tabBar);
+        tabRowLayout->addWidget(newTabBtn);
+        tabRowLayout->addStretch();
 
+        // 2. NAVIGATION BAR (Directly below Tabs)
+        QWidget *navBar = new QWidget(this);
+        QHBoxLayout *navLayout = new QHBoxLayout(navBar);
+        navLayout->setContentsMargins(8, 4, 8, 4);
+        navLayout->setSpacing(6);
+
+        QPushButton *btnBack = new QPushButton("←", this);
+        btnBack->setToolTip("Back (Alt+Left)");
         connect(btnBack, &QPushButton::clicked, [this]() {
-            if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) v->back();
+            if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->back();
         });
+
+            QPushButton *btnForward = new QPushButton("→", this);
+            btnForward->setToolTip("Forward (Alt+Right)");
             connect(btnForward, &QPushButton::clicked, [this]() {
-                if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) v->forward();
+                if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->forward();
             });
+
+                QPushButton *btnReload = new QPushButton("↻", this);
+                btnReload->setToolTip("Reload (Ctrl+R)");
                 connect(btnReload, &QPushButton::clicked, [this]() {
-                    if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) v->reload();
+                    if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) v->reload();
                 });
 
-                    QWidget *mainContainer = new QWidget(this);
-                    QVBoxLayout *layout = new QVBoxLayout(mainContainer);
-                    layout->setContentsMargins(0, 0, 0, 0);
-                    layout->setSpacing(0);
-                    layout->addWidget(topNav);
-                    layout->addWidget(bookmarksBar);
-                    layout->addWidget(tabWidget, 1);
+                    urlBar = new QLineEdit(this);
+                    urlBar->setPlaceholderText("Search with DuckDuckGo or enter address");
+                    connect(urlBar, &QLineEdit::returnPressed, this, &BrowserWindow::handleUrlSubmit);
 
-                    setCentralWidget(mainContainer);
+                    QPushButton *btnBookmark = new QPushButton("★", this);
+                    btnBookmark->setToolTip("Bookmark this page");
+                    connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
+
+                    btnShield = new QPushButton("🛡", this);
+                    btnShield->setToolTip("Brave Shields: Active");
+                    btnShield->setStyleSheet("QPushButton { font-size: 16px; color: #ff5500; padding: 4px 6px; } QPushButton:hover { background: #35373c; }");
+                    connect(btnShield, &QPushButton::clicked, this, &BrowserWindow::toggleShield);
+
+                    btnPrivacyGrade = new QPushButton("A", this);
+                    btnPrivacyGrade->setToolTip("Site Privacy Grade: A");
+                    btnPrivacyGrade->setCursor(Qt::PointingHandCursor);
+                    btnPrivacyGrade->setStyleSheet("QPushButton { background-color: #52c41a; color: white; font-weight: bold; border-radius: 4px; padding: 2px 7px; font-size: 11px; }");
+                    btnPrivacyGrade->hide();
+                    connect(btnPrivacyGrade, &QPushButton::clicked, this, &BrowserWindow::showPrivacyDetails);
+
+                    QPushButton *btnZoomOut = new QPushButton("−", this);
+                    connect(btnZoomOut, &QPushButton::clicked, this, &BrowserWindow::zoomOut);
+                    QPushButton *btnZoomIn = new QPushButton("+", this);
+                    connect(btnZoomIn, &QPushButton::clicked, this, &BrowserWindow::zoomIn);
+
+                    btnDownload = new QPushButton("⤓", this);
+                    btnDownload->setStyleSheet("QPushButton { font-size: 17px; font-weight: bold; }");
+                    connect(btnDownload, &QPushButton::clicked, this, &BrowserWindow::openDownloadsPopup);
+
+                    btnMenu = new QPushButton("☰", this);
+                    btnMenu->setStyleSheet("QPushButton { font-size: 16px; font-weight: bold; }");
+                    connect(btnMenu, &QPushButton::clicked, this, &BrowserWindow::openAppMenu);
+
+                    navLayout->addWidget(btnBack);
+                    navLayout->addWidget(btnForward);
+                    navLayout->addWidget(btnReload);
+                    navLayout->addWidget(btnPrivacyGrade);
+                    navLayout->addWidget(urlBar);
+                    navLayout->addWidget(btnBookmark);
+                    navLayout->addWidget(btnShield);
+                    navLayout->addWidget(btnZoomOut);
+                    navLayout->addWidget(btnZoomIn);
+                    navLayout->addWidget(btnDownload);
+                    navLayout->addWidget(btnMenu);
+
+                    // 3. BOOKMARKS BAR (With Live Favicon on the Left)
+                    bookmarksBar = new QToolBar("Bookmarks", this);
+                    bookmarksBar->setMovable(false);
+                    bookmarksBar->setIconSize(QSize(16, 16));
+                    renderBookmarks();
+
+                    // 4. PROGRESS BAR
+                    progressBar = new QProgressBar(this);
+                    progressBar->setMaximumHeight(2);
+                    progressBar->setTextVisible(false);
+
+                    // Assemble Top Header hierarchy
+                    headerLayout->addWidget(tabRow);
+                    headerLayout->addWidget(navBar);
+                    headerLayout->addWidget(bookmarksBar);
+                    headerLayout->addWidget(progressBar);
+
+                    // 5. STACKED WEB VIEW
+                    tabStack = new QStackedWidget(this);
+
+                    mainLayout->addWidget(headerContainer);
+                    mainLayout->addWidget(tabStack, 1);
+
+                    setCentralWidget(centralWidget);
     }
 
     QString getNewTabHtml() {
@@ -1268,7 +1316,7 @@ private:
                         margin: 0; background: #191a1c; color: #f0f0f0;
                         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
-                        height: 80vh; text-align: center; position: relative;
+                        height: 80vh; text-align: center;
                     }
                     h1 { font-size: 3.2rem; margin: 0 0 25px 0; font-weight: 500; }
                     .search-container {
@@ -1283,21 +1331,16 @@ private:
                         color: #ffffff; font-size: 16px; outline: none; padding: 8px 12px;
                     }
                     .datetime { font-size: 1.15rem; color: #8e9297; margin-bottom: 10px; }
-                    .footer-tag {
-                        position: absolute; bottom: 15px; left: 20px;
-                        font-size: 11px; color: #666a73; font-weight: 500; letter-spacing: 0.5px;
-                    }
-                    </style>
-                    </head>
-                    <body>
-                    <h1>Welcome!</h1>
-                    <form action="https://duckduckgo.com/" method="GET" class="search-container">
-                    <input type="text" name="q" placeholder="Search DuckDuckGo or enter address..." autofocus autocomplete="off" />
-                    </form>
-                    <div class="datetime">%1</div>
-                    <div class="footer-tag">beta v0.84</div>
-                    </body>
-                    </html>
+                </style>
+                </head>
+                <body>
+                <h1>Welcome!</h1>
+                <form action="https://duckduckgo.com/" method="GET" class="search-container">
+                <input type="text" name="q" placeholder="Search DuckDuckGo or enter address..." autofocus autocomplete="off" />
+                </form>
+                <div class="datetime">%1</div>
+                </body>
+                </html>
         )").arg(now);
     }
 
@@ -1306,9 +1349,10 @@ private:
     }
 
     void closeTab(int idx) {
-        if (tabWidget->count() > 1) {
-            QWidget *w = tabWidget->widget(idx);
-            tabWidget->removeTab(idx);
+        if (tabBar->count() > 1) {
+            QWidget *w = tabStack->widget(idx);
+            tabStack->removeWidget(w);
+            tabBar->removeTab(idx);
             w->deleteLater();
         } else {
             close();
@@ -1316,14 +1360,17 @@ private:
     }
 
     void tabSwitched(int idx) {
-        if (auto *v = qobject_cast<CustomWebView*>(tabWidget->widget(idx))) {
-            QString urlStr = v->url().toString();
-            if (urlStr.startsWith("data:") || v->url().scheme() == "about") {
-                urlBar->clear();
-                btnPrivacyGrade->hide();
-            } else {
-                urlBar->setText(urlStr);
-                updatePrivacyBadge(v->url());
+        if (idx >= 0 && idx < tabStack->count()) {
+            tabStack->setCurrentIndex(idx);
+            if (auto *v = qobject_cast<CustomWebView*>(tabStack->widget(idx))) {
+                QString urlStr = v->url().toString();
+                if (urlStr.startsWith("data:") || v->url().scheme() == "about") {
+                    urlBar->clear();
+                    btnPrivacyGrade->hide();
+                } else {
+                    urlBar->setText(urlStr);
+                    updatePrivacyBadge(v->url());
+                }
             }
         }
     }
@@ -1337,7 +1384,7 @@ private:
             else if (text.contains(".") && !text.contains(" ")) target = QUrl("https://" + text);
                 else target = QUrl("https://duckduckgo.com/?q=" + QUrl::toPercentEncoding(text));
 
-                    if (auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget())) {
+                    if (auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget())) {
                         v->load(target);
                     }
     }
@@ -1345,8 +1392,8 @@ private:
     void toggleShield() {
         bool next = !m_adBlocker->isEnabled();
         m_adBlocker->setEnabled(next);
-        btnShield->setStyleSheet(next ? "QPushButton { font-size: 16px; color: #ff5500; padding: 4px 8px; } QPushButton:hover { background: #35373c; }"
-        : "QPushButton { font-size: 16px; color: #666666; padding: 4px 8px; } QPushButton:hover { background: #35373c; }");
+        btnShield->setStyleSheet(next ? "QPushButton { font-size: 16px; color: #ff5500; padding: 4px 6px; } QPushButton:hover { background: #35373c; }"
+        : "QPushButton { font-size: 16px; color: #666666; padding: 4px 6px; } QPushButton:hover { background: #35373c; }");
     }
 
     void openIncognito() {
@@ -1354,7 +1401,7 @@ private:
     }
 
     void promptAddBookmark() {
-        auto *v = qobject_cast<CustomWebView*>(tabWidget->currentWidget());
+        auto *v = qobject_cast<CustomWebView*>(tabStack->currentWidget());
         if (!v) return;
 
         QString currUrl = v->url().toString();
@@ -1369,45 +1416,22 @@ private:
 
         if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
 
-            bookmarksList.append({title, url});
+            bookmarksList.append({title, url, v->icon()});
         savePersistentData();
         renderBookmarks();
     }
 
+    // Bookmarks Bar with Website Favicons on the Left
     void renderBookmarks() {
         bookmarksBar->clear();
         for (int i = 0; i < bookmarksList.size(); ++i) {
             Bookmark bm = bookmarksList[i];
-            QPushButton *b = new QPushButton(bm.title, bookmarksBar);
-            b->setStyleSheet("QPushButton { border: none; padding: 3px 8px; border-radius: 4px; } QPushButton:hover { background-color: #35373c; }");
+            QAction *act = bookmarksBar->addAction(bm.icon.isNull() ? style()->standardIcon(QStyle::SP_FileIcon) : bm.icon, bm.title);
+            act->setToolTip(bm.url);
 
-            connect(b, &QPushButton::clicked, [this, bm]() { addNewTab(QUrl(bm.url)); });
-
-            b->setContextMenuPolicy(Qt::CustomContextMenu);
-            connect(b, &QPushButton::customContextMenuRequested, [this, i, b](const QPoint &pos) {
-                QMenu menu(b);
-                QAction *editAct = menu.addAction("Edit");
-                QAction *delAct = menu.addAction("Delete");
-                QAction *chosen = menu.exec(b->mapToGlobal(pos));
-
-                if (chosen == editAct) {
-                    bool ok = false;
-                    QString nTitle = QInputDialog::getText(this, "Edit Bookmark", "Name:", QLineEdit::Normal, bookmarksList[i].title, &ok);
-                    if (ok && !nTitle.isEmpty()) bookmarksList[i].title = nTitle;
-
-                    QString nUrl = QInputDialog::getText(this, "Edit Bookmark", "URL:", QLineEdit::Normal, bookmarksList[i].url, &ok);
-                    if (ok && !nUrl.isEmpty()) bookmarksList[i].url = nUrl;
-
-                    savePersistentData();
-                    renderBookmarks();
-                } else if (chosen == delAct) {
-                    bookmarksList.removeAt(i);
-                    savePersistentData();
-                    renderBookmarks();
-                }
+            connect(act, &QAction::triggered, this, [this, bm]() {
+                addNewTab(QUrl(bm.url));
             });
-
-            bookmarksBar->addWidget(b);
         }
     }
 
@@ -1428,7 +1452,7 @@ private:
         bookmarksList.clear();
         for (auto v : root["bookmarks"].toArray()) {
             QJsonObject o = v.toObject();
-            bookmarksList.append({o["title"].toString(), o["url"].toString()});
+            bookmarksList.append({o["title"].toString(), o["url"].toString(), style()->standardIcon(QStyle::SP_FileIcon)});
         }
 
         savedPasswords.clear();
@@ -1533,20 +1557,44 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
         });
     }
 
-    int index = tabWidget->addTab(view, "New Tab");
-    tabWidget->setCurrentIndex(index);
+    int index = tabStack->addWidget(view);
+    int tabIdx = tabBar->addTab("New Tab");
+    tabBar->setCurrentIndex(tabIdx);
+    tabStack->setCurrentIndex(index);
 
     connect(view, &QWebEngineView::titleChanged, [this, view](const QString &t) {
-        int i = tabWidget->indexOf(view);
+        int i = tabStack->indexOf(view);
         if (i != -1) {
             QString cleanTitle = t.trimmed();
-            tabWidget->setTabText(i, (cleanTitle.isEmpty() || cleanTitle == "about:blank") ? "New Tab" : cleanTitle.left(18));
+            tabBar->setTabText(i, (cleanTitle.isEmpty() || cleanTitle == "about:blank") ? "New Tab" : cleanTitle.left(18));
+            tabBar->setTabToolTip(i, t);
+        }
+    });
+
+    // Capture site favicon for Tab Bar and matching Bookmark buttons
+    connect(view, &QWebEngineView::iconChanged, [this, view](const QIcon &icon) {
+        int i = tabStack->indexOf(view);
+        if (i != -1) {
+            tabBar->setTabIcon(i, icon);
+        }
+        for (auto &bm : bookmarksList) {
+            if (bm.url == view->url().toString()) {
+                bm.icon = icon;
+                renderBookmarks();
+                break;
+            }
+        }
+    });
+
+    connect(view, &QWebEngineView::loadProgress, [this, view](int progress) {
+        if (tabStack->currentWidget() == view) {
+            progressBar->setValue(progress == 100 ? 0 : progress);
         }
     });
 
     connect(view, &QWebEngineView::urlChanged, [this, view](const QUrl &u) {
         QString urlStr = u.toString();
-        if (tabWidget->currentWidget() == view) {
+        if (tabStack->currentWidget() == view) {
             if (urlStr.startsWith("data:") || u.scheme() == "about") {
                 urlBar->clear();
                 btnPrivacyGrade->hide();
@@ -1561,7 +1609,7 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
         }
     });
 
-    // Injected credential hook + SponsorBlock video segment skipper
+    // Credential hook + SponsorBlock video segment skipper
     connect(view, &QWebEngineView::loadFinished, [this, view](bool ok) {
         if (ok && !m_isIncognito) {
             view->page()->runJavaScript(R"(
@@ -1616,8 +1664,12 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    app.setApplicationName("BraveLite - GrGeorge");
-    app.setWindowIcon(QIcon::fromTheme("bravelite", QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png")));
+    app.setApplicationName("BraveLite");
+
+    QIcon appIcon = QIcon::fromTheme("bravelite");
+    if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
+    if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
+    app.setWindowIcon(appIcon);
 
     BrowserWindow window(false);
     window.show();
