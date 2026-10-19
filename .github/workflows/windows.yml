@@ -16,31 +16,39 @@ jobs:
     - name: Set up MSVC Environment
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Install Qt6 & WebEngine
+    - name: Set up Ninja
+      uses: seanmiddleditch/gha-setup-ninja@v5
+
+    - name: Install Qt 6.7.3 & WebEngine
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.0'
+        version: '6.7.3'
         host: 'windows'
         target: 'desktop'
-        arch: 'win64_msvc2022_64'
+        arch: 'win64_msvc2019_64'
         modules: 'qtwebengine'
         cache: true
 
     - name: Configure CMake
       run: |
-        cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.Qt6_DIR }}"
 
-    - name: Build BraveLite
+    - name: Compile BraveLite
       run: |
         cmake --build build --config Release
 
-    - name: Package Windows DLLs (windeployqt)
+    - name: Package Windows Dependencies (windeployqt)
+      shell: bash
       run: |
-        mkdir dist
-        copy build\fedorabrowser.exe dist\BraveLite.exe
-        windeployqt --webengine --release dist\BraveLite.exe
+        mkdir -p dist
+        if [ -f "build/fedorabrowser.exe" ]; then
+          cp build/fedorabrowser.exe dist/BraveLite.exe
+        else
+          cp build/Release/fedorabrowser.exe dist/BraveLite.exe
+        fi
+        windeployqt.exe --webengine --release dist/BraveLite.exe
 
-    - name: Upload Windows Executable
+    - name: Upload Windows Artifact
       uses: actions/upload-artifact@v4
       with:
         name: BraveLite-Windows-x64
