@@ -1,5 +1,8 @@
 1) i need you to make it so that when i use the middle click on links or youtube videos they open in another tab, it works on bookmarks but not links and YT
 
+2) Add a Autocomplete/Omnibox Autocomplete in the url bar when starting to type something
+
+3) add f5 for refreshing the page
 
 
 change to version v1.5

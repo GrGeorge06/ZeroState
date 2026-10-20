@@ -1956,7 +1956,9 @@ public slots:
             "</div>"
         ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
 
-        QString ddgSearchPageHtml = R"HTML(
+        QString ddgSearchPageHtml;
+        ddgSearchPageHtml.reserve(24000);
+        ddgSearchPageHtml += R"HTML(
             <!DOCTYPE html><html><head><meta charset='utf-8'>
             <title>__QUERY_ESC__ at BraveLite Engine</title>
             <style>
@@ -2055,6 +2057,8 @@ public slots:
             <div class='ddg-result'><div class='ddg-snippet'>Searching BraveLite Engine (__TAB_TYPE__) for <b>__QUERY_ESC__</b>...</div></div>
             </div>
             </div>
+            )HTML";
+        ddgSearchPageHtml += R"HTML(
             <script>
             window.__copyCode = function(btn) {
                 if (btn && btn.parentElement && btn.parentElement.nextElementSibling) {
