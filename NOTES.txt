@@ -20,7 +20,7 @@
 
 8) make the AI stuff work on windows and also fix the fonts and icons in windows because they look weird if you have not allready
 
-9)
+9) make the downloaded files be drag and dropable on other folders or apps
 
 change to version v1.5
 
