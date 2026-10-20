@@ -4,6 +4,20 @@
 
 3) add f5 for refreshing the page
 
+4) when opening a link from another app or doing right click on the app in the task manager and new window will open it in fullscreen and need to press esc to exit
+
+5) exiting out of fullscreen in youtube is buggy fix it
+
+6) in the ollama installer for winows make it run the "irm https://ollama.com/install.ps1 | iex" command and add a progress bar, do it without opening a physical winow do it just hide it while its installing.
+
+7) when draging a tab fast left to right and vice versa the tittles of the tabs change but the actual tab does not get moved fix it please.
+
+8) overhaul the themes please keep the same but overhaul them.
+
+9) fix tabs when adding too many of them the window extends to my other screen, make the tabs smaller if they reach the end
+
+10) the bookmars when reaching the end of the window make a nice dropdown that will store them, also in the bookmark manager add the option to create new and delete selected.
+
 
 change to version v1.5
 
