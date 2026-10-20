@@ -1,0 +1,16 @@
+george@fedora:~/Documents/GitHub/braveLite/build$ ninja
+[2/3] Building CXX object CMakeFiles/fedorabrowser.dir/src/main.cpp.o
+FAILED: [code=1] CMakeFiles/fedorabrowser.dir/src/main.cpp.o
+/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_POSITIONING_LIB -DQT_PRINTSUPPORT_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -DQT_WEBCHANNEL_LIB -DQT_WEBENGINECORE_LIB -DQT_WEBENGINEWIDGETS_LIB -DQT_WIDGETS_LIB -I/home/george/Documents/GitHub/braveLite/build/fedorabrowser_autogen/include -isystem /usr/include/qt6/QtCore -isystem /usr/include/qt6 -isystem /usr/lib64/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtWidgets -isystem /usr/include/qt6/QtWebEngineWidgets -isystem /usr/include/qt6/QtWebEngineCore -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtWebChannel -isystem /usr/include/qt6/QtPositioning -isystem /usr/include/qt6/QtPrintSupport -std=gnu++17 -MD -MT CMakeFiles/fedorabrowser.dir/src/main.cpp.o -MF CMakeFiles/fedorabrowser.dir/src/main.cpp.o.d -o CMakeFiles/fedorabrowser.dir/src/main.cpp.o -c /home/george/Documents/GitHub/braveLite/src/main.cpp
+/home/george/Documents/GitHub/braveLite/src/main.cpp: In member function ‘QWidget* BrowserWindow::createGetStartedWidget(QWidget*)’:
+/home/george/Documents/GitHub/braveLite/src/main.cpp:2851:33: error: cannot convert ‘QVBoxLayout*’ to ‘QWidget*’
+ 2851 |         searchLayout->addWidget(searchTextLayout, 1);
+      |                                 ^~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 QVBoxLayout*
+In file included from /usr/include/qt6/QtWidgets/QVBoxLayout:1,
+                 from /home/george/Documents/GitHub/braveLite/src/main.cpp:11:
+/usr/include/qt6/QtWidgets/qboxlayout.h:39:20: note: initializing argument 1 of ‘void QBoxLayout::addWidget(QWidget*, int, Qt::Alignment)’
+   39 |     void addWidget(QWidget *, int stretch = 0, Qt::Alignment alignment = Qt::Alignment());
+      |                    ^~~~~~~~~
+ninja: build stopped: subcommand failed.

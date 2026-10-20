@@ -3,7 +3,7 @@
 2) the translation i want to also translate the whole site even the contents
 
 3) split view changes:
-        add settings for the split vie, when activates put a button in the top left (to the right of refresh)(view photo 2)
+        add settings for the split view, when activates put a button in the top left (to the right of refresh)(view photo 2)
             unsplit tabs
             close left view
             close right view
@@ -13,7 +13,7 @@
 
 5) inspect element does not work
 
-6) the all - images - videos - news, are broken when you click for example all it highlights the images, when you click on images it highlights videos and when you click on videos it highlights news (see photo 3)
+6) the all - images - videos - news, are broken when you click for example all it highlights the images, when you click on images it highlights videos and when you click on videos it highlights news (see photo 3 and 4)
 
 7) I want when you drag a link or a bookmark in the place of a tab to open the link or bookmark in a new tab
         when you drag a link or a bookmark in the url box make it so it replaces the existing url with the link's or bookmark's url
@@ -22,6 +22,37 @@
 
 9) make the downloaded files be drag and dropable on other folders or apps
 
+10) for some reason it did a weird thing in the tabs (photo 5) and i could not close it, the x was nowere to be found
+
+11) in the ai settings when i click to detect installed models it changes the ai overview model to the translategemma:4b
+
 change to version v1.5
 
 generate a changelog.txt
+
+because the browser crashes create it in parts, wait until i say continue to send the next part, maybe in the bottom of the parts add a "delete me and paste right here" comment so i will know where to paste, also this was an error from the compiler after you compiled this exact thing for the first time. :
+=======================================================================================================================
+george@fedora:~/Documents/GitHub/braveLite/build$ ninja
+[2/3] Building CXX object CMakeFiles/fedorabrowser.dir/src/main.cpp.o
+FAILED: [code=1] CMakeFiles/fedorabrowser.dir/src/main.cpp.o
+/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_POSITIONING_LIB -DQT_PRINTSUPPORT_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -DQT_WEBCHANNEL_LIB -DQT_WEBENGINECORE_LIB -DQT_WEBENGINEWIDGETS_LIB -DQT_WIDGETS_LIB -I/home/george/Documents/GitHub/braveLite/build/fedorabrowser_autogen/include -isystem /usr/include/qt6/QtCore -isystem /usr/include/qt6 -isystem /usr/lib64/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtWidgets -isystem /usr/include/qt6/QtWebEngineWidgets -isystem /usr/include/qt6/QtWebEngineCore -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtWebChannel -isystem /usr/include/qt6/QtPositioning -isystem /usr/include/qt6/QtPrintSupport -std=gnu++17 -MD -MT CMakeFiles/fedorabrowser.dir/src/main.cpp.o -MF CMakeFiles/fedorabrowser.dir/src/main.cpp.o.d -o CMakeFiles/fedorabrowser.dir/src/main.cpp.o -c /home/george/Documents/GitHub/braveLite/src/main.cpp
+/home/george/Documents/GitHub/braveLite/src/main.cpp: In member function ‘QWidget* BrowserWindow::createGetStartedWidget(QWidget*)’:
+/home/george/Documents/GitHub/braveLite/src/main.cpp:2851:33: error: cannot convert ‘QVBoxLayout*’ to ‘QWidget*’
+ 2851 |         searchLayout->addWidget(searchTextLayout, 1);
+      |                                 ^~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 QVBoxLayout*
+In file included from /usr/include/qt6/QtWidgets/QVBoxLayout:1,
+                 from /home/george/Documents/GitHub/braveLite/src/main.cpp:11:
+/usr/include/qt6/QtWidgets/qboxlayout.h:39:20: note: initializing argument 1 of ‘void QBoxLayout::addWidget(QWidget*, int, Qt::Alignment)’
+   39 |     void addWidget(QWidget *, int stretch = 0, Qt::Alignment alignment = Qt::Alignment());
+      |                    ^~~~~~~~~
+ninja: build stopped: subcommand failed.
+===========================================================================================================================
+
+fix it this time again and do it carefully
+
+
+=======================================================
+windows notes: 1) in AI settings it says it can not find the gpu but uses it normaly. 2) also when searching something else in the same tab the ai overview does not work thats also a problem in the linux version. 3) add a button to install ollama in both linux and windows. 4) in windows split view is a little slower than native linux
+=======================================================

@@ -1,0 +1,7 @@
+1) i need you to make it so that when i use the middle click on links or youtube videos they open in another tab, it works on bookmarks but not links and YT
+
+
+
+change to version v1.5
+
+generate a changelog.txt
