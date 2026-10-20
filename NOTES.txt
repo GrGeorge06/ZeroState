@@ -1,3 +1,27 @@
-make the BraveLite Browser renamed to BraveLite Engine, make it be a carbon copy of duckduckgo both functionaly and cosmetic wise, debloat it because i think that it is using my cpu at idle aswell BraveLite ai is also never sumarizes the page, the ai overview should be a carbon copy of google's ai overview, also add an option for the ai model to detect and use the gpu if one existst.
+1) still when you go back or refresh the page never loads (photo 1)
+
+2) the translation i want to also translate the whole site even the contents
+
+3) split view changes:
+        add settings for the split vie, when activates put a button in the top left (to the right of refresh)(view photo 2)
+            unsplit tabs
+            close left view
+            close right view
+            swap tab potitions
+
+4) make the scroll on the right fit the theme of the browser
+
+5) inspect element does not work
+
+6) the all - images - videos - news, are broken when you click for example all it highlights the images, when you click on images it highlights videos and when you click on videos it highlights news (see photo 3)
+
+7) I want when you drag a link or a bookmark in the place of a tab to open the link or bookmark in a new tab
+        when you drag a link or a bookmark in the url box make it so it replaces the existing url with the link's or bookmark's url
+
+8) make the AI stuff work on windows and also fix the fonts and icons in windows because they look weird if you have not allready
+
+9)
+
+change to version v1.5
 
 generate a changelog.txt
