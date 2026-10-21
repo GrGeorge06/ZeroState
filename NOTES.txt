@@ -1,6 +1,7 @@
-1) add an extentions button next to the ai chatbot button with all the extentions and let me manage them with a little dropdown menu
+1) add suport for the top 5 most popular search engines, including duckduckgo and keep my bravelite engine default, you can find the search engines allready in the get started page in settings.
 
-change to version v1.67
+
+change to version v1.68
 
 update the changelog and the README
 

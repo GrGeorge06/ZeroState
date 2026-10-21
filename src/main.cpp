@@ -489,7 +489,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.67 Extensive Crash & Diagnostic Report\n";
+            out << "BraveLite v1.68 Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -2160,7 +2160,7 @@ public slots:
                 QNetworkReply *r = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
                 connect(r, &QNetworkReply::finished, r, &QObject::deleteLater);
             }
-            setWindowTitle(m_isIncognito ? "BraveLite v1.67 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.67 [🎮 Gaming Mode]");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.68 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.68 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
                                      "• BraveLite Engine AI Overview & Hover Link Previews paused.\n"
@@ -2168,7 +2168,7 @@ public slots:
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
             if (aiEnabled) ensureOllamaServerRunning();
-            setWindowTitle(m_isIncognito ? "BraveLite v1.67 [Incognito]" : "BraveLite v1.67");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.68 [Incognito]" : "BraveLite v1.68");
             QMessageBox::information(this, "Gaming Mode Disabled",
                                      "🎮 Gaming Mode is now OFF.\n\n"
                                      "• AI Overview, Link Previews, and Full-Site Translation are re-enabled!");
@@ -2613,7 +2613,7 @@ public slots:
             "  </div>"
             "  <div class='g-ai-footer'>"
             "    <span>Grounded on verified search results • Local Ollama (%1)</span>"
-            "    <span>BraveLite Engine v1.67</span>"
+            "    <span>BraveLite Engine v1.68</span>"
             "  </div>"
             "</div>"
         ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
@@ -2854,7 +2854,7 @@ public slots:
             QUrl imgApiUrl("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
             QUrl::toPercentEncoding(query) + "&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=420&format=json");
             QNetworkRequest req(imgApiUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.67");
+            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.68");
             QNetworkReply *rep = m_netManager->get(req);
             connect(rep, &QNetworkReply::finished, this, [rep, safeView, currentSearchId]() {
                 if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId && rep->error() == QNetworkReply::NoError) {
@@ -3595,18 +3595,22 @@ public:
         QVBoxLayout *searchTextLayout = new QVBoxLayout();
         QLabel *sTitle = new QLabel("Search engine", searchCard);
         sTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *sSub = new QLabel("Choose between BraveLite Engine (DuckDuckGo UI + BraveLite AI Overview) or standard DuckDuckGo.", searchCard);
+        QLabel *sSub = new QLabel("Choose your default search engine: BraveLite Engine (with AI Overview), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", searchCard);
         sSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         searchTextLayout->addWidget(sTitle);
         searchTextLayout->addWidget(sSub);
 
         QComboBox *engineCombo = new QComboBox(searchCard);
-        engineCombo->addItems({"BraveLite Engine", "DuckDuckGo"});
+        engineCombo->addItems({"BraveLite Engine", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
         engineCombo->setCurrentText(defaultSearchEngine);
+        if (engineCombo->currentIndex() < 0) {
+            engineCombo->setCurrentIndex(0);
+        }
         engineCombo->setStyleSheet("QComboBox { background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 14px; color: #fff; font-size: 13px; }");
         connect(engineCombo, &QComboBox::currentTextChanged, this, [this](const QString &val) {
             defaultSearchEngine = val;
             savePersistentData();
+            updateUrlCompleter();
         });
 
         searchLayout->addLayout(searchTextLayout, 1); // Fixed layout compiler error!
@@ -5822,7 +5826,7 @@ private:
         QStandardItem *searchItem = new QStandardItem();
         searchItem->setIcon(BrowserIcons::drawIcon("search", QColor("#9aa0a6")));
         searchItem->setData(q, Qt::UserRole + 1);
-        searchItem->setData("- Search with BraveLite Engine", Qt::UserRole + 2);
+        searchItem->setData(QString("- Search with %1").arg(defaultSearchEngine), Qt::UserRole + 2);
         searchItem->setData(true, Qt::UserRole + 3);
         searchItem->setData("", Qt::UserRole + 4);
         searchItem->setText(q);
@@ -7189,6 +7193,10 @@ private:
             taglineCol = "#cba6f7";
         }
 
+        QString searchPlaceholder = (defaultSearchEngine == "BraveLite Engine")
+            ? "Search privately with BraveLite Engine or enter address..."
+            : QString("Search with %1 or enter address...").arg(defaultSearchEngine.toHtmlEscaped());
+
         return QString(R"(
             <!DOCTYPE html>
             <html>
@@ -7239,7 +7247,7 @@ private:
                     <div class="hero-wrapper">
                     <h1>Welcome!</h1>
                     <form onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('startSearch').value);" class="search-container">
-                    <input id="startSearch" type="text" name="q" placeholder="Search privately with BraveLite Engine or enter address..." autofocus autocomplete="off" />
+                    <input id="startSearch" type="text" name="q" placeholder="%8" autofocus autocomplete="off" />
                     </form>
                     <div class="datetime" id="liveClock">%1</div>
                     <div class="tagline">because privacy matters</div>
@@ -7258,7 +7266,7 @@ private:
                     </script>
                     </body>
                     </html>
-        )").arg(now, bgMain, textCol, bgCard, borderCol, accent, taglineCol);
+        )").arg(now, bgMain, textCol, bgCard, borderCol, accent, taglineCol, searchPlaceholder);
     }
 
     void tabSwitched(int idx) {
@@ -7289,6 +7297,26 @@ private:
         updateSplitButtonState();
     }
 
+    QUrl getSearchEngineUrl(const QString &engine, const QString &query) const {
+        QString encoded = QString::fromUtf8(QUrl::toPercentEncoding(query));
+        if (engine.compare("Google", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.google.com/search?q=" + encoded);
+        } else if (engine.compare("Bing", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.bing.com/search?q=" + encoded);
+        } else if (engine.compare("DuckDuckGo", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://duckduckgo.com/?q=" + encoded);
+        } else if (engine.startsWith("Yahoo", Qt::CaseInsensitive)) {
+            return QUrl("https://search.yahoo.com/search?p=" + encoded);
+        } else if (engine.compare("Yandex", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://yandex.com/search/?text=" + encoded);
+        } else if (engine.compare("Ecosia", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.ecosia.org/search?q=" + encoded);
+        } else if (engine.compare("Baidu", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.baidu.com/s?wd=" + encoded);
+        }
+        return QUrl("https://duckduckgo.com/?q=" + encoded);
+    }
+
     void handleUrlSubmit() {
         QString text = urlBar->text().trimmed();
         if (text.isEmpty()) return;
@@ -7304,7 +7332,7 @@ private:
             if (defaultSearchEngine == "BraveLite Engine") {
                 runBraveLiteSearch(text, "all");
             } else {
-                QUrl target("https://duckduckgo.com/?q=" + QUrl::toPercentEncoding(text));
+                QUrl target = getSearchEngineUrl(defaultSearchEngine, text);
                 if (auto *v = activeWebView()) v->load(target);
                 else addNewTab(target);
             }
@@ -7723,7 +7751,7 @@ private:
                     runBraveLiteSearch(q, tabType);
                 } else {
                     if (auto *v = activeWebView()) {
-                        v->load(QUrl("https://duckduckgo.com/?q=" + QUrl::toPercentEncoding(q)));
+                        v->load(getSearchEngineUrl(defaultSearchEngine, q));
                     }
                 }
             });
@@ -8226,7 +8254,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
-    app.setApplicationVersion("1.67");
+    app.setApplicationVersion("1.68");
     app.setOrganizationName("BraveLite");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
@@ -8261,7 +8289,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v167";
+    const QString ipcServerName = "BraveLiteSingleInstanceServer_v168";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);

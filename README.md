@@ -2,9 +2,9 @@
 
 A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
 
-> **Note:** BraveLite is currently in active **BETA** (`v1.67 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
+> **Note:** BraveLite is currently in active **BETA** (`v1.68 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
 
-![Version](https://img.shields.io/badge/version-v1.67%20(Beta)-orange)
+![Version](https://img.shields.io/badge/version-v1.68%20(Beta)-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -12,6 +12,7 @@ A fast, lightweight, debloated web browser for Linux and Windows built natively 
 
 ## Key Features
 
+* **Multi-Search Engine Selection (Top 5 Engines + BraveLite Engine):** Seamless search engine switching in Settings -> Get Started. Full cross-platform support for the top 5 most popular search engines globally—**Google, Microsoft Bing, DuckDuckGo, Yahoo, and Yandex**—while keeping **BraveLite Engine** (with local AI Overviews) as the default. Address bar queries, start page searches, and autocomplete dynamically adapt to the active search engine.
 * **Top Bar Extensions Button & Dropdown Manager:** Dedicated Extensions button (crisp puzzle piece icon) sitting directly next to the BraveLite AI Assistant in the top tab row. Provides a quick dropdown menu displaying all installed WebExtensions, custom userscripts, and CRX packages with live enable/disable toggling, action popup launching, removal options, and shortcuts to install new extensions or browse the Chrome Web Store.
 * **Chrome Web Store Native "Add to Chrome" & Extension Installer:** Native 1-click installation from the Chrome Web Store (`https://chromewebstore.google.com/`). Full `chrome.webstorePrivate` API implementation and DOM event capturing that activates the official "Add to Chrome" button, automatically downloads `.crx` packages, and loads them into BraveLite Extensions storage. Also includes the floating "⚡ Add to BraveLite" installer button.
 * **Ubiquitous Find in Page (`Ctrl+F`):** Works everywhere across windows, web pages, and widgets. Features application-level shortcut interception, Chromium `focusProxy()` event routing, and webpage DOM listener fallback so `Ctrl+F` is never swallowed. Built with an ultra-minimalist, distraction-free floating dark pill with live match counts (`1/3`, `0/0`), Enter / Shift+Enter / F3 navigation, and Esc closing.

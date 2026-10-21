@@ -1,4 +1,30 @@
 ================================================================================
+BraveLite v1.68 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Multi-Search Engine Support (Top 5 Popular Search Engines):
+   - Added native support for the top 5 most popular search engines globally alongside BraveLite Engine:
+     * Google (https://www.google.com/search?q=)
+     * Microsoft Bing (https://www.bing.com/search?q=)
+     * DuckDuckGo (https://duckduckgo.com/?q=)
+     * Yahoo (https://search.yahoo.com/search?p=)
+     * Yandex (https://yandex.com/search/?text=)
+   - Kept BraveLite Engine (with local AI Overviews) as the default engine.
+   - Built full search engine selection directly inside Settings -> "Get started".
+   - Dynamically routes search queries from both the address bar (omnibox) and the new tab start page to the active search engine.
+   - Updated Omnibox autocomplete to dynamically reflect the selected engine (e.g. "- Search with Google", "- Search with DuckDuckGo").
+   - Added personalized search placeholder on the start page matching the selected engine.
+
+2. Full Windows & Linux Cross-Platform Parity:
+   - Search resolution, persistent settings storage, and URL encoding operate identically on Windows and Linux.
+   - Updated Inno Setup Windows installer (`installer.iss`) to v1.68.
+
+3. Version Bump to v1.68:
+   - Elevated application version, IPC single-instance socket name (`BraveLiteSingleInstanceServer_v168`), diagnostic crash reports, and engine headers to v1.68.
+
+================================================================================
 BraveLite v1.67 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
