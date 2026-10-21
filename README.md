@@ -2,9 +2,9 @@
 
 A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
 
-> **Note:** BraveLite is currently in active **BETA** (`v1.65 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
+> **Note:** BraveLite is currently in active **BETA** (`v1.66 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
 
-![Version](https://img.shields.io/badge/version-v1.65%20(Beta)-orange)
+![Version](https://img.shields.io/badge/version-v1.66%20(Beta)-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -12,9 +12,9 @@ A fast, lightweight, debloated web browser for Linux and Windows built natively 
 
 ## Key Features
 
+* **Chrome Web Store Native "Add to Chrome" & Extension Installer:** Native 1-click installation from the Chrome Web Store (`https://chromewebstore.google.com/`). Full `chrome.webstorePrivate` API implementation and DOM event capturing that activates the official "Add to Chrome" button, automatically downloads `.crx` packages, and loads them into BraveLite Extensions storage. Also includes the floating "⚡ Add to BraveLite" installer button.
+* **Ubiquitous Find in Page (`Ctrl+F`):** Works everywhere across windows, web pages, and widgets. Features application-level shortcut interception, Chromium `focusProxy()` event routing, and webpage DOM listener fallback so `Ctrl+F` is never swallowed. Built with an ultra-minimalist, distraction-free floating dark pill with live match counts (`1/3`, `0/0`), Enter / Shift+Enter / F3 navigation, and Esc closing.
 * **uBlock Origin & Shields (Complete Zero-Ad YouTube Erasure):** Built-in uBlock Origin-style network interceptor and player defuser engine that completely erases prerolls, midrolls, overlay banners, and masthead ads on YouTube. Features automated anti-adblock detection bypass and a dedicated "uBlock Origin & Shields" dashboard in Settings.
-* **Chrome Web Store Fix & Direct Extension Installer:** Direct 1-click installation on the Chrome Web Store (`https://chromewebstore.google.com/`). Overcomes "Item currently unavailable" errors with a specialized WebStore bridge and floating "⚡ Add to BraveLite" installer button that auto-downloads and registers `.crx` extensions.
-* **Minimalist & Slick Floating Find in Page (`Ctrl+F`):** Modern, distraction-free floating dark pill anchored to the top-right corner with clean match counting (`1/3`, `0/0`), previous/next chevron navigation, Enter / Shift+Enter / F3 keybindings, and Esc-to-close with instant webpage focus recovery.
 * **Omnibox `Tab` Key Autofill:** Pressing `Tab` in the address bar instantly autofills the top matching or highlighted domain (e.g. typing `yo` and hitting `Tab` completes `youtube.com`).
 * **Instant Link AI Summaries (Zero Delay):** Hold `Ctrl` while hovering over any link to instantaneously preview and summarize page contents via local Ollama models with zero hover delay.
 * **Top-Right BraveLite AI Assistant (Side Chat Panel):** Integrated side panel (~1/4 window width) connected locally to Ollama LLMs (e.g. `smollm2:360m`, `smollm2:135m`, `qwen2.5:0.5b`, `llama3.2:1b`). Provides 100% offline, private AI assistance with Markdown code syntax formatting, clearable chat sessions, and independent Chatting / Overview / Translation model selectors.

@@ -1,10 +1,6 @@
-1) chrome webstore "add to chrome" button does not work
+1) add an extentions button next to the ai chatbot button with all the extentions and let me manage them with a little dropdown menu
 
-2) find in page ctrl + f does not work make it work, do everythig you can to make it work except if it breaks something else!.
-
-
-
-change to version v1.65
+change to version v1.66
 
 update the changelog and the README
 

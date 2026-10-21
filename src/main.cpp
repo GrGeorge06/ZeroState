@@ -470,7 +470,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.65 Extensive Crash & Diagnostic Report\n";
+            out << "BraveLite v1.66 Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -706,6 +706,7 @@ signals:
     void braveliteSearchRequested(const QString &query, const QString &tabType);
     void aiChatRequested(const QString &chatPrompt);
     void openLinkInNewTabRequested(const QUrl &url);
+    void findRequested();
 
 protected:
     bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override {
@@ -794,6 +795,8 @@ protected:
             if (!targetUrl.isEmpty()) {
                 emit openLinkInNewTabRequested(QUrl(targetUrl));
             }
+        } else if (message.startsWith("BRAVELITE_OPEN_FIND::")) {
+            emit findRequested();
         }
     }
 
@@ -807,7 +810,18 @@ class BrowserWindow;
 class CustomWebView : public QWebEngineView {
     Q_OBJECT
 public:
-    explicit CustomWebView(QWidget *parent = nullptr) : QWebEngineView(parent) {}
+    explicit CustomWebView(QWidget *parent = nullptr) : QWebEngineView(parent) {
+        if (focusProxy()) {
+            focusProxy()->installEventFilter(this);
+        }
+    }
+
+    void setPage(QWebEnginePage *page) {
+        QWebEngineView::setPage(page);
+        if (focusProxy()) {
+            focusProxy()->installEventFilter(this);
+        }
+    }
 
     QString lastSearchQuery;
     QString lastSearchTab = "all";
@@ -830,12 +844,30 @@ protected:
     bool event(QEvent *e) override {
         if (e->type() == QEvent::KeyPress) {
             auto *ke = static_cast<QKeyEvent*>(e);
-            if (ke->modifiers() == Qt::ControlModifier && ke->key() == Qt::Key_F) {
+            if ((ke->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) && ke->key() == Qt::Key_F) {
                 emit findRequested();
                 return true;
             }
         }
         return QWebEngineView::event(e);
+    }
+
+    bool eventFilter(QObject *watched, QEvent *e) override {
+        if (e->type() == QEvent::KeyPress) {
+            auto *ke = static_cast<QKeyEvent*>(e);
+            if ((ke->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) && ke->key() == Qt::Key_F) {
+                emit findRequested();
+                return true;
+            }
+        }
+        return QWebEngineView::eventFilter(watched, e);
+    }
+
+    void focusInEvent(QFocusEvent *e) override {
+        QWebEngineView::focusInEvent(e);
+        if (focusProxy()) {
+            focusProxy()->installEventFilter(this);
+        }
     }
 
     QWebEngineView *createWindow(QWebEnginePage::WebWindowType type) override;
@@ -956,6 +988,10 @@ protected:
             });
             menu->addSeparator();
         }
+
+        QAction *actFind = menu->addAction("Find in page...\tCtrl+F");
+        connect(actFind, &QAction::triggered, this, &CustomWebView::findRequested);
+        menu->addSeparator();
 
         QAction *actBlockEl = menu->addAction("Block elements");
         connect(actBlockEl, &QAction::triggered, this, [this, clickPos]() {
@@ -1527,6 +1563,7 @@ public:
 
         resize(1280, 840);
         setWindowTitle(m_isIncognito ? "BraveLite [Incognito] (Beta)" : "BraveLite (Beta)");
+        qApp->installEventFilter(this);
 
         QIcon appIcon = QIcon::fromTheme("bravelite");
         if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
@@ -1619,6 +1656,7 @@ public:
     }
 
     ~BrowserWindow() override {
+        qApp->removeEventFilter(this);
         s_openWindows.removeAll(this);
         if (!m_isIncognito) savePersistentData();
     }
@@ -1771,6 +1809,23 @@ protected:
     }
 
     bool eventFilter(QObject *watched, QEvent *event) override {
+        static bool s_inFilter = false;
+        if (s_inFilter) return false;
+        struct FilterGuard {
+            bool &flag;
+            explicit FilterGuard(bool &f) : flag(f) { flag = true; }
+            ~FilterGuard() { flag = false; }
+        } guard(s_inFilter);
+
+        if (event->type() == QEvent::KeyPress) {
+            auto *ke = static_cast<QKeyEvent*>(event);
+            if ((ke->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) && ke->key() == Qt::Key_F) {
+                if (isActiveWindow() || this == QApplication::activeWindow() || (focusWidget() && isAncestorOf(focusWidget()))) {
+                    openFindDialog();
+                    return true;
+                }
+            }
+        }
         if (watched == tabRowContainer) {
             if (event->type() == QEvent::MouseButtonPress) {
                 auto *me = static_cast<QMouseEvent*>(event);
@@ -1796,7 +1851,7 @@ protected:
                     return true;
                 }
             }
-        } else if (m_urlCompleter && watched == m_urlCompleter->popup()) {
+        } else if (m_completerPopup && watched == m_completerPopup) {
             if (event->type() == QEvent::KeyPress) {
                 auto *ke = static_cast<QKeyEvent*>(event);
                 if (ke->key() == Qt::Key_Tab && urlBar && !urlBar->text().trimmed().isEmpty()) {
@@ -1809,6 +1864,26 @@ protected:
     }
 
 public slots:
+    void openFindDialog() {
+        if (!findBar) return;
+        findBar->move(width() - findBar->width() - 25, headerContainer ? headerContainer->height() + 8 : 78);
+        findBar->raise();
+        findBar->show();
+        findInput->setFocus();
+        findInput->selectAll();
+        if (!findInput->text().isEmpty()) {
+            if (auto *v = activeWebView()) {
+                v->findText(findInput->text(), {}, [this](const QWebEngineFindTextResult &res) {
+                    if (res.numberOfMatches() > 0) {
+                        findCountLabel->setText(QString("%1/%2").arg(res.activeMatch()).arg(res.numberOfMatches()));
+                    } else {
+                        findCountLabel->setText("0/0");
+                    }
+                });
+            }
+        }
+    }
+
     void addNewTab(const QUrl &url = QUrl()) {
         createNewTabWithView(url);
     }
@@ -2066,7 +2141,7 @@ public slots:
                 QNetworkReply *r = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
                 connect(r, &QNetworkReply::finished, r, &QObject::deleteLater);
             }
-            setWindowTitle(m_isIncognito ? "BraveLite v1.65 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.65 [🎮 Gaming Mode]");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.66 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.66 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
                                      "• BraveLite Engine AI Overview & Hover Link Previews paused.\n"
@@ -2074,7 +2149,7 @@ public slots:
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
             if (aiEnabled) ensureOllamaServerRunning();
-            setWindowTitle(m_isIncognito ? "BraveLite v1.65 [Incognito]" : "BraveLite v1.65");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.66 [Incognito]" : "BraveLite v1.66");
             QMessageBox::information(this, "Gaming Mode Disabled",
                                      "🎮 Gaming Mode is now OFF.\n\n"
                                      "• AI Overview, Link Previews, and Full-Site Translation are re-enabled!");
@@ -2519,7 +2594,7 @@ public slots:
             "  </div>"
             "  <div class='g-ai-footer'>"
             "    <span>Grounded on verified search results • Local Ollama (%1)</span>"
-            "    <span>BraveLite Engine v1.65</span>"
+            "    <span>BraveLite Engine v1.66</span>"
             "  </div>"
             "</div>"
         ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
@@ -2760,7 +2835,7 @@ public slots:
             QUrl imgApiUrl("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
             QUrl::toPercentEncoding(query) + "&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=420&format=json");
             QNetworkRequest req(imgApiUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.65");
+            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.66");
             QNetworkReply *rep = m_netManager->get(req);
             connect(rep, &QNetworkReply::finished, this, [rep, safeView, currentSearchId]() {
                 if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId && rep->error() == QNetworkReply::NoError) {
@@ -2987,79 +3062,106 @@ public:
     }
 
     void handleDownload(QWebEngineDownloadRequest *download) {
-        QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/" + download->downloadFileName();
-        QString path = QFileDialog::getSaveFileName(this, "Save File", defaultPath);
-        if (!path.isEmpty()) {
-            download->setDownloadDirectory(QFileInfo(path).path());
-            download->setDownloadFileName(QFileInfo(path).fileName());
-            download->accept();
+        bool isExtension = download->downloadFileName().endsWith(".crx", Qt::CaseInsensitive) ||
+                           download->url().toString().contains("clients2.google.com/service/update2/crx") ||
+                           download->url().toString().contains("chromewebstore.google.com");
 
-            DownloadItem *item = new DownloadItem(this);
-            item->fileName = QFileInfo(path).fileName();
-            item->url = download->url().toString();
-            item->path = path;
-            item->totalBytes = download->totalBytes();
-            item->receivedBytes = download->receivedBytes();
-            item->request = download;
-            item->speedTimer.start();
-            item->lastBytes = 0;
-            downloadsList.append(item);
-
-            btnDownload->setStyleSheet("QPushButton { background-color: #2b2d30; border: 1px solid #ff5500; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #ff5500; font-weight: bold; }");
-
-            connect(download, &QWebEngineDownloadRequest::receivedBytesChanged, item, [item, download]() {
-                qint64 nowBytes = download->receivedBytes();
-                qint64 elapsedMs = item->speedTimer.elapsed();
-                if (elapsedMs >= 250) {
-                    qint64 deltaBytes = nowBytes - item->lastBytes;
-                    item->speedBytesPerSec = (deltaBytes * 1000.0) / elapsedMs;
-                    item->lastBytes = nowBytes;
-                    item->speedTimer.restart();
+        QString path;
+        if (isExtension) {
+            QString extDir = getConfigDir() + "/Extensions";
+            QDir().mkpath(extDir);
+            QString fn = download->downloadFileName();
+            if (fn.isEmpty() || !fn.endsWith(".crx", Qt::CaseInsensitive)) {
+                QString extId;
+                static const QRegularExpression reId("id(?:%3D|=)([a-z0-9]{32})", QRegularExpression::CaseInsensitiveOption);
+                auto match = reId.match(download->url().toString());
+                if (match.hasMatch()) {
+                    extId = match.captured(1);
+                } else {
+                    extId = QString::number(QDateTime::currentMSecsSinceEpoch());
                 }
-                item->receivedBytes = nowBytes;
-                item->totalBytes = download->totalBytes();
-                emit item->updated();
-            });
+                fn = "extension_" + extId + ".crx";
+            }
+            path = extDir + "/" + fn;
+            download->setDownloadDirectory(extDir);
+            download->setDownloadFileName(fn);
+            download->accept();
+        } else {
+            QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/" + download->downloadFileName();
+            path = QFileDialog::getSaveFileName(this, "Save File", defaultPath);
+            if (!path.isEmpty()) {
+                download->setDownloadDirectory(QFileInfo(path).path());
+                download->setDownloadFileName(QFileInfo(path).fileName());
+                download->accept();
+            } else {
+                download->cancel();
+                return;
+            }
+        }
 
-            connect(download, &QWebEngineDownloadRequest::stateChanged, item, [this, item](QWebEngineDownloadRequest::DownloadState state) {
-                if (state == QWebEngineDownloadRequest::DownloadCompleted) {
-                    item->isFinished = true;
-                    item->isPaused = false;
-                    item->speedBytesPerSec = 0.0;
-                    btnDownload->setStyleSheet("QPushButton { background-color: #2b2d30; border: 1px solid #52c41a; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #52c41a; font-weight: bold; }");
-                    savePersistentData();
+        DownloadItem *item = new DownloadItem(this);
+        item->fileName = QFileInfo(path).fileName();
+        item->url = download->url().toString();
+        item->path = path;
+        item->totalBytes = download->totalBytes();
+        item->receivedBytes = download->receivedBytes();
+        item->request = download;
+        item->speedTimer.start();
+        item->lastBytes = 0;
+        downloadsList.append(item);
 
-                    if (item->fileName.endsWith(".crx", Qt::CaseInsensitive)) {
-                        QString extDir = getConfigDir() + "/Extensions";
-                        QDir().mkpath(extDir);
-                        #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
-                        if (m_profile && m_profile->extensionManager()) {
-                            m_profile->extensionManager()->installExtension(item->path);
-                        }
-                        #endif
-                        QMessageBox::information(this, "Extension Installed",
-                            QString("Extension '%1' was successfully downloaded and registered in BraveLite!").arg(item->fileName));
+        btnDownload->setStyleSheet("QPushButton { background-color: #2b2d30; border: 1px solid #ff5500; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #ff5500; font-weight: bold; }");
+
+        connect(download, &QWebEngineDownloadRequest::receivedBytesChanged, item, [item, download]() {
+            qint64 nowBytes = download->receivedBytes();
+            qint64 elapsedMs = item->speedTimer.elapsed();
+            if (elapsedMs >= 250) {
+                qint64 deltaBytes = nowBytes - item->lastBytes;
+                item->speedBytesPerSec = (deltaBytes * 1000.0) / elapsedMs;
+                item->lastBytes = nowBytes;
+                item->speedTimer.restart();
+            }
+            item->receivedBytes = nowBytes;
+            item->totalBytes = download->totalBytes();
+            emit item->updated();
+        });
+
+        connect(download, &QWebEngineDownloadRequest::stateChanged, item, [this, item, isExtension](QWebEngineDownloadRequest::DownloadState state) {
+            if (state == QWebEngineDownloadRequest::DownloadCompleted) {
+                item->isFinished = true;
+                item->isPaused = false;
+                item->speedBytesPerSec = 0.0;
+                btnDownload->setStyleSheet("QPushButton { background-color: #2b2d30; border: 1px solid #52c41a; border-radius: 6px; padding: 4px 10px; font-size: 13px; color: #52c41a; font-weight: bold; }");
+                savePersistentData();
+
+                if (item->fileName.endsWith(".crx", Qt::CaseInsensitive) || isExtension) {
+                    QString extDir = getConfigDir() + "/Extensions";
+                    QDir().mkpath(extDir);
+                    #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+                    if (m_profile && m_profile->extensionManager()) {
+                        m_profile->extensionManager()->installExtension(item->path);
                     }
-                } else if (state == QWebEngineDownloadRequest::DownloadCancelled ||
-                    state == QWebEngineDownloadRequest::DownloadInterrupted) {
-                    item->isCanceled = true;
+                    #endif
+                    QMessageBox::information(this, "Extension Installed",
+                        QString("Extension '%1' was successfully downloaded and registered in BraveLite!").arg(item->fileName));
+                }
+            } else if (state == QWebEngineDownloadRequest::DownloadCancelled ||
+                state == QWebEngineDownloadRequest::DownloadInterrupted) {
+                item->isCanceled = true;
                 item->speedBytesPerSec = 0.0;
                 savePersistentData();
-                    }
-                    emit item->updated();
-            });
+            }
+            emit item->updated();
+        });
 
-            connect(download, &QWebEngineDownloadRequest::isPausedChanged, item, [item, download]() {
-                item->isPaused = download->isPaused();
-                if (item->isPaused) item->speedBytesPerSec = 0.0;
-                emit item->updated();
-            });
+        connect(download, &QWebEngineDownloadRequest::isPausedChanged, item, [item, download]() {
+            item->isPaused = download->isPaused();
+            if (item->isPaused) item->speedBytesPerSec = 0.0;
+            emit item->updated();
+        });
 
-            emit downloadAdded(item);
-            savePersistentData();
-        } else {
-            download->cancel();
-        }
+        emit downloadAdded(item);
+        savePersistentData();
     }
 
     QWidget* createDownloadCardWidget(DownloadItem *d, QWidget *parent) {
@@ -4970,6 +5072,7 @@ public:
         menu.addAction("History\t" + keybindsMap.value("History"), this, &BrowserWindow::openHistoryTab);
         menu.addAction("Bookmarks Manager", this, [this]() { openSettingsTab(7); });
         menu.addAction("Downloads\t" + keybindsMap.value("Downloads"), this, &BrowserWindow::openDownloadsTab);
+        menu.addAction("Find in page...\t" + keybindsMap.value("Find", "Ctrl+F"), this, &BrowserWindow::openFindDialog);
         menu.addAction("Site Permissions", this, &BrowserWindow::openPermissionsTab);
 
         menu.addAction("Inspect Element", this, [this]() {
@@ -5221,6 +5324,7 @@ private:
     QLineEdit *findInput = nullptr;
     QLabel *findCountLabel = nullptr;
     QCompleter *m_urlCompleter = nullptr;
+    QAbstractItemView *m_completerPopup = nullptr;
     QStandardItemModel *m_completerModel = nullptr;
     QToolButton *btnBookmarksOverflow = nullptr;
 
@@ -5469,15 +5573,16 @@ private:
         m_urlCompleter->setCompletionMode(QCompleter::PopupCompletion);
         m_urlCompleter->setMaxVisibleItems(8);
 
-        if (m_urlCompleter->popup()) {
-            m_urlCompleter->popup()->setItemDelegate(new OmniboxItemDelegate(m_urlCompleter->popup()));
-            m_urlCompleter->popup()->setStyleSheet(
+        m_completerPopup = m_urlCompleter->popup();
+        if (m_completerPopup) {
+            m_completerPopup->setItemDelegate(new OmniboxItemDelegate(m_completerPopup));
+            m_completerPopup->setStyleSheet(
                 "QListView { background-color: #202124; color: #ffffff; border: 1px solid #3c4043; border-radius: 8px; padding: 4px; outline: none; } "
                 "QListView::item { height: 34px; border-radius: 4px; } "
                 "QListView::item:selected { background-color: #35373c; color: #ffffff; } "
                 "QListView::item:hover { background-color: #2c2d30; }"
             );
-            m_urlCompleter->popup()->installEventFilter(this);
+            m_completerPopup->installEventFilter(this);
         }
 
         urlBar->setCompleter(m_urlCompleter);
@@ -5485,8 +5590,8 @@ private:
         auto doTabFill = [this]() {
             if (!m_completerModel || m_completerModel->rowCount() == 0) return;
             QString target;
-            if (m_urlCompleter && m_urlCompleter->popup() && m_urlCompleter->popup()->isVisible()) {
-                QModelIndex curIdx = m_urlCompleter->popup()->currentIndex();
+            if (m_completerPopup && m_completerPopup->isVisible()) {
+                QModelIndex curIdx = m_completerPopup->currentIndex();
                 if (curIdx.isValid()) {
                     QString fullUrl = curIdx.data(Qt::UserRole + 4).toString();
                     QString domain = curIdx.data(Qt::UserRole + 2).toString();
@@ -5708,27 +5813,11 @@ private:
         bindKey(keybindsMap.value("Reload"), doReload);
         bindKey("F5", doReload);
 
-        auto openFind = [this]() {
-            if (!findBar) return;
-            findBar->move(width() - findBar->width() - 25, headerContainer ? headerContainer->height() + 8 : 78);
-            findBar->raise();
-            findBar->show();
-            findInput->setFocus();
-            findInput->selectAll();
-            if (!findInput->text().isEmpty()) {
-                if (auto *v = activeWebView()) {
-                    v->findText(findInput->text(), {}, [this](const QWebEngineFindTextResult &res) {
-                        if (res.numberOfMatches() > 0) {
-                            findCountLabel->setText(QString("%1/%2").arg(res.activeMatch()).arg(res.numberOfMatches()));
-                        } else {
-                            findCountLabel->setText("0/0");
-                        }
-                    });
-                }
-            }
-        };
-        bindKey(keybindsMap.value("Find", "Ctrl+F"), openFind);
-        bindKey("Ctrl+F", openFind);
+        QString findKey = keybindsMap.value("Find", "Ctrl+F");
+        bindKey(findKey, [this]() { openFindDialog(); });
+        if (findKey != "Ctrl+F") {
+            bindKey("Ctrl+F", [this]() { openFindDialog(); });
+        }
 
         bindKey(keybindsMap.value("ZoomIn"), [this]() { zoomIn(); });
         bindKey("Ctrl+=", [this]() { zoomIn(); });
@@ -5849,7 +5938,7 @@ private:
         settings->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
         settings->setAttribute(QWebEngineSettings::AllowWindowActivationFromJavaScript, true);
 
-        if (!m_isIncognito && m_profile->scripts()->find("BraveLiteCosmeticAndYTShield").isEmpty()) {
+        if (m_profile->scripts()->find("BraveLiteCosmeticAndYTShield").isEmpty()) {
             QWebEngineScript shieldScript;
             shieldScript.setName("BraveLiteCosmeticAndYTShield");
             shieldScript.setInjectionPoint(QWebEngineScript::DocumentReady);
@@ -5859,6 +5948,15 @@ private:
             QString jsCode =
             "(function() {\n"
             "  try {\n"
+            "    window.addEventListener('keydown', function(e) {\n"
+            "      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F' || e.keyCode === 70)) {\n"
+            "        if (!e.altKey && !e.shiftKey) {\n"
+            "          console.log('BRAVELITE_OPEN_FIND::');\n"
+            "          e.preventDefault();\n"
+            "          e.stopPropagation();\n"
+            "        }\n"
+            "      }\n"
+            "    }, true);\n"
             "    window.addEventListener('auxclick', function(e) {\n"
             "      if (e.button === 1) {\n"
             "        let el = e.target.closest('a[href]');\n"
@@ -5926,7 +6024,7 @@ private:
         if (m_profile->scripts()->find("BraveLiteChromeWebStoreHelper").isEmpty()) {
             QWebEngineScript cwsScript;
             cwsScript.setName("BraveLiteChromeWebStoreHelper");
-            cwsScript.setInjectionPoint(QWebEngineScript::DocumentReady);
+            cwsScript.setInjectionPoint(QWebEngineScript::DocumentCreation);
             cwsScript.setWorldId(QWebEngineScript::MainWorld);
             cwsScript.setRunsOnSubFrames(false);
 
@@ -5934,14 +6032,60 @@ private:
 (function() {
     if (!location.hostname.includes('chromewebstore.google.com') && !location.hostname.includes('chrome.google.com')) return;
 
-    window.chrome = window.chrome || {};
-    if (!window.chrome.webstorePrivate) {
-        window.chrome.webstorePrivate = {
-            install: function() {},
-            beginInstallWithManifest3: function() {},
-            completeInstall: function() {}
-        };
+    function getStoreExtId() {
+        const match = location.pathname.match(/\/detail\/(?:[^\/]+\/)?([a-z0-9]{32})/i);
+        return match ? match[1] : '';
     }
+
+    function triggerDownloadExt(extId) {
+        const id = extId || getStoreExtId();
+        if (!id) return;
+        const crxUrl = 'https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3&prodversion=140.0&x=id%3D' + id + '%26installsource%3Dondemand%26uc';
+        window.location.href = crxUrl;
+    }
+
+    window.chrome = window.chrome || {};
+    window.chrome.webstorePrivate = window.chrome.webstorePrivate || {};
+
+    window.chrome.webstorePrivate.install = function(id, callback) {
+        triggerDownloadExt(id);
+        if (typeof callback === 'function') callback();
+    };
+
+    window.chrome.webstorePrivate.beginInstallWithManifest3 = function(details, callback) {
+        const id = (details && details.id) ? details.id : getStoreExtId();
+        triggerDownloadExt(id);
+        if (typeof callback === 'function') callback();
+    };
+
+    window.chrome.webstorePrivate.completeInstall = function(id, callback) {
+        if (typeof callback === 'function') callback();
+    };
+
+    window.chrome.webstorePrivate.enable = function(id, callback) {
+        if (typeof callback === 'function') callback();
+    };
+
+    window.chrome.webstorePrivate.getExtensionStatus = function(id, callback) {
+        if (typeof callback === 'function') callback('not_installed');
+    };
+
+    document.addEventListener('click', function(e) {
+        const path = (e.composedPath && e.composedPath()) || [e.target];
+        for (let el of path) {
+            if (!el || !el.getAttribute) continue;
+            const text = (el.innerText || el.textContent || '').trim().toLowerCase();
+            const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+            if (text.includes('add to chrome') || text.includes('add to brave') ||
+                aria.includes('add to chrome') || aria.includes('add to brave')) {
+                const extId = getStoreExtId();
+                if (extId) {
+                    triggerDownloadExt(extId);
+                    break;
+                }
+            }
+        }
+    }, true);
 
     function fixWebStore() {
         const allSpansAndDivs = document.querySelectorAll('div, span, p');
@@ -5952,9 +6096,8 @@ private:
             }
         });
 
-        const match = location.pathname.match(/\/detail\/(?:[^\/]+\/)?([a-z0-9]{32})/i);
-        if (match && match[1]) {
-            const extId = match[1];
+        const extId = getStoreExtId();
+        if (extId) {
             if (!document.getElementById('__bravelite_cws_install_btn')) {
                 const btn = document.createElement('button');
                 btn.id = '__bravelite_cws_install_btn';
@@ -5965,8 +6108,7 @@ private:
                 btn.onmouseout = () => btn.style.transform = 'scale(1.0)';
                 btn.onclick = () => {
                     btn.innerHTML = '⏳ Downloading...';
-                    const crxUrl = 'https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3&prodversion=140.0&x=id%3D' + extId + '%26installsource%3Dondemand%26uc';
-                    window.location.href = crxUrl;
+                    triggerDownloadExt(extId);
                     setTimeout(() => { btn.innerHTML = '✓ Download Started'; }, 2500);
                 };
                 document.body.appendChild(btn);
@@ -7375,14 +7517,7 @@ private:
         connect(view, &CustomWebView::openNewCleanWindowRequested, this, [this]() {
             (new BrowserWindow(false, true, QList<QUrl>(), false))->show();
         });
-        connect(view, &CustomWebView::findRequested, this, [this]() {
-            if (!findBar) return;
-            findBar->move(width() - findBar->width() - 25, headerContainer ? headerContainer->height() + 8 : 78);
-            findBar->raise();
-            findBar->show();
-            findInput->setFocus();
-            findInput->selectAll();
-        });
+        connect(view, &CustomWebView::findRequested, this, &BrowserWindow::openFindDialog);
         connect(view, &CustomWebView::inspectElementRequested, this, [this](CustomWebView *targetView) {
             openInspectElementWindow(targetView);
         });
@@ -7392,6 +7527,7 @@ private:
 
         CustomWebEnginePage *p = qobject_cast<CustomWebEnginePage*>(view->page());
         if (p) {
+            connect(p, &CustomWebEnginePage::findRequested, this, &BrowserWindow::openFindDialog);
             connect(p, &CustomWebEnginePage::openLinkInNewTabRequested, this, [this](const QUrl &u) { addNewTab(u); });
             p->settings()->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
 
@@ -7913,7 +8049,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
-    app.setApplicationVersion("1.65");
+    app.setApplicationVersion("1.66");
     app.setOrganizationName("BraveLite");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
@@ -7948,7 +8084,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v165";
+    const QString ipcServerName = "BraveLiteSingleInstanceServer_v166";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);

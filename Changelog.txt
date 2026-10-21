@@ -1,4 +1,31 @@
 ================================================================================
+BraveLite v1.66 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & BUG FIXES]
+1. Chrome Web Store Native "Add to Chrome" Button Integration & Frictionless Installation:
+   - Full implementation of `chrome.webstorePrivate` API bridge (`beginInstallWithManifest3`, `install`, `getExtensionStatus`, `enable`, `completeInstall`) injected at `DocumentCreation` to hook native Google WebStore actions before page scripts run.
+   - Added capturing DOM event listener on Chrome Web Store buttons ("Add to Chrome", "Add to Brave", etc.), accurately extracting extension IDs from detail URLs and dispatching CRX downloads directly from Google client services.
+   - Overhauled download handling (`handleDownload`) to automatically intercept WebExtension CRX packages and Google update URLs, routing them directly into BraveLite's Extensions directory without popping modal file picker dialogs, and registering them via `QWebEngineExtensionManager`.
+   - Maintained the floating "⚡ Add to BraveLite" badge on WebStore pages as a persistent fallback installation mechanism.
+
+2. Ubiquitous Find in Page (Ctrl+F) Everywhere:
+   - Fixed Qt ambiguous shortcut collision caused by duplicate keybind registration of `"Ctrl+F"`.
+   - Implemented an application-level event filter (`qApp->installEventFilter(this)`) in `BrowserWindow`, ensuring `Ctrl+F` and `Meta+F` are captured reliably across all windows, child frames, and active widgets.
+   - Installed event filtering on `CustomWebView` and its Chromium `focusProxy()`, preventing the internal Chromium widget from consuming key events.
+   - Injected a capturing `keydown` listener across all web pages in `BraveLiteCosmeticAndYTShield` communicating `BRAVELITE_OPEN_FIND::` via the console message channel, preventing websites from hijacking or suppressing `Ctrl+F`.
+   - Added "Find in page...\tCtrl+F" to both the 3-dots App Menu and the web page right-click context menu.
+   - Centralized `openFindDialog()` logic to immediately focus, select input, and update match counts across normal and split views.
+
+3. Full Windows & Linux Cross-Platform Compatibility:
+   - Standardized all extension storage and profile directory resolutions via `QStandardPaths::ConfigLocation` (`%APPDATA%/BraveLite` on Windows and `~/.config/BraveLite` on Linux).
+   - Validated IPC single-instance socket naming (`BraveLiteSingleInstanceServer_v166`) and Windows installer definition (`installer.iss`).
+
+4. Version Bump:
+   - Elevated application version, diagnostic crash reporter, IPC server name, and engine identifiers to v1.66.
+
+================================================================================
 BraveLite v1.65 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
