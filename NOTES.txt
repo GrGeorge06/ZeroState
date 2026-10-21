@@ -1,6 +1,6 @@
 1) add an extentions button next to the ai chatbot button with all the extentions and let me manage them with a little dropdown menu
 
-change to version v1.66
+change to version v1.67
 
 update the changelog and the README
 

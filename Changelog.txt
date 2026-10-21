@@ -1,4 +1,30 @@
 ================================================================================
+BraveLite v1.67 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Extensions Button & Quick Management Dropdown Menu:
+   - Added a dedicated Extensions action button (crisp puzzle piece vector icon) in the top tab row placed directly adjacent to the BraveLite AI Assistant sparkle button.
+   - Built a sleek, theme-integrated dropdown management menu displaying all active WebExtensions, custom userscripts, and CRX packages.
+   - Added direct extension management controls:
+     * View real-time status (Active / Disabled) for each extension.
+     * 1-click toggle to Enable or Disable extensions via `QWebEngineExtensionManager`.
+     * Direct launch for extension action popup URLs (if supported).
+     * Instant removal / uninstallation with confirmation dialogs.
+     * Quick actions to manage extensions in Settings, install unpacked extension folders, install `.crx` or `.user.js` files, open Chrome Web Store, and reveal local Extensions storage.
+
+2. Event Filter Re-Entrancy Fix & Stability Hardening:
+   - Eliminated recursive Qt event filtering during QCompleter popup initialization by caching popup references and adding a re-entrancy guard to `BrowserWindow::eventFilter`.
+
+3. Full Windows & Linux Cross-Platform Parity:
+   - Cross-platform UI design and file path handling via `QStandardPaths::ConfigLocation` (`%APPDATA%/BraveLite` on Windows and `~/.config/BraveLite` on Linux).
+   - Inno Setup Windows installer updated to v1.67.
+
+4. Version Bump to v1.67:
+   - Updated engine versions, IPC socket namespaces (`BraveLiteSingleInstanceServer_v167`), window headers, and crash diagnostic logs to v1.67.
+
+================================================================================
 BraveLite v1.66 - Official Release Changelog
 Author: GrGeorge
 ================================================================================

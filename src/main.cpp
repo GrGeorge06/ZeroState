@@ -272,6 +272,25 @@ namespace BrowserIcons {
             s2.quadTo(25, 8, 25, 4);
             s2.closeSubpath();
             p.drawPath(s2);
+        } else if (type == "puzzle" || type == "extensions" || type == "extension") {
+            p.setRenderHint(QPainter::Antialiasing, true);
+            p.setBrush(Qt::NoBrush);
+            p.setPen(QPen(color, 2.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            QPainterPath pz;
+            pz.moveTo(9, 11);
+            pz.lineTo(14, 11);
+            pz.cubicTo(13, 7, 19, 7, 18, 11);
+            pz.lineTo(23, 11);
+            pz.lineTo(23, 15);
+            pz.cubicTo(27, 14, 27, 20, 23, 19);
+            pz.lineTo(23, 23);
+            pz.lineTo(18, 23);
+            pz.cubicTo(19, 20, 13, 20, 14, 23);
+            pz.lineTo(9, 23);
+            pz.lineTo(9, 19);
+            pz.cubicTo(12, 20, 12, 14, 9, 15);
+            pz.closeSubpath();
+            p.drawPath(pz);
         } else if (type == "win_min") {
             p.drawLine(10, 16, 22, 16);
         } else if (type == "win_max") {
@@ -470,7 +489,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.66 Extensive Crash & Diagnostic Report\n";
+            out << "BraveLite v1.67 Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -2141,7 +2160,7 @@ public slots:
                 QNetworkReply *r = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
                 connect(r, &QNetworkReply::finished, r, &QObject::deleteLater);
             }
-            setWindowTitle(m_isIncognito ? "BraveLite v1.66 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.66 [🎮 Gaming Mode]");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.67 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.67 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
                                      "• BraveLite Engine AI Overview & Hover Link Previews paused.\n"
@@ -2149,7 +2168,7 @@ public slots:
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
             if (aiEnabled) ensureOllamaServerRunning();
-            setWindowTitle(m_isIncognito ? "BraveLite v1.66 [Incognito]" : "BraveLite v1.66");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.67 [Incognito]" : "BraveLite v1.67");
             QMessageBox::information(this, "Gaming Mode Disabled",
                                      "🎮 Gaming Mode is now OFF.\n\n"
                                      "• AI Overview, Link Previews, and Full-Site Translation are re-enabled!");
@@ -2594,7 +2613,7 @@ public slots:
             "  </div>"
             "  <div class='g-ai-footer'>"
             "    <span>Grounded on verified search results • Local Ollama (%1)</span>"
-            "    <span>BraveLite Engine v1.66</span>"
+            "    <span>BraveLite Engine v1.67</span>"
             "  </div>"
             "</div>"
         ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
@@ -2835,7 +2854,7 @@ public slots:
             QUrl imgApiUrl("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
             QUrl::toPercentEncoding(query) + "&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=420&format=json");
             QNetworkRequest req(imgApiUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.66");
+            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.67");
             QNetworkReply *rep = m_netManager->get(req);
             connect(rep, &QNetworkReply::finished, this, [rep, safeView, currentSearchId]() {
                 if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId && rep->error() == QNetworkReply::NoError) {
@@ -5095,6 +5114,153 @@ public:
         menu.exec(btnMenu->mapToGlobal(QPoint(0, btnMenu->height() + 4)));
     }
 
+    void openExtensionsMenu() {
+        if (!btnExtensions) return;
+        QMenu menu(this);
+        menu.setStyleSheet(R"(
+            QMenu { background-color: #202124; border: 1px solid #3c4043; color: #e8eaed; padding: 6px 0px; font-size: 13px; border-radius: 8px; }
+            QMenu::item { padding: 6px 24px 6px 16px; }
+            QMenu::item:disabled { color: #80868b; }
+            QMenu::item:selected { background-color: #ff5500; color: #fff; }
+            QMenu::separator { height: 1px; background-color: #3c4043; margin: 4px 0px; }
+        )");
+
+        QAction *headerAct = menu.addAction("Extensions & Userscripts");
+        QFont f = headerAct->font();
+        f.setBold(true);
+        headerAct->setFont(f);
+        headerAct->setEnabled(false);
+        menu.addSeparator();
+
+        bool hasItems = false;
+
+        #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+        if (m_profile && m_profile->extensionManager()) {
+            auto *mgr = m_profile->extensionManager();
+            const auto extensions = mgr->extensions();
+            for (const auto &ext : extensions) {
+                hasItems = true;
+                QString displayName = ext.name().isEmpty() ? ext.id() : ext.name();
+                QString status = ext.isEnabled() ? "Active" : "Disabled";
+                QMenu *extSub = menu.addMenu(BrowserIcons::drawIcon("puzzle", ext.isEnabled() ? QColor("#52c41a") : QColor("#9aa0a6")), displayName);
+                extSub->setStyleSheet(menu.styleSheet());
+
+                QAction *statusItem = extSub->addAction("Status: " + status);
+                statusItem->setEnabled(false);
+                extSub->addSeparator();
+
+                if (ext.actionPopupUrl().isValid()) {
+                    extSub->addAction("Open Extension Popup", this, [this, ext]() {
+                        addNewTab(ext.actionPopupUrl());
+                    });
+                }
+
+                extSub->addAction(ext.isEnabled() ? "Disable Extension" : "Enable Extension", this, [this, mgr, ext]() {
+                    mgr->setExtensionEnabled(ext, !ext.isEnabled());
+                });
+
+                extSub->addAction("Remove from BraveLite", this, [this, mgr, ext]() {
+                    if (QMessageBox::question(this, "Remove Extension", QString("Remove '%1' from BraveLite?").arg(ext.name())) == QMessageBox::Yes) {
+                        mgr->uninstallExtension(ext);
+                    }
+                });
+            }
+        }
+        #endif
+
+        QString extDir = getConfigDir() + "/Extensions";
+        QDir dir(extDir);
+        QStringList userScripts = dir.entryList({"*.user.js", "*.js"}, QDir::Files);
+        for (const QString &scriptName : userScripts) {
+            hasItems = true;
+            QMenu *scriptSub = menu.addMenu(BrowserIcons::drawIcon("puzzle", QColor("#fa8c16")), scriptName);
+            scriptSub->setStyleSheet(menu.styleSheet());
+            QAction *statusItem = scriptSub->addAction("Userscript (Active on load)");
+            statusItem->setEnabled(false);
+            scriptSub->addSeparator();
+            scriptSub->addAction("Open Script in Editor", this, [extDir, scriptName]() {
+                QDesktopServices::openUrl(QUrl::fromLocalFile(extDir + "/" + scriptName));
+            });
+            scriptSub->addAction("Delete Userscript", this, [this, extDir, scriptName]() {
+                if (QMessageBox::question(this, "Delete Script", QString("Delete userscript '%1'?").arg(scriptName)) == QMessageBox::Yes) {
+                    QFile::remove(extDir + "/" + scriptName);
+                }
+            });
+        }
+
+        QStringList crxFiles = dir.entryList({"*.crx"}, QDir::Files);
+        for (const QString &crxName : crxFiles) {
+            hasItems = true;
+            QMenu *crxSub = menu.addMenu(BrowserIcons::drawIcon("puzzle", QColor("#1890ff")), crxName);
+            crxSub->setStyleSheet(menu.styleSheet());
+            QAction *statusItem = crxSub->addAction("CRX Package");
+            statusItem->setEnabled(false);
+            crxSub->addSeparator();
+            crxSub->addAction("Load / Install", this, [this, extDir, crxName]() {
+                #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+                if (m_profile && m_profile->extensionManager()) {
+                    m_profile->extensionManager()->installExtension(extDir + "/" + crxName);
+                    QMessageBox::information(this, "Extension", "Extension loaded successfully.");
+                }
+                #endif
+            });
+            crxSub->addAction("Delete CRX Package", this, [this, extDir, crxName]() {
+                if (QMessageBox::question(this, "Delete Package", QString("Delete '%1'?").arg(crxName)) == QMessageBox::Yes) {
+                    QFile::remove(extDir + "/" + crxName);
+                }
+            });
+        }
+
+        if (!hasItems) {
+            QAction *emptyAct = menu.addAction("No extensions installed yet");
+            emptyAct->setEnabled(false);
+        }
+
+        menu.addSeparator();
+        menu.addAction("⚙ Manage Extensions", this, [this]() {
+            openSettingsTab(3);
+        });
+        menu.addAction("➕ Install Unpacked Extension Folder...", this, [this]() {
+            QString path = QFileDialog::getExistingDirectory(this, "Select Unpacked Extension Folder", QDir::homePath());
+            if (!path.isEmpty()) {
+                #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+                if (m_profile && m_profile->extensionManager()) {
+                    m_profile->extensionManager()->installExtension(path);
+                    QMessageBox::information(this, "Extension Installed", "WebExtension loaded successfully.");
+                    return;
+                }
+                #endif
+                QMessageBox::information(this, "Extension Registered", "Extension folder registered: " + path);
+            }
+        });
+        menu.addAction("📄 Install Extension / Script File (.crx, .js)...", this, [this, extDir]() {
+            QString file = QFileDialog::getOpenFileName(this, "Select Extension or Script", QDir::homePath(), "Extensions (*.crx *.user.js *.js);;All Files (*)");
+            if (!file.isEmpty()) {
+                QFileInfo fi(file);
+                QString target = extDir + "/" + fi.fileName();
+                QFile::copy(file, target);
+                if (fi.suffix().compare("crx", Qt::CaseInsensitive) == 0) {
+                    #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+                    if (m_profile && m_profile->extensionManager()) {
+                        m_profile->extensionManager()->installExtension(target);
+                    }
+                    #endif
+                    QMessageBox::information(this, "Extension Installed", QString("Extension '%1' installed successfully.").arg(fi.fileName()));
+                } else {
+                    QMessageBox::information(this, "Userscript Installed", QString("Userscript '%1' added to Extensions.").arg(fi.fileName()));
+                }
+            }
+        });
+        menu.addAction("🌐 Browse Chrome Web Store", this, [this]() {
+            addNewTab(QUrl("https://chromewebstore.google.com/"));
+        });
+        menu.addAction("📁 Open Extensions Folder", this, [extDir]() {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(extDir));
+        });
+
+        menu.exec(btnExtensions->mapToGlobal(QPoint(0, btnExtensions->height() + 4)));
+    }
+
     // ---------------- IMPORT / EXPORT ----------------
     void importTop5Browsers() {
         QStringList options = {
@@ -5333,6 +5499,7 @@ private:
     QPushButton *btnWinMax = nullptr;
     QPushButton *btnWinClose = nullptr;
     QPushButton *btnAiChat = nullptr;
+    QPushButton *btnExtensions = nullptr;
 
     QString chattingModel = "llama3.2:1b";
     QSplitter *mainSplitter = nullptr;
@@ -6642,6 +6809,16 @@ private:
         tabRowLayout->addWidget(tabBar);
         tabRowLayout->addWidget(newTabBtn);
         tabRowLayout->addStretch();
+
+        btnExtensions = new QPushButton(this);
+        btnExtensions->setIcon(BrowserIcons::drawIcon("puzzle", QColor("#e4e6eb")));
+        btnExtensions->setIconSize(QSize(17, 17));
+        btnExtensions->setToolTip("Extensions & Userscripts");
+        btnExtensions->setFixedSize(30, 28);
+        btnExtensions->setCursor(Qt::PointingHandCursor);
+        btnExtensions->setStyleSheet("QPushButton { background-color: #242629; border: 1px solid #34373d; border-radius: 6px; padding: 0; } QPushButton:hover { background-color: #35373c; border-color: #ff5500; }");
+        connect(btnExtensions, &QPushButton::clicked, this, &BrowserWindow::openExtensionsMenu);
+        tabRowLayout->addWidget(btnExtensions);
 
         btnAiChat = new QPushButton(this);
         btnAiChat->setIcon(BrowserIcons::drawIcon("sparkle", QColor("#8ab4f8")));
@@ -8049,7 +8226,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
-    app.setApplicationVersion("1.66");
+    app.setApplicationVersion("1.67");
     app.setOrganizationName("BraveLite");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
@@ -8084,7 +8261,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v166";
+    const QString ipcServerName = "BraveLiteSingleInstanceServer_v167";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);
