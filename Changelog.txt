@@ -1,52 +1,141 @@
 ================================================================================
-BraveLite v1.11 - Official Release Changelog
+BraveLite v1.63 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
-[SEARCH ENGINE & AI UPGRADES]
-1. Renamed Local Search Engine to "BraveLite Engine":
-   - Rebuilt the search engine UI and functionality as a carbon copy of DuckDuckGo's
-     dark theme (#1c1c1c background, DuckDuckGo header bar with clear/submit controls,
-     All/Images/Videos/News/Maps category tabs, favicon + domain breadcrumbs, and
-     instant organic web results).
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Complete Overhaul of Settings UI:
+   - Modern cohesive preferences dashboard with categorized icons (🚀, 🤖, 🧩, 🎨, ⌨️, 🔑, 🔖, 🎵, 🌐, 🚫, 🔒, 📥, 🗑️, 🔄).
+   - Sleek card layout with subtle borders, badge indicators, and dedicated configuration cards.
 
-2. Carbon Copy of Google's "AI Overview":
-   - Redesigned the AI Overview card on BraveLite Engine to match Google's AI Overview:
-     4-color sparkle icon, animated shimmer skeleton loader while generating, structured
-     summary + bulleted key points, expandable "Show more / Show less" button, and
-     a right-hand rail of clickable source citation cards.
-   - Grounded BraveLite AI Overview with live DuckDuckGo search snippets so answers are
-     accurate and based on real web results.
+2. Restored Tab Bar & Plus Button (Matching Photo 1):
+   - Removed unwanted purple bottom accent border on active selected tabs for a clean, cohesive appearance.
+   - Restored the "+" button immediately adjacent to the right of the last tab.
+   - Implemented dynamic tab width shrinking (from 180px down to 36px) only when the tab count overflows available window width.
 
-3. Fixed BraveLite AI Hover Link Summarizer:
-   - Fixed child-element mouseout events prematurely canceling the hover timer when
-     hovering over links containing spans or icons.
-   - Added automatic cancellation of stale network requests, a 2.2s fast-fallback
-     timeout, and anchor/title context fallback so link summaries always appear.
+3. Bookmarks Overflow Chevron Button:
+   - Added a compact 22x22 "»" button positioned on the complete right of the bookmarks toolbar using an expanding layout spacer.
+   - Contains exclusively bookmarks that do not fit into the visible bar, dynamically recalculated on window resize.
 
-4. GPU Detection & Hardware Acceleration for BraveLite AI:
-   - Added automatic GPU detection (NVIDIA via nvidia-smi, AMD/Intel via lspci &
-     /dev/dri/renderD128 on Linux, and WMIC VideoController on Windows).
-   - Added a "Use GPU Acceleration" toggle in Settings -> BraveLite AI (Ollama) that
-     passes `"options": {"num_gpu": -1}` to offload LLM layers onto the GPU, plus a
-     "Re-Scan GPU Hardware" button.
+4. Detach & Attach Tabs Across Windows:
+   - Pulling/dragging a tab downward out of a window detaches it into a new window.
+   - Dropping a dragged tab onto another open window's tab bar seamlessly attaches and merges it next to existing tabs.
 
-[PERFORMANCE & IDLE CPU DEBLOATING]
-5. Eliminated Idle CPU Usage (0% CPU at Idle):
-   - Removed the 100ms setInterval polling loop and full-page MutationObserver that
-     previously ran across web pages.
-   - Hooked YouTube ad-skipping and SponsorBlock directly into native HTML5 `<video>`
-     events (`play`, `loadedmetadata`, `durationchange`, `timeupdate`).
-   - Replaced the linear O(N) adblock domain list scan with an O(1) QSet hash lookup.
-   - Throttled the New Tab page clock and paused updates when the tab is hidden.
+5. Omnibox Redesign with Popular Site Logos (Matching Photo 2):
+   - Brave-style suggestions popup showing search suggestion at the top with magnifying glass icon.
+   - High-resolution vector site logos for popular destinations (YouTube, YouTube Music, Reddit, GitHub, Spotify, Google, etc.).
+   - Clean formatting with bold white site names and muted gray domain subtitles.
 
-[PREVIOUSLY ADDED IN v1.11]
-6. Single-instance IPC (Discord/external links open in existing window).
-7. Fixed YouTube fullscreen exit unmaximizing the browser window.
-8. Added pagead.js, freshmarketer.com, claritybt.freshmarketer.com, and
-   fwtracks.freshmarketer.com to AdBlocker.
-9. Added 5 Theme Profiles and customizable Keybinds tab in Settings.
-10. Drag-and-drop reorderable bookmarks on the bookmarks bar.
-11. Live real-time download card insertion in already-open Downloads tabs.
-12. Extensive crash & diagnostic logs with stack traces and system telemetry.
+6. High-Speed YouTube Page Refresh:
+   - Eliminated reload latency and stutter by removing Chromium's --disable-background-networking flag to preserve DNS cache and socket pools.
+   - Implemented zero-copy fast-path bypass in the request interceptor for YouTube CDNs (googlevideo.com, ytimg.com, ggpht.com).
+
+7. Taskbar "New Window" Fix:
+   - Right-clicking the taskbar application icon and selecting "New Window" (or launching with no arguments while running) opens a brand new window rather than inserting a tab into an existing window.
+
+8. Fullscreen Exit Window Maximization Restoration:
+   - Fixed YouTube fullscreen exit to cleanly preserve and restore window maximized state using showMaximized() without unmaximizing or stuttering.
+
+9. Full Theme Integration for Settings & Start Page:
+   - Dynamic theme palette (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now applies to the Settings dashboard and Start Page.
+
+10. Natural Language AI Overview & Slick Layout (Matching Photo 3):
+    - Restored AI overview to natural language paragraphs with bold keywords (**keyword**) instead of code blocks.
+    - Code blocks are restricted strictly to programming, coding, or terminal commands (e.g. updating Fedora/Ubuntu).
+    - Added compact "More ▾" / "Less ▴" pill button.
+
+11. Spotify Web Playback & Widevine DRM:
+    - Added Widevine CDM detection across common Linux and Windows paths.
+    - Added 1-click Widevine downloader in Settings -> Media & DRM (Widevine / Spotify).
+    - Fast-path CDN bypass for Spotify streaming chunks and license servers.
+
+12. Floating Pill Find in Page (Ctrl+F) (Matching Photo 4):
+    - Floating pill widget anchored to the top-right corner with text input, vertical separator, match counter (e.g. 1/3), up/down chevrons (⌃/⌄), and close button.
+    - Combined Chromium findText with window.find() DOM scrolling.
+
+================================================================================
+BraveLite v1.5 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Middle-Click New Tab for Links & YouTube Videos:
+   - Middle-clicking any link or YouTube video/thumbnail/title now reliably opens
+     in a new tab without losing your place or navigating away from the current page.
+   - Removed the request blocker that incorrectly treated middle-click background tabs
+     as popups.
+   - Added native auxclick event interceptor for YouTube Single Page Application components
+     (rich grids, video renderers, thumbnails, and title links).
+
+2. Omnibox Autocomplete in Address Bar:
+   - Added instant autocomplete dropdown in the URL/Address bar as you start typing.
+   - Intelligently suggests matches from your saved Bookmarks, Browsing History, and
+     top visited domains with rich dark-theme styling.
+   - Pressing Enter or clicking any suggestion immediately navigates to that destination.
+
+3. F5 Shortcut for Page Refresh:
+   - Added standard F5 keyboard shortcut to refresh/reload the active page or search.
+
+4. External Links & Task Manager Fullscreen Fix:
+   - Fixed bug where opening links from external applications (Discord, Telegram, mail)
+     or launching a new window from task manager / taskbar would open or get stuck in fullscreen.
+   - Cleanly restores normal/maximized window state with address bar and tabs visible.
+
+5. Smooth, Lag-Free Fullscreen Transitions (YouTube & Video):
+   - Completely resolved choppy, laggy, and glitchy fullscreen entry and exit on YouTube.
+   - Eliminated jittery double window manager resizes and duplicate Escape action triggers.
+
+6. Background Windows Ollama Installer with Progress Bar:
+   - Updated the 1-click Ollama installer for Windows to run:
+     "irm https://ollama.com/install.ps1 | iex" in background mode.
+   - Added a sleek animated progress bar while downloading and installing without
+     popping up any physical console windows.
+
+7. Fast Tab Dragging & Synchronization Fix:
+   - Connected tabMoved events to synchronize underlying tab stack pages with the tab bar.
+   - Fixed tab titles changing while the page content stayed stuck when dragging tabs fast
+     left-to-right and right-to-left.
+
+8. Complete Overhaul of Themes:
+   - Overhauled all 5 built-in theme profiles (BraveLite Dark, Midnight OLED,
+     Cyberpunk Neon, Nordic Frost, Catppuccin Mocha).
+   - Added customized theme-matched slim rounded scrollbars (vertical & horizontal).
+   - Added modern polished styling for tabs, menus, tooltips, dialogs, and splitter dividers.
+
+9. Dynamic Tab Shrinking for Overflow Prevention:
+   - Tabs now dynamically shrink (from 200px down to 36px) as more tabs are opened.
+   - Prevents the window from expanding horizontally across multiple monitors when
+     opening many tabs.
+
+10. Bookmarks Overflow Dropdown & Manager Create/Delete:
+    - Added an overflow chevron ("»") dropdown on the bookmarks bar when bookmarks reach
+      the end of the window.
+    - Added "➕ New Bookmark" and "🗑 Delete Selected" options directly inside Bookmarks Manager.
+
+11. Minimalistic & Compact In-Page Find (Ctrl+F):
+    - Added a sleek, compact floating find bar (Ctrl+F) with instant live search highlights,
+      match counter ("1/5"), Previous (▲ / Shift+Enter), Next (▼ / Enter), and Close (Esc).
+
+12. Multi-Slot Bookmark Drag-and-Drop:
+    - Overhauled bookmark reordering to allow dragging a bookmark across any number of
+      slots at once in a single smooth mouse drag, exactly like dragging tabs.
+
+13. Spotify Audio & Web Player Playback Fix:
+    - Fixed Spotify web player (open.spotify.com) failing to play songs by updating
+      browser User-Agent to standard Chrome and configuring Widevine DRM / media codec flags.
+    - Whitelisted Spotify streaming and media endpoints in BraveLite Shield.
+
+14. Version v1.5:
+    - Updated version numbering to v1.5 across the application, Windows Inno Setup
+      installer configuration (installer.iss), and release documentation.
+
+================================================================================
+BraveLite v1.11 - Previous Release
+================================================================================
+- Renamed Local Search Engine to "BraveLite Engine".
+- Added Google-style "AI Overview" with DuckDuckGo live search grounding.
+- Fixed BraveLite AI Hover Link Summarizer.
+- GPU Detection & Hardware Acceleration for BraveLite AI.
+- Eliminated Idle CPU Usage (0% CPU at Idle).
+- Single-instance IPC, 5 theme profiles, drag-and-drop reorderable bookmarks.
 ================================================================================

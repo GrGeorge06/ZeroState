@@ -2,36 +2,39 @@
 
 A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
 
-![Version](https://img.shields.io/badge/version-v1.5-orange)
+![Version](https://img.shields.io/badge/version-v1.63-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
-![License](https://img.shields.io/badge/license-MIT-green)[cite: 7]
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
 ## Key Features
 
-* **BraveLite Shield (Ad, YouTube & Spam Redirect Blocker):** Full network request interception and DOM shielding that blocks advertising networks, YouTube video ads, pop-under and spam redirects, analytics scripts, and device-maker telemetry (Xiaomi, Realme, Oppo, Huawei, Apple, Samsung) out of the box[cite: 7, 8, 11]. Features a visual indicator button (`🛡 ON` in orange / `🛡 OFF` in gray).
-* **Per-Site Privacy Grade (A–F):** Real-time letter grade displayed directly inside the address bar showing site tracking behavior, blocked scripts, and encryption status[cite: 7, 11]. Click the badge for a detailed breakdown report[cite: 7, 11].
-* **Start Page with Live Clock:** Centered layout with quick DuckDuckGo search, a real-time updating digital clock, and the tagline *"because privacy matters"*.
+* **BraveLite Shield (Ad, YouTube & Spam Redirect Blocker):** Full network request interception and DOM shielding that blocks advertising networks, YouTube video ads, pop-under and spam redirects, analytics scripts, and device-maker telemetry (Xiaomi, Realme, Oppo, Huawei, Apple, Samsung) out of the box. Features a visual indicator button (`🛡 ON` in orange / `🛡 OFF` in gray).
+* **Overhauled Preferences & Settings Dashboard:** Sleek card-based settings interface organized with categorized icons, dynamic theme styling, and 1-click controls.
+* **Detachable & Cross-Window Re-Attachable Tabs:** Drag any tab downward off the tab bar to snap it out into an independent window, or drop it onto another existing window's tab bar to seamlessly merge tabs.
+* **Dynamic Tab Shrinking:** Tabs maintain clean spacing with the `+` button directly adjacent to the last tab, smoothly scaling down to 36px only when tab count exceeds available screen width.
+* **Brave-Style Omnibox Autocomplete:** Rich autocomplete popup featuring high-res vector logos for popular services (YouTube, YouTube Music, Reddit, GitHub, Spotify, Google, etc.), bold titles, and clean domain subtitles.
+* **Spotify Web Playback & Widevine DRM:** Automatic Widevine CDM detection, 1-click Widevine downloader in Settings -> Media & DRM, and fast-path CDN bypassing for smooth music playback on `open.spotify.com`.
+* **Floating Pill Find in Page (`Ctrl+F`):** Modern floating search pill anchored to the top-right corner with text input, match counter (e.g. `1/3`), up/down chevron arrows, close button, and DOM auto-scrolling.
+* **Smart Bookmarks Bar & Overflow Menu:** Background favicon preloading with an automated, compact `»` chevron menu on the far right holding only the bookmarks that overflow the visible window.
+* **Preserved Fullscreen Navigation:** Cleanly restores maximized window state when exiting YouTube or video fullscreen without unmaximizing or stuttering.
+* **Fast Page & Video Reloads:** High-speed DNS and socket pooling optimizations delivering instantaneous refreshes on YouTube and media-heavy websites.
+* **Dynamic Theme Integration:** Built-in theme profiles (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) dynamically style the browser chrome, settings dashboard, and new-tab start page.
+* **BraveLite AI & Grounded Search Overview:** Local Ollama-powered AI overviews presented in natural paragraphs with bold key specifications and compact `More ▾` pill buttons, keeping code blocks strictly for coding and terminal queries.
+* **Per-Site Privacy Grade (A–F):** Real-time letter grade displayed directly inside the address bar showing site tracking behavior, blocked scripts, and encryption status. Click the badge for a detailed breakdown report.
+* **Start Page with Live Clock:** Centered layout with quick BraveLite search, a real-time updating digital clock, and customizable theme palettes.
 * **Self-Hosted Integrated Password Manager & Interactive Autofill:**
   * Prompts *"Do you want to fill credentials?"* when clicking username/email or password boxes on websites with saved logins.
-  * Automatically detects form submissions to prompt saving or updating credentials locally[cite: 7, 11].
-  * Built-in password manager dialog (`🔑` toolbar button and Settings tab) to view, add, edit, copy, search, and delete credentials[cite: 2, 7, 11].
-* **Detachable & Re-Attachable Tabs:** Drag any tab downward off the tab bar to snap it out into an independent window, or drag it back onto another window's tab bar to merge it.
-* **Smart Bookmarks Bar:**
-  * Background favicon preloading via disk cache (`~/.config/BraveLite/favicons/`) so icons display immediately without clicking.
-  * Displays bookmark titles directly next to icons, automatically truncating at the 16th character if too long.
-  * Middle-click (scroll-wheel click) any bookmark to open it in a new tab.
-  * Right-click context menu to edit name/URL or delete bookmarks[cite: 2].
-* **Preserved Fullscreen Navigation:** Fixes YouTube and HTML5 video fullscreen mode while preserving window maximization state upon exit.
-* **Persistent Sessions & Logins:** Uses disk-backed persistent storage and cookie policies (`~/.config/BraveLite/Storage`) to keep website logins active after browser restarts[cite: 7, 11].
+  * Automatically detects form submissions to prompt saving or updating credentials locally.
+  * Built-in password manager dialog (`🔑` toolbar button and Settings tab) to view, add, edit, copy, search, and delete credentials.
+* **Persistent Sessions & Logins:** Uses disk-backed persistent storage and cookie policies (`~/.config/BraveLite/Storage`) to keep website logins active after browser restarts.
 * **Live Downloads Manager:** Real-time progress bars, live transfer speed (`MB/s` / `KB/s`), pause/resume, cancel, copy download link, and direct folder access.
-* **Get Started & Startup Preferences:** Built-in settings page to set BraveLite as your system default browser and choose whether to open a fresh New Tab or continue where you left off.
 * **Diagnostic Crash Logs:** Automatic POSIX/Windows signal and renderer process crash logger saving timestamped reports to `~/.config/BraveLite/CrashLogs/`.
-* **SponsorBlock Integration:** Automated timestamp-based sponsor skipping on YouTube with support for custom self-hosted API endpoints[cite: 7, 11].
-* **DNS over Oblivious HTTP (ODoH):** Toggleable query splitting that separates user IP identity from DNS resolution requests[cite: 7, 11].
-* **Cross-Browser Import & Export:** One-click importing from Brave, Google Chrome, Chromium, Mozilla Firefox, Microsoft Edge, or manual file uploads (`.html`, `.json`, `.csv`)[cite: 7, 11].
-* **Isolated Incognito Windows:** Memory-only private browsing sessions (`Ctrl+Shift+N`) that store no cookies, caches, or history[cite: 7, 11, 12].
+* **SponsorBlock Integration:** Automated timestamp-based sponsor skipping on YouTube with support for custom self-hosted API endpoints.
+* **DNS over Oblivious HTTP (ODoH):** Toggleable query splitting that separates user IP identity from DNS resolution requests.
+* **Cross-Browser Import & Export:** One-click importing from Brave, Google Chrome, Chromium, Mozilla Firefox, Microsoft Edge, or manual file uploads (`.html`, `.json`, `.csv`).
+* **Isolated Incognito Windows:** Memory-only private browsing sessions (`Ctrl+Shift+N`) that store no cookies, caches, or history.
 
 ---
 

@@ -1,58 +1,29 @@
-1) still when you go back or refresh the page never loads (photo 1)
+1) overhaul the settings UI
 
-2) the translation i want to also translate the whole site even the contents
+2) i dont like the thing you added to the tabs and that you moved the plus icon (photo1) i want it to be like it was before, only thing i wanted is to make the tabs smaller in width if they are too many to fit on screen.
 
-3) split view changes:
-        add settings for the split view, when activates put a button in the top left (to the right of refresh)(view photo 2)
-            unsplit tabs
-            close left view
-            close right view
-            swap tab potitions
+3) the bookmarks arrow button should be smaller, on the complete right and only have the bookmarks that are not in the main section,
 
-4) make the scroll on the right fit the theme of the browser
+4) when i have window (not maximized) and drug a tab out of the window i want it to be "detached" and able to be "attached" next to another tab in another window
 
-5) inspect element does not work
+5) on the autofill i want to be just the related urls, if they are popular enough just the site name and logo just like brave on this photo (photo2).
 
-6) the all - images - videos - news, are broken when you click for example all it highlights the images, when you click on images it highlights videos and when you click on videos it highlights news (see photo 3 and 4)
+6) refreshing on youtube feels slow fix it if it does not break anything else
 
-7) I want when you drag a link or a bookmark in the place of a tab to open the link or bookmark in a new tab
-        when you drag a link or a bookmark in the url box make it so it replaces the existing url with the link's or bookmark's url
+7) when right clicking in the icon in the taskbar and clicking "open new window" i dont want it to add a tab into an already existing window, i want to open a brand new window
 
-8) make the AI stuff work on windows and also fix the fonts and icons in windows because they look weird if you have not allready
+8) exiting fullscreen on youtube is now worst, it now unmaximizes the actual window and it slower and buggier and slower than before
 
-9) make the downloaded files be drag and dropable on other folders or apps
+9) for the themes i actualy wanted to also change the settings theme and also the starting page
 
-10) for some reason it did a weird thing in the tabs (photo 5) and i could not close it, the x was nowere to be found
+10) the whole AI overview need to become as it was before, nice and slick not a block of code see picture 3, i only want blocks of code in actual code prompts or for questios such as "how to update my system in fedora"
 
-11) in the ai settings when i click to detect installed models it changes the ai overview model to the translategemma:4b
+11) spotify on the web still does not play music
 
-change to version v1.5
+12) ctrl + F still does not work to search a specific word or something in a site see picture 4
 
-generate a changelog.txt
+change to version v1.63
 
-because the browser crashes create it in parts, wait until i say continue to send the next part, maybe in the bottom of the parts add a "delete me and paste right here" comment so i will know where to paste, also this was an error from the compiler after you compiled this exact thing for the first time. :
-=======================================================================================================================
-george@fedora:~/Documents/GitHub/braveLite/build$ ninja
-[2/3] Building CXX object CMakeFiles/fedorabrowser.dir/src/main.cpp.o
-FAILED: [code=1] CMakeFiles/fedorabrowser.dir/src/main.cpp.o
-/usr/bin/c++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_POSITIONING_LIB -DQT_PRINTSUPPORT_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -DQT_WEBCHANNEL_LIB -DQT_WEBENGINECORE_LIB -DQT_WEBENGINEWIDGETS_LIB -DQT_WIDGETS_LIB -I/home/george/Documents/GitHub/braveLite/build/fedorabrowser_autogen/include -isystem /usr/include/qt6/QtCore -isystem /usr/include/qt6 -isystem /usr/lib64/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtWidgets -isystem /usr/include/qt6/QtWebEngineWidgets -isystem /usr/include/qt6/QtWebEngineCore -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtWebChannel -isystem /usr/include/qt6/QtPositioning -isystem /usr/include/qt6/QtPrintSupport -std=gnu++17 -MD -MT CMakeFiles/fedorabrowser.dir/src/main.cpp.o -MF CMakeFiles/fedorabrowser.dir/src/main.cpp.o.d -o CMakeFiles/fedorabrowser.dir/src/main.cpp.o -c /home/george/Documents/GitHub/braveLite/src/main.cpp
-/home/george/Documents/GitHub/braveLite/src/main.cpp: In member function ‘QWidget* BrowserWindow::createGetStartedWidget(QWidget*)’:
-/home/george/Documents/GitHub/braveLite/src/main.cpp:2851:33: error: cannot convert ‘QVBoxLayout*’ to ‘QWidget*’
- 2851 |         searchLayout->addWidget(searchTextLayout, 1);
-      |                                 ^~~~~~~~~~~~~~~~
-      |                                 |
-      |                                 QVBoxLayout*
-In file included from /usr/include/qt6/QtWidgets/QVBoxLayout:1,
-                 from /home/george/Documents/GitHub/braveLite/src/main.cpp:11:
-/usr/include/qt6/QtWidgets/qboxlayout.h:39:20: note: initializing argument 1 of ‘void QBoxLayout::addWidget(QWidget*, int, Qt::Alignment)’
-   39 |     void addWidget(QWidget *, int stretch = 0, Qt::Alignment alignment = Qt::Alignment());
-      |                    ^~~~~~~~~
-ninja: build stopped: subcommand failed.
-===========================================================================================================================
+update the changelog and the README
 
-fix it this time again and do it carefully
-
-
-=======================================================
-windows notes: 1) in AI settings it says it can not find the gpu but uses it normaly. 2) also when searching something else in the same tab the ai overview does not work thats also a problem in the linux version. 3) add a button to install ollama in both linux and windows. 4) in windows split view is a little slower than native linux
-=======================================================
+ALL OF THESE ARE VERY IMPORTANT TO WORK
