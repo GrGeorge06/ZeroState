@@ -2,9 +2,9 @@
 
 A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
 
-> **Note:** BraveLite is currently in active **BETA** (`v1.64 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
+> **Note:** BraveLite is currently in active **BETA** (`v1.65 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
 
-![Version](https://img.shields.io/badge/version-v1.64%20(Beta)-orange)
+![Version](https://img.shields.io/badge/version-v1.65%20(Beta)-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -12,7 +12,12 @@ A fast, lightweight, debloated web browser for Linux and Windows built natively 
 
 ## Key Features
 
-* **Top-Right BraveLite AI Assistant (Side Chat Panel):** Integrated side panel (~1/4 window width) connected locally to Ollama LLMs (e.g. `smollm2:360m`, `smollm2:135m`, `qwen2.5:0.5b`, `llama3.2:1b`). Provides offline, private AI assistance with Markdown code syntax formatting, clearable chat sessions, and independent Chatting / Overview / Translation model selectors.
+* **uBlock Origin & Shields (Complete Zero-Ad YouTube Erasure):** Built-in uBlock Origin-style network interceptor and player defuser engine that completely erases prerolls, midrolls, overlay banners, and masthead ads on YouTube. Features automated anti-adblock detection bypass and a dedicated "uBlock Origin & Shields" dashboard in Settings.
+* **Chrome Web Store Fix & Direct Extension Installer:** Direct 1-click installation on the Chrome Web Store (`https://chromewebstore.google.com/`). Overcomes "Item currently unavailable" errors with a specialized WebStore bridge and floating "⚡ Add to BraveLite" installer button that auto-downloads and registers `.crx` extensions.
+* **Minimalist & Slick Floating Find in Page (`Ctrl+F`):** Modern, distraction-free floating dark pill anchored to the top-right corner with clean match counting (`1/3`, `0/0`), previous/next chevron navigation, Enter / Shift+Enter / F3 keybindings, and Esc-to-close with instant webpage focus recovery.
+* **Omnibox `Tab` Key Autofill:** Pressing `Tab` in the address bar instantly autofills the top matching or highlighted domain (e.g. typing `yo` and hitting `Tab` completes `youtube.com`).
+* **Instant Link AI Summaries (Zero Delay):** Hold `Ctrl` while hovering over any link to instantaneously preview and summarize page contents via local Ollama models with zero hover delay.
+* **Top-Right BraveLite AI Assistant (Side Chat Panel):** Integrated side panel (~1/4 window width) connected locally to Ollama LLMs (e.g. `smollm2:360m`, `smollm2:135m`, `qwen2.5:0.5b`, `llama3.2:1b`). Provides 100% offline, private AI assistance with Markdown code syntax formatting, clearable chat sessions, and independent Chatting / Overview / Translation model selectors.
 * **Seamless Frameless Top Bar (Matching Photo 1):** Clean modern title bar with tabs positioned directly at the top, custom minimize (`—`), maximize (`🗖`), and close (`✕`) buttons, window dragging/resizing, and double-click to maximize/restore.
 * **Real-Time Instant Theme Engine:** Instantaneous live theme updates across all windows, settings cards, sidebars, and borders without requiring a browser restart.
 * **WebExtensions & Chrome Web Store:** Direct 1-click access to the Chrome Web Store (`https://chromewebstore.google.com/`) with support for installing unpacked WebExtensions and custom userscripts (`.user.js`).

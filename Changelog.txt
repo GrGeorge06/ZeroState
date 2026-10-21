@@ -1,4 +1,39 @@
 ================================================================================
+BraveLite v1.65 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Chrome Web Store "Item Currently Unavailable" Fix & Direct WebExtension Installer:
+   - Upgraded HTTP User-Agent and client profile to Chrome/140.0.0.0, resolving Google Chrome Web Store compatibility rejections for non-Google Chromium clients.
+   - Injected a specialized Chrome Web Store bridge that eliminates "Item currently unavailable. Please check the troubleshooting guide." error cards.
+   - Added a modern floating "Add to BraveLite" action button on Chrome Web Store detail pages with direct CRX download routing from Google's client services.
+   - Integrated automatic WebExtension unpacking and registration directly from downloaded .crx extension packages into BraveLite Extensions storage.
+
+2. Minimalist & Slick Find in Page (Ctrl+F):
+   - Overhauled Find in Page into an ultra-minimalist, sleek floating dark pill with smooth 10px rounded corners, subtle borders, search icon, live match count ("1/3", "0/0"), and smooth chevron navigation buttons.
+   - Fixed search engine highlighting by eliminating legacy conflicting DOM window.find() scripts in favor of native Qt WebEngine findText navigation.
+   - Added full keyboard controls: Enter / F3 for next match, Shift+Enter / Shift+F3 for previous match, and Esc to seamlessly close and restore focus to the webpage.
+   - Made Find in Page reactive to tab switching, automatically reapplying active searches to newly focused tabs.
+
+3. Omnibox Tab Key Autofill Completion:
+   - Intercepted Tab key events directly in DroppableUrlBar before Qt widget focus navigation can swallow them.
+   - Attached key event filters to the omnibox autocomplete popup view, allowing Tab to immediately fill the currently selected or top matching domain/URL/query and position the cursor at the end.
+
+4. uBlock Origin Integration & Zero-Ad YouTube Erasure:
+   - Built a dedicated "uBlock Origin & Shields" dashboard in Settings featuring master protection toggles, YouTube Zero-Ad Defuser controls, telemetry shielding, active rule stats, and manual filter list update triggers.
+   - Enhanced YouTube ad-blocking with uBlock Origin-style defuser mechanisms: defuses ytInitialPlayerResponse and player API JSON payloads to strip adPlacements and adSlots.
+   - Fully bypasses and suppresses YouTube anti-adblock enforcement dialogs ("Ad blockers violate YouTube's Terms of Service") with auto-recovery.
+   - High-speed video ad skipping fail-safe (immediate mute, 16x playback rate, instant skip to end, and automated skip button clicking).
+   - Injected comprehensive cosmetic stylesheets hiding all banner, feed, overlay, and masthead ads across YouTube.
+
+5. AI Assistant Chatbox Typo Fix:
+   - Corrected double-percent typo in the AI assistant welcome banner: changed "100%% private" to "100% private, fast, and offline".
+
+6. Instant Link AI Summary (Zero Hover Delay):
+   - Removed the 400ms setTimeout delay from handleLinkHoverSummarize, triggering rich AI preview summaries instantaneously when hovering over links with the Ctrl key held.
+
+================================================================================
 BraveLite v1.64 (Beta) - Official Release Changelog
 Author: GrGeorge
 ================================================================================

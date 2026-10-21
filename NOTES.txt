@@ -1,15 +1,13 @@
-1) in the chrome web store in all of the web extentions i try i get a messesage "Item currently unavailable. Please check the troubleshooting guide."
+1) chrome webstore "add to chrome" button does not work
 
-2) find in page does not work please fix, i want it minimalistc and slick
+2) find in page ctrl + f does not work make it work, do everythig you can to make it work except if it breaks something else!.
 
-3) omnibox "tab" to fill still does not work
 
-4) can you integrate ublockorigin to completly erase ads on youtube and add a dedicated manager/settings tab in settigns?
-
-5) there is a tiny mistake in the ai chatbox it says: "100%% private, fast, and offline. Ask questions or brainstorm!" remove the second "%"
 
 change to version v1.65
 
 update the changelog and the README
+
+remember everything has to work for windows aswell
 
 ALL OF THESE ARE VERY IMPORTANT TO WORK
