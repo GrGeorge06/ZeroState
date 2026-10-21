@@ -1,0 +1,287 @@
+================================================================================
+BraveLite v1.67 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Extensions Button & Quick Management Dropdown Menu:
+   - Added a dedicated Extensions action button (crisp puzzle piece vector icon) in the top tab row placed directly adjacent to the BraveLite AI Assistant sparkle button.
+   - Built a sleek, theme-integrated dropdown management menu displaying all active WebExtensions, custom userscripts, and CRX packages.
+   - Added direct extension management controls:
+     * View real-time status (Active / Disabled) for each extension.
+     * 1-click toggle to Enable or Disable extensions via `QWebEngineExtensionManager`.
+     * Direct launch for extension action popup URLs (if supported).
+     * Instant removal / uninstallation with confirmation dialogs.
+     * Quick actions to manage extensions in Settings, install unpacked extension folders, install `.crx` or `.user.js` files, open Chrome Web Store, and reveal local Extensions storage.
+
+2. Event Filter Re-Entrancy Fix & Stability Hardening:
+   - Eliminated recursive Qt event filtering during QCompleter popup initialization by caching popup references and adding a re-entrancy guard to `BrowserWindow::eventFilter`.
+
+3. Full Windows & Linux Cross-Platform Parity:
+   - Cross-platform UI design and file path handling via `QStandardPaths::ConfigLocation` (`%APPDATA%/BraveLite` on Windows and `~/.config/BraveLite` on Linux).
+   - Inno Setup Windows installer updated to v1.67.
+
+4. Version Bump to v1.67:
+   - Updated engine versions, IPC socket namespaces (`BraveLiteSingleInstanceServer_v167`), window headers, and crash diagnostic logs to v1.67.
+
+================================================================================
+BraveLite v1.66 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & BUG FIXES]
+1. Chrome Web Store Native "Add to Chrome" Button Integration & Frictionless Installation:
+   - Full implementation of `chrome.webstorePrivate` API bridge (`beginInstallWithManifest3`, `install`, `getExtensionStatus`, `enable`, `completeInstall`) injected at `DocumentCreation` to hook native Google WebStore actions before page scripts run.
+   - Added capturing DOM event listener on Chrome Web Store buttons ("Add to Chrome", "Add to Brave", etc.), accurately extracting extension IDs from detail URLs and dispatching CRX downloads directly from Google client services.
+   - Overhauled download handling (`handleDownload`) to automatically intercept WebExtension CRX packages and Google update URLs, routing them directly into BraveLite's Extensions directory without popping modal file picker dialogs, and registering them via `QWebEngineExtensionManager`.
+   - Maintained the floating "⚡ Add to BraveLite" badge on WebStore pages as a persistent fallback installation mechanism.
+
+2. Ubiquitous Find in Page (Ctrl+F) Everywhere:
+   - Fixed Qt ambiguous shortcut collision caused by duplicate keybind registration of `"Ctrl+F"`.
+   - Implemented an application-level event filter (`qApp->installEventFilter(this)`) in `BrowserWindow`, ensuring `Ctrl+F` and `Meta+F` are captured reliably across all windows, child frames, and active widgets.
+   - Installed event filtering on `CustomWebView` and its Chromium `focusProxy()`, preventing the internal Chromium widget from consuming key events.
+   - Injected a capturing `keydown` listener across all web pages in `BraveLiteCosmeticAndYTShield` communicating `BRAVELITE_OPEN_FIND::` via the console message channel, preventing websites from hijacking or suppressing `Ctrl+F`.
+   - Added "Find in page...\tCtrl+F" to both the 3-dots App Menu and the web page right-click context menu.
+   - Centralized `openFindDialog()` logic to immediately focus, select input, and update match counts across normal and split views.
+
+3. Full Windows & Linux Cross-Platform Compatibility:
+   - Standardized all extension storage and profile directory resolutions via `QStandardPaths::ConfigLocation` (`%APPDATA%/BraveLite` on Windows and `~/.config/BraveLite` on Linux).
+   - Validated IPC single-instance socket naming (`BraveLiteSingleInstanceServer_v166`) and Windows installer definition (`installer.iss`).
+
+4. Version Bump:
+   - Elevated application version, diagnostic crash reporter, IPC server name, and engine identifiers to v1.66.
+
+================================================================================
+BraveLite v1.65 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Chrome Web Store "Item Currently Unavailable" Fix & Direct WebExtension Installer:
+   - Upgraded HTTP User-Agent and client profile to Chrome/140.0.0.0, resolving Google Chrome Web Store compatibility rejections for non-Google Chromium clients.
+   - Injected a specialized Chrome Web Store bridge that eliminates "Item currently unavailable. Please check the troubleshooting guide." error cards.
+   - Added a modern floating "Add to BraveLite" action button on Chrome Web Store detail pages with direct CRX download routing from Google's client services.
+   - Integrated automatic WebExtension unpacking and registration directly from downloaded .crx extension packages into BraveLite Extensions storage.
+
+2. Minimalist & Slick Find in Page (Ctrl+F):
+   - Overhauled Find in Page into an ultra-minimalist, sleek floating dark pill with smooth 10px rounded corners, subtle borders, search icon, live match count ("1/3", "0/0"), and smooth chevron navigation buttons.
+   - Fixed search engine highlighting by eliminating legacy conflicting DOM window.find() scripts in favor of native Qt WebEngine findText navigation.
+   - Added full keyboard controls: Enter / F3 for next match, Shift+Enter / Shift+F3 for previous match, and Esc to seamlessly close and restore focus to the webpage.
+   - Made Find in Page reactive to tab switching, automatically reapplying active searches to newly focused tabs.
+
+3. Omnibox Tab Key Autofill Completion:
+   - Intercepted Tab key events directly in DroppableUrlBar before Qt widget focus navigation can swallow them.
+   - Attached key event filters to the omnibox autocomplete popup view, allowing Tab to immediately fill the currently selected or top matching domain/URL/query and position the cursor at the end.
+
+4. uBlock Origin Integration & Zero-Ad YouTube Erasure:
+   - Built a dedicated "uBlock Origin & Shields" dashboard in Settings featuring master protection toggles, YouTube Zero-Ad Defuser controls, telemetry shielding, active rule stats, and manual filter list update triggers.
+   - Enhanced YouTube ad-blocking with uBlock Origin-style defuser mechanisms: defuses ytInitialPlayerResponse and player API JSON payloads to strip adPlacements and adSlots.
+   - Fully bypasses and suppresses YouTube anti-adblock enforcement dialogs ("Ad blockers violate YouTube's Terms of Service") with auto-recovery.
+   - High-speed video ad skipping fail-safe (immediate mute, 16x playback rate, instant skip to end, and automated skip button clicking).
+   - Injected comprehensive cosmetic stylesheets hiding all banner, feed, overlay, and masthead ads across YouTube.
+
+5. AI Assistant Chatbox Typo Fix:
+   - Corrected double-percent typo in the AI assistant welcome banner: changed "100%% private" to "100% private, fast, and offline".
+
+6. Instant Link AI Summary (Zero Hover Delay):
+   - Removed the 400ms setTimeout delay from handleLinkHoverSummarize, triggering rich AI preview summaries instantaneously when hovering over links with the Ctrl key held.
+
+================================================================================
+BraveLite v1.64 (Beta) - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[NOTE: BETA RELEASE]
+BraveLite is currently in active Beta. This release introduces local AI side assistance, a modern frameless top bar, real-time theming, enhanced session persistence, Widevine DRM playback fixes, and extensive interface refinements.
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Top-Right BraveLite AI Assistant (Side Chat Panel):
+   - Added an AI Overview sparkle button on the top-right of the window that toggles a dedicated side panel (~1/4 window width).
+   - Fully connected to local Ollama LLMs with Markdown code formatting, user/assistant chat bubbles, and a "New" conversation reset button.
+   - Added a dedicated "Chatting model" selector in AI Settings supporting low-spec offline models (smollm2:360m, smollm2:135m, qwen2.5:0.5b, llama3.2:1b).
+
+2. Chrome Web Store & WebExtensions Support:
+   - Added direct "Browse Chrome Web Store" button in Settings -> Extensions.
+   - Added support for loading unpacked WebExtensions via QWebEngineExtensionManager (Qt 6.11) and custom userscripts (.user.js).
+
+3. Real-Time Instant Theme Engine:
+   - Dynamic theme profile updates (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now refresh all open settings cards, borders, sidebars, and panels immediately with zero restart required.
+
+4. Startup Bookmark Bar Rendering Fix:
+   - Fixed an issue where only 1 bookmark rendered until a website like YouTube was loaded.
+   - Ensured proper width calculation on initial window construction and deferred layout refresh on showEvent.
+
+5. Fullscreen Navigation & Maximization Fix:
+   - Resolved YouTube and video fullscreen transitions unexpectedly unmaximizing the browser window upon exit.
+
+6. Clean, De-Emojified Settings Interface:
+   - Removed all emojis from the Settings sidebar categories, cards, action buttons, and status labels for a clean, distraction-free aesthetic.
+
+7. Fixed Spotify & Widevine DRM Playback:
+   - Fixed "playback of protected content is not enabled" on Spotify Web Player across both Linux and Windows.
+   - Automatically generates the required manifest.json and _platform_specific structure and points --widevine-path directly to the library file (libwidevinecdm.so / widevinecdm.dll).
+
+8. Minimalist Floating Find in Page (Ctrl+F):
+   - Minimalist, slick floating pill anchored to the top right matching Photo 4 with live match counting (e.g. 1/3), previous/next chevron buttons, and keyboard navigation.
+
+9. Clean New Windows:
+   - Ensured context menu "Open new window" and shortcuts open pristine clean windows, restricting session restoration strictly to the initial browser startup.
+
+10. "Continue Where You Left Off" Full Tab Persistence:
+    - Automatically persists open tab state on exit and restores it on startup, including search query tabs (search.bravelite.local) and split view tabs.
+
+11. Omnibox Tab Key Autofill:
+    - Pressing the Tab key in the address bar autofills the best completion suggestion (e.g. typing "yo" autofills "youtube.com" matching Photo 2).
+
+12. Seamless Frameless Top Bar (Matching Photo 1):
+    - Replaced the OS window frame with a frameless design where tabs reside directly at the very top of the window.
+    - Added custom minimize (—), maximize/restore (🗖), and close (✕) buttons at the top right, with window dragging and double-click to maximize.
+
+13. Controlled Link AI Summaries:
+    - Updated link hover previews to trigger only while holding the Ctrl key (or Cmd key on macOS), preventing unwanted popups during regular mouse movements.
+
+14. Fixed Startup Crash & Diagnostic Stability:
+    - Fixed crash from premature completer model initialization prior to UI construction.
+    - Updated single-instance IPC channel and crash logger diagnostics to v1.64 (Beta).
+
+================================================================================
+BraveLite v1.63 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Complete Overhaul of Settings UI:
+   - Modern cohesive preferences dashboard with categorized icons (🚀, 🤖, 🧩, 🎨, ⌨️, 🔑, 🔖, 🎵, 🌐, 🚫, 🔒, 📥, 🗑️, 🔄).
+   - Sleek card layout with subtle borders, badge indicators, and dedicated configuration cards.
+
+2. Restored Tab Bar & Plus Button (Matching Photo 1):
+   - Removed unwanted purple bottom accent border on active selected tabs for a clean, cohesive appearance.
+   - Restored the "+" button immediately adjacent to the right of the last tab.
+   - Implemented dynamic tab width shrinking (from 180px down to 36px) only when the tab count overflows available window width.
+
+3. Bookmarks Overflow Chevron Button:
+   - Added a compact 22x22 "»" button positioned on the complete right of the bookmarks toolbar using an expanding layout spacer.
+   - Contains exclusively bookmarks that do not fit into the visible bar, dynamically recalculated on window resize.
+
+4. Detach & Attach Tabs Across Windows:
+   - Pulling/dragging a tab downward out of a window detaches it into a new window.
+   - Dropping a dragged tab onto another open window's tab bar seamlessly attaches and merges it next to existing tabs.
+
+5. Omnibox Redesign with Popular Site Logos (Matching Photo 2):
+   - Brave-style suggestions popup showing search suggestion at the top with magnifying glass icon.
+   - High-resolution vector site logos for popular destinations (YouTube, YouTube Music, Reddit, GitHub, Spotify, Google, etc.).
+   - Clean formatting with bold white site names and muted gray domain subtitles.
+
+6. High-Speed YouTube Page Refresh:
+   - Eliminated reload latency and stutter by removing Chromium's --disable-background-networking flag to preserve DNS cache and socket pools.
+   - Implemented zero-copy fast-path bypass in the request interceptor for YouTube CDNs (googlevideo.com, ytimg.com, ggpht.com).
+
+7. Taskbar "New Window" Fix:
+   - Right-clicking the taskbar application icon and selecting "New Window" (or launching with no arguments while running) opens a brand new window rather than inserting a tab into an existing window.
+
+8. Fullscreen Exit Window Maximization Restoration:
+   - Fixed YouTube fullscreen exit to cleanly preserve and restore window maximized state using showMaximized() without unmaximizing or stuttering.
+
+9. Full Theme Integration for Settings & Start Page:
+   - Dynamic theme palette (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now applies to the Settings dashboard and Start Page.
+
+10. Natural Language AI Overview & Slick Layout (Matching Photo 3):
+    - Restored AI overview to natural language paragraphs with bold keywords (**keyword**) instead of code blocks.
+    - Code blocks are restricted strictly to programming, coding, or terminal commands (e.g. updating Fedora/Ubuntu).
+    - Added compact "More ▾" / "Less ▴" pill button.
+
+11. Spotify Web Playback & Widevine DRM:
+    - Added Widevine CDM detection across common Linux and Windows paths.
+    - Added 1-click Widevine downloader in Settings -> Media & DRM (Widevine / Spotify).
+    - Fast-path CDN bypass for Spotify streaming chunks and license servers.
+
+12. Floating Pill Find in Page (Ctrl+F) (Matching Photo 4):
+    - Floating pill widget anchored to the top-right corner with text input, vertical separator, match counter (e.g. 1/3), up/down chevrons (⌃/⌄), and close button.
+    - Combined Chromium findText with window.find() DOM scrolling.
+
+================================================================================
+BraveLite v1.5 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Middle-Click New Tab for Links & YouTube Videos:
+   - Middle-clicking any link or YouTube video/thumbnail/title now reliably opens
+     in a new tab without losing your place or navigating away from the current page.
+   - Removed the request blocker that incorrectly treated middle-click background tabs
+     as popups.
+   - Added native auxclick event interceptor for YouTube Single Page Application components
+     (rich grids, video renderers, thumbnails, and title links).
+
+2. Omnibox Autocomplete in Address Bar:
+   - Added instant autocomplete dropdown in the URL/Address bar as you start typing.
+   - Intelligently suggests matches from your saved Bookmarks, Browsing History, and
+     top visited domains with rich dark-theme styling.
+   - Pressing Enter or clicking any suggestion immediately navigates to that destination.
+
+3. F5 Shortcut for Page Refresh:
+   - Added standard F5 keyboard shortcut to refresh/reload the active page or search.
+
+4. External Links & Task Manager Fullscreen Fix:
+   - Fixed bug where opening links from external applications (Discord, Telegram, mail)
+     or launching a new window from task manager / taskbar would open or get stuck in fullscreen.
+   - Cleanly restores normal/maximized window state with address bar and tabs visible.
+
+5. Smooth, Lag-Free Fullscreen Transitions (YouTube & Video):
+   - Completely resolved choppy, laggy, and glitchy fullscreen entry and exit on YouTube.
+   - Eliminated jittery double window manager resizes and duplicate Escape action triggers.
+
+6. Background Windows Ollama Installer with Progress Bar:
+   - Updated the 1-click Ollama installer for Windows to run:
+     "irm https://ollama.com/install.ps1 | iex" in background mode.
+   - Added a sleek animated progress bar while downloading and installing without
+     popping up any physical console windows.
+
+7. Fast Tab Dragging & Synchronization Fix:
+   - Connected tabMoved events to synchronize underlying tab stack pages with the tab bar.
+   - Fixed tab titles changing while the page content stayed stuck when dragging tabs fast
+     left-to-right and right-to-left.
+
+8. Complete Overhaul of Themes:
+   - Overhauled all 5 built-in theme profiles (BraveLite Dark, Midnight OLED,
+     Cyberpunk Neon, Nordic Frost, Catppuccin Mocha).
+   - Added customized theme-matched slim rounded scrollbars (vertical & horizontal).
+   - Added modern polished styling for tabs, menus, tooltips, dialogs, and splitter dividers.
+
+9. Dynamic Tab Shrinking for Overflow Prevention:
+   - Tabs now dynamically shrink (from 200px down to 36px) as more tabs are opened.
+   - Prevents the window from expanding horizontally across multiple monitors when
+     opening many tabs.
+
+10. Bookmarks Overflow Dropdown & Manager Create/Delete:
+    - Added an overflow chevron ("»") dropdown on the bookmarks bar when bookmarks reach
+      the end of the window.
+    - Added "➕ New Bookmark" and "🗑 Delete Selected" options directly inside Bookmarks Manager.
+
+11. Minimalistic & Compact In-Page Find (Ctrl+F):
+    - Added a sleek, compact floating find bar (Ctrl+F) with instant live search highlights,
+      match counter ("1/5"), Previous (▲ / Shift+Enter), Next (▼ / Enter), and Close (Esc).
+
+12. Multi-Slot Bookmark Drag-and-Drop:
+    - Overhauled bookmark reordering to allow dragging a bookmark across any number of
+      slots at once in a single smooth mouse drag, exactly like dragging tabs.
+
+13. Spotify Audio & Web Player Playback Fix:
+    - Fixed Spotify web player (open.spotify.com) failing to play songs by updating
+      browser User-Agent to standard Chrome and configuring Widevine DRM / media codec flags.
+    - Whitelisted Spotify streaming and media endpoints in BraveLite Shield.
+
+14. Version v1.5:
+    - Updated version numbering to v1.5 across the application, Windows Inno Setup
+      installer configuration (installer.iss), and release documentation.
+
+================================================================================
+BraveLite v1.11 - Previous Release
+================================================================================
+- Renamed Local Search Engine to "BraveLite Engine".
+- Added Google-style "AI Overview" with DuckDuckGo live search grounding.
+- Fixed BraveLite AI Hover Link Summarizer.
+- GPU Detection & Hardware Acceleration for BraveLite AI.
+- Eliminated Idle CPU Usage (0% CPU at Idle).
+- Single-instance IPC, 5 theme profiles, drag-and-drop reorderable bookmarks.
+================================================================================

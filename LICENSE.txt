@@ -1,0 +1,11 @@
+Copyright (c) 2026 [GrGeorge]
+
+All rights reserved.
+
+This software is provided for viewing purposes only.
+No permission is granted to copy, modify, distribute,
+sublicense, or create derivative works of this software
+without the explicit written consent of the author.
+
+Unauthorized use, modification, or distribution is
+strictly prohibited.   
