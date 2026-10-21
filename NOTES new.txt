@@ -20,6 +20,8 @@
 
 11) make it so when you are typing something in the url box and press the tab key to fill in the url box the first autofill option
 
+12) in the top where it says bravelite and the version right next remove it and make it like that seamless look photo 1  but keep the "minimize", "maximize" and "x" button looks because they are nice
+
 always remember all features and changes must work on windows aswell
 update the changelog and README and also state that its still in BETA
 update to version v1.64
