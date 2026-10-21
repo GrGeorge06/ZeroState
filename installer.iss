@@ -1,5 +1,5 @@
 #define MyAppName "BraveLite"
-#define MyAppVersion "1.63"
+#define MyAppVersion "1.64"
 #define MyAppPublisher "GrGeorge"
 #define MyAppExeName "BraveLite.exe"
 

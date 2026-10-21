@@ -12,7 +12,7 @@
 
 7) after i installed the widevine for spotify, when i go to spotify is tells me playback of protected content is no enabled.
 
-8) add control + F to find words in sites, small slick and minimalistic
+8) add "ctrl" + "F" to find words in sites, small slick and minimalistic
 
 9) hitting open new window in the right click menu open whatever is already open, it need to be a clean window
 
@@ -21,6 +21,8 @@
 11) make it so when you are typing something in the url box and press the tab key to fill in the url box the first autofill option
 
 12) in the top where it says bravelite and the version right next remove it and make it like that seamless look photo 1  but keep the "minimize", "maximize" and "x" button looks because they are nice
+
+13) change the link ai sumarization to need the "ctrl" key to be held down to show the sum
 
 always remember all features and changes must work on windows aswell
 update the changelog and README and also state that its still in BETA

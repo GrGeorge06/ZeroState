@@ -1,4 +1,62 @@
 ================================================================================
+BraveLite v1.64 (Beta) - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[NOTE: BETA RELEASE]
+BraveLite is currently in active Beta. This release introduces local AI side assistance, a modern frameless top bar, real-time theming, enhanced session persistence, Widevine DRM playback fixes, and extensive interface refinements.
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Top-Right BraveLite AI Assistant (Side Chat Panel):
+   - Added an AI Overview sparkle button on the top-right of the window that toggles a dedicated side panel (~1/4 window width).
+   - Fully connected to local Ollama LLMs with Markdown code formatting, user/assistant chat bubbles, and a "New" conversation reset button.
+   - Added a dedicated "Chatting model" selector in AI Settings supporting low-spec offline models (smollm2:360m, smollm2:135m, qwen2.5:0.5b, llama3.2:1b).
+
+2. Chrome Web Store & WebExtensions Support:
+   - Added direct "Browse Chrome Web Store" button in Settings -> Extensions.
+   - Added support for loading unpacked WebExtensions via QWebEngineExtensionManager (Qt 6.11) and custom userscripts (.user.js).
+
+3. Real-Time Instant Theme Engine:
+   - Dynamic theme profile updates (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now refresh all open settings cards, borders, sidebars, and panels immediately with zero restart required.
+
+4. Startup Bookmark Bar Rendering Fix:
+   - Fixed an issue where only 1 bookmark rendered until a website like YouTube was loaded.
+   - Ensured proper width calculation on initial window construction and deferred layout refresh on showEvent.
+
+5. Fullscreen Navigation & Maximization Fix:
+   - Resolved YouTube and video fullscreen transitions unexpectedly unmaximizing the browser window upon exit.
+
+6. Clean, De-Emojified Settings Interface:
+   - Removed all emojis from the Settings sidebar categories, cards, action buttons, and status labels for a clean, distraction-free aesthetic.
+
+7. Fixed Spotify & Widevine DRM Playback:
+   - Fixed "playback of protected content is not enabled" on Spotify Web Player across both Linux and Windows.
+   - Automatically generates the required manifest.json and _platform_specific structure and points --widevine-path directly to the library file (libwidevinecdm.so / widevinecdm.dll).
+
+8. Minimalist Floating Find in Page (Ctrl+F):
+   - Minimalist, slick floating pill anchored to the top right matching Photo 4 with live match counting (e.g. 1/3), previous/next chevron buttons, and keyboard navigation.
+
+9. Clean New Windows:
+   - Ensured context menu "Open new window" and shortcuts open pristine clean windows, restricting session restoration strictly to the initial browser startup.
+
+10. "Continue Where You Left Off" Full Tab Persistence:
+    - Automatically persists open tab state on exit and restores it on startup, including search query tabs (search.bravelite.local) and split view tabs.
+
+11. Omnibox Tab Key Autofill:
+    - Pressing the Tab key in the address bar autofills the best completion suggestion (e.g. typing "yo" autofills "youtube.com" matching Photo 2).
+
+12. Seamless Frameless Top Bar (Matching Photo 1):
+    - Replaced the OS window frame with a frameless design where tabs reside directly at the very top of the window.
+    - Added custom minimize (—), maximize/restore (🗖), and close (✕) buttons at the top right, with window dragging and double-click to maximize.
+
+13. Controlled Link AI Summaries:
+    - Updated link hover previews to trigger only while holding the Ctrl key (or Cmd key on macOS), preventing unwanted popups during regular mouse movements.
+
+14. Fixed Startup Crash & Diagnostic Stability:
+    - Fixed crash from premature completer model initialization prior to UI construction.
+    - Updated single-instance IPC channel and crash logger diagnostics to v1.64 (Beta).
+
+================================================================================
 BraveLite v1.63 - Official Release Changelog
 Author: GrGeorge
 ================================================================================

@@ -1,28 +1,14 @@
-1) overhaul the settings UI
+1) in the chrome web store in all of the web extentions i try i get a messesage "Item currently unavailable. Please check the troubleshooting guide."
 
-2) i dont like the thing you added to the tabs and that you moved the plus icon (photo1) i want it to be like it was before, only thing i wanted is to make the tabs smaller in width if they are too many to fit on screen.
+2) find in page does not work please fix, i want it minimalistc and slick
 
-3) the bookmarks arrow button should be smaller, on the complete right and only have the bookmarks that are not in the main section,
+3) omnibox "tab" to fill still does not work
 
-4) when i have window (not maximized) and drug a tab out of the window i want it to be "detached" and able to be "attached" next to another tab in another window
+4) can you integrate ublockorigin to completly erase ads on youtube and add a dedicated manager/settings tab in settigns?
 
-5) on the autofill i want to be just the related urls, if they are popular enough just the site name and logo just like brave on this photo (photo2).
+5) there is a tiny mistake in the ai chatbox it says: "100%% private, fast, and offline. Ask questions or brainstorm!" remove the second "%"
 
-6) refreshing on youtube feels slow fix it if it does not break anything else
-
-7) when right clicking in the icon in the taskbar and clicking "open new window" i dont want it to add a tab into an already existing window, i want to open a brand new window
-
-8) exiting fullscreen on youtube is now worst, it now unmaximizes the actual window and it slower and buggier and slower than before
-
-9) for the themes i actualy wanted to also change the settings theme and also the starting page
-
-10) the whole AI overview need to become as it was before, nice and slick not a block of code see picture 3, i only want blocks of code in actual code prompts or for questios such as "how to update my system in fedora"
-
-11) spotify on the web still does not play music
-
-12) ctrl + F still does not work to search a specific word or something in a site see picture 4
-
-change to version v1.63
+change to version v1.65
 
 update the changelog and the README
 

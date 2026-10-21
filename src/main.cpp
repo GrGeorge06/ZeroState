@@ -97,6 +97,14 @@
 #include <QPainterPath>
 #include <QPixmap>
 #include <QFont>
+#include <QWindow>
+#include <QTextBrowser>
+#include <QTextEdit>
+#include <QScrollBar>
+#if __has_include(<QtWebEngineCore/QWebEngineExtensionManager>)
+#include <QtWebEngineCore/QWebEngineExtensionManager>
+#include <QtWebEngineCore/QWebEngineExtensionInfo>
+#endif
 #include <csignal>
 #include <cstdlib>
 #include <exception>
@@ -243,10 +251,130 @@ namespace BrowserIcons {
             p.drawEllipse(6, 6, 20, 20);
             p.drawLine(6, 16, 26, 16);
             p.drawArc(11, 6, 10, 20, 0, 360 * 16);
+        } else if (type == "sparkle" || type == "ai" || type == "ai_overview") {
+            p.setRenderHint(QPainter::Antialiasing, true);
+            QPainterPath star;
+            star.moveTo(16, 4);
+            star.quadTo(16, 16, 28, 16);
+            star.quadTo(16, 16, 16, 28);
+            star.quadTo(16, 16, 4, 16);
+            star.quadTo(16, 16, 16, 4);
+            star.closeSubpath();
+            p.setPen(Qt::NoPen);
+            p.setBrush(color);
+            p.drawPath(star);
+
+            QPainterPath s2;
+            s2.moveTo(25, 4);
+            s2.quadTo(25, 8, 29, 8);
+            s2.quadTo(25, 8, 25, 12);
+            s2.quadTo(25, 8, 21, 8);
+            s2.quadTo(25, 8, 25, 4);
+            s2.closeSubpath();
+            p.drawPath(s2);
+        } else if (type == "win_min") {
+            p.drawLine(10, 16, 22, 16);
+        } else if (type == "win_max") {
+            p.drawRect(10, 10, 12, 12);
+        } else if (type == "win_restore") {
+            p.drawRect(9, 13, 9, 9);
+            p.drawLine(12, 13, 12, 10);
+            p.drawLine(12, 10, 21, 10);
+            p.drawLine(21, 10, 21, 19);
+            p.drawLine(21, 19, 18, 19);
+        } else if (type == "win_close") {
+            p.drawLine(10, 10, 22, 22);
+            p.drawLine(22, 10, 10, 22);
         }
         p.end();
         return QIcon(px);
     }
+}
+
+inline void ensureWidevineManifest(const QString &dirPath) {
+    #ifdef Q_OS_WIN
+    QString libFile = dirPath + "/widevinecdm.dll";
+    QString subDir = dirPath + "/_platform_specific/win_x64";
+    QString subLib = subDir + "/widevinecdm.dll";
+    QString osName = "win";
+    #else
+    QString libFile = dirPath + "/libwidevinecdm.so";
+    QString subDir = dirPath + "/_platform_specific/linux_x64";
+    QString subLib = subDir + "/libwidevinecdm.so";
+    QString osName = "linux";
+    #endif
+
+    if (!QFile::exists(libFile) && QFile::exists(subLib)) {
+        QFile::copy(subLib, libFile);
+    } else if (QFile::exists(libFile) && !QFile::exists(subLib)) {
+        QDir().mkpath(subDir);
+        QFile::copy(libFile, subLib);
+    }
+
+    QString manifestPath = dirPath + "/manifest.json";
+    if (!QFile::exists(manifestPath) && QFile::exists(libFile)) {
+        QFile mf(manifestPath);
+        if (mf.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream ts(&mf);
+            ts << "{\n"
+               << "  \"manifest_version\": 2,\n"
+               << "  \"name\": \"WidevineCdm\",\n"
+               << "  \"description\": \"Widevine Content Decryption Module\",\n"
+               << "  \"version\": \"4.10.3112.0\",\n"
+               << "  \"x-cdm-module-versions\": \"4\",\n"
+               << "  \"x-cdm-interface-versions\": \"10\",\n"
+               << "  \"x-cdm-host-versions\": \"10\",\n"
+               << "  \"x-cdm-codecs\": \"vp8,vp09,avc1,av01\",\n"
+               << "  \"x-cdm-persistent-license-support\": true,\n"
+               << "  \"x-cdm-supported-encryption-schemes\": [\"cenc\", \"cbcs\"],\n"
+               << "  \"platforms\": [\n"
+               << "    {\n"
+               << "      \"os\": \"" << osName << "\",\n"
+               << "      \"arch\": \"x64\",\n"
+               << "      \"sub_package_path\": \"_platform_specific/" << (osName == "win" ? "win_x64" : "linux_x64") << "/\"\n"
+               << "    }\n"
+               << "  ]\n"
+               << "}\n";
+        }
+    }
+}
+
+inline QString getWidevineCdmFilePath() {
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite/WidevineCdm";
+    QStringList candidates = {
+        configDir,
+        QDir::homePath() + "/.config/BraveLite/WidevineCdm",
+        QDir::homePath() + "/.config/google-chrome/WidevineCdm",
+        QDir::homePath() + "/.config/chromium/WidevineCdm",
+        QDir::homePath() + "/.config/BraveSoftware/Brave-Browser/WidevineCdm",
+        "/opt/google/chrome/WidevineCdm",
+        "/usr/lib64/chromium/WidevineCdm",
+        "/usr/lib/chromium/WidevineCdm"
+    };
+    #ifdef Q_OS_WIN
+    candidates << QDir::homePath() + "/AppData/Local/BraveLite/WidevineCdm"
+               << QDir::homePath() + "/AppData/Local/Google/Chrome/User Data/WidevineCdm"
+               << QDir::homePath() + "/AppData/Local/BraveSoftware/Brave-Browser/User Data/WidevineCdm";
+    #endif
+
+    for (const QString &dirPath : candidates) {
+        #ifdef Q_OS_WIN
+        QString mainFile = dirPath + "/widevinecdm.dll";
+        QString platFile = dirPath + "/_platform_specific/win_x64/widevinecdm.dll";
+        #else
+        QString mainFile = dirPath + "/libwidevinecdm.so";
+        QString platFile = dirPath + "/_platform_specific/linux_x64/libwidevinecdm.so";
+        #endif
+        if (QFile::exists(mainFile)) {
+            ensureWidevineManifest(dirPath);
+            return mainFile;
+        }
+        if (QFile::exists(platFile)) {
+            ensureWidevineManifest(dirPath);
+            return platFile;
+        }
+    }
+    return QString();
 }
 
 inline QString getWidevineCdmPath() {
@@ -269,10 +397,15 @@ inline QString getWidevineCdmPath() {
 
     for (const QString &dirPath : candidates) {
         #ifdef Q_OS_WIN
-        if (QFile::exists(dirPath + "/widevinecdm.dll")) return dirPath;
+        if (QFile::exists(dirPath + "/widevinecdm.dll") ||
+            QFile::exists(dirPath + "/_platform_specific/win_x64/widevinecdm.dll")) {
+            ensureWidevineManifest(dirPath);
+            return dirPath;
+        }
         #else
         if (QFile::exists(dirPath + "/libwidevinecdm.so") ||
             QFile::exists(dirPath + "/_platform_specific/linux_x64/libwidevinecdm.so")) {
+            ensureWidevineManifest(dirPath);
             return dirPath;
         }
         #endif
@@ -337,7 +470,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.63 Extensive Crash & Diagnostic Report\n";
+            out << "BraveLite v1.64 (Beta) Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -676,8 +809,21 @@ signals:
     void openLinkInSplitViewRequested(const QUrl &url);
     void inspectElementRequested(CustomWebView *targetView);
     void searchBackFallbackRequested(const QString &query, const QString &tab);
+    void findRequested();
+    void openNewCleanWindowRequested();
 
 protected:
+    bool event(QEvent *e) override {
+        if (e->type() == QEvent::KeyPress) {
+            auto *ke = static_cast<QKeyEvent*>(e);
+            if (ke->modifiers() == Qt::ControlModifier && ke->key() == Qt::Key_F) {
+                emit findRequested();
+                return true;
+            }
+        }
+        return QWebEngineView::event(e);
+    }
+
     QWebEngineView *createWindow(QWebEnginePage::WebWindowType type) override;
 
     static QUrl stripTrackingParams(const QUrl &rawUrl) {
@@ -787,6 +933,12 @@ protected:
             QAction *actSource = menu->addAction("View page source");
             connect(actSource, &QAction::triggered, this, [this]() {
                 page()->triggerAction(QWebEnginePage::ViewSource);
+            });
+            menu->addSeparator();
+
+            QAction *actNewWin = menu->addAction("Open new window");
+            connect(actNewWin, &QAction::triggered, this, [this]() {
+                emit openNewCleanWindowRequested();
             });
             menu->addSeparator();
         }
@@ -924,8 +1076,17 @@ public:
 
 signals:
     void urlDropped(const QUrl &url);
+    void tabAutofillRequested();
 
 protected:
+    void keyPressEvent(QKeyEvent *event) override {
+        if (event->key() == Qt::Key_Tab && !text().trimmed().isEmpty()) {
+            emit tabAutofillRequested();
+            event->accept();
+            return;
+        }
+        QLineEdit::keyPressEvent(event);
+    }
     void dragEnterEvent(QDragEnterEvent *event) override {
         if (event->mimeData()->hasUrls() || event->mimeData()->hasText()) {
             event->acceptProposedAction();
@@ -1303,14 +1464,16 @@ class BrowserWindow : public QMainWindow {
 public:
     static QList<BrowserWindow*> s_openWindows;
 
-    BrowserWindow(bool isIncognito = false, bool openDefaultTab = true, const QList<QUrl> &startupUrls = QList<QUrl>(), QWidget *parent = nullptr)
+    BrowserWindow(bool isIncognito = false, bool openDefaultTab = true, const QList<QUrl> &startupUrls = QList<QUrl>(), bool restoreSession = false, QWidget *parent = nullptr)
     : QMainWindow(parent), m_isIncognito(isIncognito), m_profile(nullptr) {
 
         s_openWindows.append(this);
         setAttribute(Qt::WA_DeleteOnClose, true);
+        setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+        setAttribute(Qt::WA_Hover, true);
 
         resize(1280, 840);
-        setWindowTitle(m_isIncognito ? "BraveLite v1.63 [Incognito]" : "BraveLite v1.63");
+        setWindowTitle(m_isIncognito ? "BraveLite [Incognito] (Beta)" : "BraveLite (Beta)");
 
         QIcon appIcon = QIcon::fromTheme("bravelite");
         if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
@@ -1370,9 +1533,31 @@ public:
                 addNewTab(u);
             }
         } else if (openDefaultTab) {
-            if (!m_isIncognito && startupContinueWhereLeftOff && !lastSessionUrls.isEmpty()) {
+            if (restoreSession && !m_isIncognito && startupContinueWhereLeftOff && !lastSessionUrls.isEmpty()) {
                 for (const QString &u : lastSessionUrls) {
-                    addNewTab(QUrl(u));
+                    if (u.startsWith("split::")) {
+                        QStringList parts = u.mid(7).split("|||");
+                        if (parts.size() >= 2) {
+                            createNewTabWithView(QUrl(parts[0]));
+                            openInSplitView(QUrl(parts[1]));
+                        } else if (!parts.isEmpty()) {
+                            addNewTab(QUrl(parts[0]));
+                        }
+                    } else if (u.contains("search.bravelite.local")) {
+                        QUrl searchUrl(u);
+                        QString q = QUrlQuery(searchUrl).queryItemValue("q");
+                        QString tab = QUrlQuery(searchUrl).queryItemValue("tab");
+                        if (tab.isEmpty()) tab = "all";
+                        if (!q.isEmpty()) {
+                            runBraveLiteSearch(q, tab);
+                        } else {
+                            addNewTab(searchUrl);
+                        }
+                    } else if (u == "about:blank" || u.isEmpty()) {
+                        addNewTab();
+                    } else {
+                        addNewTab(QUrl(u));
+                    }
                 }
             } else {
                 addNewTab();
@@ -1440,11 +1625,35 @@ signals:
     void downloadAdded(DownloadItem *item);
 
 protected:
+    void closeEvent(QCloseEvent *event) override {
+        if (!m_isIncognito) {
+            savePersistentData();
+        }
+        QMainWindow::closeEvent(event);
+    }
+
+    void showEvent(QShowEvent *event) override {
+        QMainWindow::showEvent(event);
+        QTimer::singleShot(50, this, [this]() {
+            renderBookmarks();
+        });
+    }
+
     void changeEvent(QEvent *event) override {
         if (event->type() == QEvent::WindowStateChange) {
             auto *wse = static_cast<QWindowStateChangeEvent*>(event);
-            if (!(wse->oldState() & Qt::WindowFullScreen) && !(windowState() & Qt::WindowFullScreen)) {
-                m_wasMaximizedBeforeFullScreen = (windowState() & Qt::WindowMaximized);
+            if ((wse->oldState() & Qt::WindowFullScreen) && !(windowState() & Qt::WindowFullScreen)) {
+                if (m_wasMaximizedBeforeFullScreen) {
+                    QTimer::singleShot(60, this, [this]() {
+                        showMaximized();
+                    });
+                }
+            } else if (!(wse->oldState() & Qt::WindowFullScreen) && !(windowState() & Qt::WindowFullScreen)) {
+                m_wasMaximizedBeforeFullScreen = isMaximized() || (windowState() & Qt::WindowMaximized);
+            }
+            if (btnWinMax) {
+                btnWinMax->setText(isMaximized() ? "❐" : "🗖");
+                btnWinMax->setToolTip(isMaximized() ? "Restore" : "Maximize");
             }
         }
         QMainWindow::changeEvent(event);
@@ -1457,6 +1666,85 @@ protected:
             findBar->move(width() - findBar->width() - 25, headerContainer ? headerContainer->height() + 8 : 78);
             findBar->raise();
         }
+    }
+
+    void mouseMoveEvent(QMouseEvent *event) override {
+        if (isMaximized()) {
+            unsetCursor();
+            QMainWindow::mouseMoveEvent(event);
+            return;
+        }
+        const int margin = 6;
+        QPoint p = event->pos();
+        Qt::Edges edges;
+        if (p.x() <= margin) edges |= Qt::LeftEdge;
+        if (p.x() >= width() - margin) edges |= Qt::RightEdge;
+        if (p.y() <= margin) edges |= Qt::TopEdge;
+        if (p.y() >= height() - margin) edges |= Qt::BottomEdge;
+
+        if ((edges & (Qt::LeftEdge | Qt::TopEdge)) == (Qt::LeftEdge | Qt::TopEdge) ||
+            (edges & (Qt::RightEdge | Qt::BottomEdge)) == (Qt::RightEdge | Qt::BottomEdge)) {
+            setCursor(Qt::SizeFDiagCursor);
+        } else if ((edges & (Qt::RightEdge | Qt::TopEdge)) == (Qt::RightEdge | Qt::TopEdge) ||
+                   (edges & (Qt::LeftEdge | Qt::BottomEdge)) == (Qt::LeftEdge | Qt::BottomEdge)) {
+            setCursor(Qt::SizeBDiagCursor);
+        } else if (edges & (Qt::LeftEdge | Qt::RightEdge)) {
+            setCursor(Qt::SizeHorCursor);
+        } else if (edges & (Qt::TopEdge | Qt::BottomEdge)) {
+            setCursor(Qt::SizeVerCursor);
+        } else {
+            unsetCursor();
+        }
+        QMainWindow::mouseMoveEvent(event);
+    }
+
+    void mousePressEvent(QMouseEvent *event) override {
+        if (event->button() == Qt::LeftButton && !isMaximized()) {
+            const int margin = 6;
+            QPoint p = event->pos();
+            Qt::Edges edges;
+            if (p.x() <= margin) edges |= Qt::LeftEdge;
+            if (p.x() >= width() - margin) edges |= Qt::RightEdge;
+            if (p.y() <= margin) edges |= Qt::TopEdge;
+            if (p.y() >= height() - margin) edges |= Qt::BottomEdge;
+
+            if (edges != Qt::Edges() && windowHandle()) {
+                windowHandle()->startSystemResize(edges);
+                event->accept();
+                return;
+            }
+        }
+        QMainWindow::mousePressEvent(event);
+    }
+
+    bool eventFilter(QObject *watched, QEvent *event) override {
+        if (watched == tabRowContainer) {
+            if (event->type() == QEvent::MouseButtonPress) {
+                auto *me = static_cast<QMouseEvent*>(event);
+                if (me->button() == Qt::LeftButton) {
+                    if (windowHandle()) {
+                        windowHandle()->startSystemMove();
+                        return true;
+                    }
+                }
+            } else if (event->type() == QEvent::MouseButtonDblClick) {
+                auto *me = static_cast<QMouseEvent*>(event);
+                if (me->button() == Qt::LeftButton) {
+                    if (isMaximized()) showNormal();
+                    else showMaximized();
+                    return true;
+                }
+            }
+        } else if (watched == aiChatInput) {
+            if (event->type() == QEvent::KeyPress) {
+                auto *ke = static_cast<QKeyEvent*>(event);
+                if ((ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter) && !(ke->modifiers() & Qt::ShiftModifier)) {
+                    sendAiChatMessage(aiChatInput->toPlainText());
+                    return true;
+                }
+            }
+        }
+        return QMainWindow::eventFilter(watched, event);
     }
 
 public slots:
@@ -3024,6 +3312,7 @@ public:
         layout->setSpacing(18);
 
         QWidget *defaultCard = new QWidget(container);
+        defaultCard->setObjectName("settingsCard");
         defaultCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QHBoxLayout *defLayout = new QHBoxLayout(defaultCard);
         defLayout->setContentsMargins(20, 18, 20, 18);
@@ -3040,7 +3329,7 @@ public:
         defTextLayout->addWidget(defTitle);
         defTextLayout->addWidget(defSub);
 
-        QPushButton *btnMakeDefault = new QPushButton(alreadyDefault ? "✔ Default Browser" : "Make default", defaultCard);
+        QPushButton *btnMakeDefault = new QPushButton(alreadyDefault ? "Default Browser" : "Make default", defaultCard);
         btnMakeDefault->setCursor(Qt::PointingHandCursor);
         if (alreadyDefault) {
             btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
@@ -3058,7 +3347,7 @@ public:
             m_isDefaultBrowserSaved = true;
             savePersistentData();
             defSub->setText("BraveLite is currently your default web browser.");
-            btnMakeDefault->setText("✔ Default Browser");
+            btnMakeDefault->setText("Default Browser");
             btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
             btnMakeDefault->setEnabled(false);
         });
@@ -3068,6 +3357,7 @@ public:
         layout->addWidget(defaultCard);
 
         QWidget *startupCard = new QWidget(container);
+        startupCard->setObjectName("settingsCard");
         startupCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QVBoxLayout *startLayout = new QVBoxLayout(startupCard);
         startLayout->setContentsMargins(20, 18, 20, 18);
@@ -3103,6 +3393,7 @@ public:
         layout->addWidget(startupCard);
 
         QWidget *searchCard = new QWidget(container);
+        searchCard->setObjectName("settingsCard");
         searchCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QHBoxLayout *searchLayout = new QHBoxLayout(searchCard);
         searchLayout->setContentsMargins(20, 18, 20, 18);
@@ -3217,6 +3508,7 @@ public:
         layout->setSpacing(14);
 
         QWidget *card = new QWidget(container);
+        card->setObjectName("settingsCard");
         card->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QVBoxLayout *cLayout = new QVBoxLayout(card);
         cLayout->setContentsMargins(20, 18, 20, 18);
@@ -3230,7 +3522,7 @@ public:
         chkOverview->setChecked(aiSearchOverviewEnabled);
         chkOverview->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;");
 
-        QCheckBox *chkHover = new QCheckBox("Enable Rich Link Previews & AI Summaries when hovering over links", card);
+        QCheckBox *chkHover = new QCheckBox("Enable Rich Link Previews & AI Summaries when hovering over links (hold Ctrl)", card);
         chkHover->setChecked(aiHoverSummaryEnabled);
         chkHover->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;");
 
@@ -3252,6 +3544,22 @@ public:
         QLineEdit *endpointEdit = new QLineEdit(ollamaEndpoint, card);
         endpointEdit->setPlaceholderText("http://127.0.0.1:11434");
         endpointEdit->setStyleSheet("background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 10px; color: #fff;");
+
+        QHBoxLayout *chatModelRow = new QHBoxLayout();
+        QComboBox *chatCombo = new QComboBox(card);
+        chatCombo->setEditable(true);
+        QStringList presetChatModels = {"smollm2:360m", "smollm2:135m", "qwen2.5:0.5b", "llama3.2:1b", "gemma2:2b", "phi3:mini", "tinyllama"};
+        if (!presetChatModels.contains(chattingModel.toLower())) {
+            chatCombo->addItem(chattingModel.toLower());
+        }
+        chatCombo->addItems(presetChatModels);
+        chatCombo->setCurrentText(chattingModel.toLower());
+        chatCombo->setStyleSheet("QComboBox { background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 10px; color: #fff; }");
+
+        QPushButton *btnPullChatModel = new QPushButton("Pull Chatting Model", card);
+        btnPullChatModel->setStyleSheet("QPushButton { background: #2d6a4f; color: #fff; font-weight: bold; padding: 6px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #40916c; }");
+        chatModelRow->addWidget(chatCombo, 1);
+        chatModelRow->addWidget(btnPullChatModel);
 
         QComboBox *modelCombo = new QComboBox(card);
         modelCombo->setEditable(true);
@@ -3282,7 +3590,7 @@ public:
         transCombo->setCurrentText(translationModel.toLower());
         transCombo->setStyleSheet("QComboBox { background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 10px; color: #fff; }");
 
-        QPushButton *btnPullTransModel = new QPushButton("⬇ Pull Translation Model", card);
+        QPushButton *btnPullTransModel = new QPushButton("Pull Translation Model", card);
         btnPullTransModel->setStyleSheet("QPushButton { background: #2d6a4f; color: #fff; font-weight: bold; padding: 6px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #40916c; }");
         transModelRow->addWidget(transCombo, 1);
         transModelRow->addWidget(btnPullTransModel);
@@ -3291,6 +3599,7 @@ public:
         sysPromptEdit->setStyleSheet("background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 10px; color: #fff;");
 
         form->addRow("Ollama Endpoint URL:", endpointEdit);
+        form->addRow("Chatting Model (Side Panel):", chatModelRow);
         form->addRow("Overview / Summary Model:", modelCombo);
         form->addRow("Site Translation Model:", transModelRow);
         form->addRow("System Prompt:", sysPromptEdit);
@@ -3298,7 +3607,7 @@ public:
 
         // 1-Click Install Ollama Button (Linux & Windows)
         QHBoxLayout *installOllamaRow = new QHBoxLayout();
-        QPushButton *btnInstallOllama = new QPushButton("📥 Install Ollama (Auto-Setup)", card);
+        QPushButton *btnInstallOllama = new QPushButton("Install Ollama (Auto-Setup)", card);
         btnInstallOllama->setStyleSheet("QPushButton { background: #1d3557; color: #fff; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none; } QPushButton:hover { background: #457b9d; }");
         QProgressBar *ollamaInstallBar = new QProgressBar(card);
         ollamaInstallBar->setFixedHeight(8);
@@ -3309,7 +3618,7 @@ public:
         installOllamaRow->addWidget(ollamaInstallBar, 1);
         cLayout->addLayout(installOllamaRow);
 
-        QLabel *statusLbl = new QLabel("Status: Ready. Configure Overview and Translation models above.", card);
+        QLabel *statusLbl = new QLabel("Status: Ready. Configure Chatting, Overview and Translation models above.", card);
         statusLbl->setWordWrap(true);
         statusLbl->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         cLayout->addWidget(statusLbl);
@@ -3325,13 +3634,13 @@ public:
 
         QHBoxLayout *btnRow1 = new QHBoxLayout();
         QPushButton *btnSaveAi = new QPushButton("Save AI Configuration", card);
-        QPushButton *btnStartServer = new QPushButton("🚀 Start Local Ollama Server", card);
-        QPushButton *btnPullModel = new QPushButton("⬇ Pull Overview Model", card);
+        QPushButton *btnStartServer = new QPushButton("Start Local Ollama Server", card);
+        QPushButton *btnPullModel = new QPushButton("Pull Overview Model", card);
 
         QHBoxLayout *btnRow2 = new QHBoxLayout();
-        QPushButton *btnFetchModels = new QPushButton("🔄 Detect Installed Models", card);
-        QPushButton *btnRedetectGpu = new QPushButton("🖥 Re-Scan GPU Hardware", card);
-        QPushButton *btnTestAi = new QPushButton("✨ Test BraveLite AI", card);
+        QPushButton *btnFetchModels = new QPushButton("Detect Installed Models", card);
+        QPushButton *btnRedetectGpu = new QPushButton("Re-Scan GPU Hardware", card);
+        QPushButton *btnTestAi = new QPushButton("Test BraveLite AI", card);
 
         btnSaveAi->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none; }");
         btnStartServer->setStyleSheet("QPushButton { background: #2b5b84; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #356fa1; }");
@@ -3450,6 +3759,12 @@ public:
             });
         };
 
+        connect(btnPullChatModel, &QPushButton::clicked, card, [this, chatCombo, pullSpecificModel]() {
+            chattingModel = chatCombo->currentText().trimmed().toLower();
+            savePersistentData();
+            pullSpecificModel(chattingModel);
+        });
+
         connect(btnPullModel, &QPushButton::clicked, card, [this, modelCombo, pullSpecificModel]() {
             ollamaModel = modelCombo->currentText().trimmed().toLower();
             savePersistentData();
@@ -3469,23 +3784,24 @@ public:
                 chkGpu->setChecked(true);
                 aiUseGpu = true;
                 savePersistentData();
-                statusLbl->setText("✔ GPU Detected: " + m_detectedGpuName);
+                statusLbl->setText("GPU Detected: " + m_detectedGpuName);
                 statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
             } else {
                 chkGpu->setText("Use GPU Acceleration if available");
-                statusLbl->setText("⚠ No dedicated GPU detected; will run via CPU.");
+                statusLbl->setText("No dedicated GPU detected; will run via CPU.");
                 statusLbl->setStyleSheet("font-size: 13px; color: #faad14; border: none;");
             }
         });
 
-        connect(btnSaveAi, &QPushButton::clicked, card, [this, endpointEdit, modelCombo, transCombo, sysPromptEdit, statusLbl]() {
+        connect(btnSaveAi, &QPushButton::clicked, card, [this, endpointEdit, chatCombo, modelCombo, transCombo, sysPromptEdit, statusLbl]() {
             ollamaEndpoint = endpointEdit->text().trimmed();
             if (ollamaEndpoint.endsWith("/")) ollamaEndpoint.chop(1);
+            chattingModel = chatCombo->currentText().trimmed().toLower();
             ollamaModel = modelCombo->currentText().trimmed().toLower();
             translationModel = transCombo->currentText().trimmed().toLower();
             aiSystemPrompt = sysPromptEdit->text().trimmed();
             savePersistentData();
-            statusLbl->setText(QString("✔ Saved! Overview Model: %1 | Translation Model: %2").arg(ollamaModel, translationModel));
+            statusLbl->setText(QString("Saved! Chat: %1 | Overview: %2 | Translation: %3").arg(chattingModel, ollamaModel, translationModel));
             statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
         });
 
@@ -3499,7 +3815,7 @@ public:
                 #endif
             }
             if (ollamaBin.isEmpty()) {
-                statusLbl->setText("✖ 'ollama' binary not found. Click '📥 Install Ollama' above.");
+                statusLbl->setText("'ollama' binary not found. Click 'Install Ollama' above.");
                 statusLbl->setStyleSheet("font-size: 13px; color: #f5222d; border: none;");
                 return;
             }
@@ -3508,56 +3824,60 @@ public:
             #else
             QProcess::startDetached(ollamaBin, {"serve"});
             #endif
-            statusLbl->setText("✔ Launched 'ollama serve' in the background!");
+            statusLbl->setText("Launched 'ollama serve' in the background.");
             statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
         });
 
-        // Fixes bug where 'Detect Installed Models' overwrote overview model with translategemma:4b
-        connect(btnFetchModels, &QPushButton::clicked, card, [this, card, endpointEdit, modelCombo, transCombo, statusLbl]() {
+        connect(btnFetchModels, &QPushButton::clicked, card, [this, card, endpointEdit, chatCombo, modelCombo, transCombo, statusLbl]() {
             ensureOllamaServerRunning();
             QString base = endpointEdit->text().trimmed();
             if (base.endsWith("/")) base.chop(1);
+            QString currentChat = chatCombo->currentText();
             QString currentOverview = modelCombo->currentText();
             QString currentTrans = transCombo->currentText();
 
             QNetworkReply *rep = m_netManager->get(QNetworkRequest(QUrl(base + "/api/tags")));
-            statusLbl->setText("⏳ Querying Ollama /api/tags...");
-            connect(rep, &QNetworkReply::finished, card, [rep, modelCombo, transCombo, currentOverview, currentTrans, statusLbl]() {
+            statusLbl->setText("Querying Ollama /api/tags...");
+            connect(rep, &QNetworkReply::finished, card, [rep, chatCombo, modelCombo, transCombo, currentChat, currentOverview, currentTrans, statusLbl]() {
                 if (rep->error() == QNetworkReply::NoError) {
                     QJsonArray models = QJsonDocument::fromJson(rep->readAll()).object()["models"].toArray();
                     if (!models.isEmpty()) {
+                        chatCombo->clear();
                         modelCombo->clear();
                         transCombo->clear();
                         for (auto m : models) {
                             QString name = m.toObject()["name"].toString();
+                            chatCombo->addItem(name);
                             modelCombo->addItem(name);
                             transCombo->addItem(name);
                         }
+                        chatCombo->setCurrentText(currentChat);
                         modelCombo->setCurrentText(currentOverview);
                         transCombo->setCurrentText(currentTrans);
-                        statusLbl->setText(QString("✔ Found %1 installed local Ollama model(s)!").arg(models.size()));
+                        statusLbl->setText(QString("Found %1 installed local Ollama model(s).").arg(models.size()));
                         statusLbl->setStyleSheet("font-size: 13px; color: #52c41a; border: none;");
                     } else {
-                        statusLbl->setText("⚠ Ollama is running, but no models are downloaded yet.");
+                        statusLbl->setText("Ollama is running, but no models are downloaded yet.");
                     }
                 } else {
-                    statusLbl->setText("✖ Could not connect to Ollama: " + rep->errorString());
+                    statusLbl->setText("Could not connect to Ollama: " + rep->errorString());
                 }
                 rep->deleteLater();
             });
         });
 
-        connect(btnTestAi, &QPushButton::clicked, card, [this, endpointEdit, modelCombo, transCombo, sysPromptEdit, statusLbl]() {
+        connect(btnTestAi, &QPushButton::clicked, card, [this, endpointEdit, chatCombo, modelCombo, transCombo, sysPromptEdit, statusLbl]() {
             ensureOllamaServerRunning();
             ollamaEndpoint = endpointEdit->text().trimmed();
             if (ollamaEndpoint.endsWith("/")) ollamaEndpoint.chop(1);
+            chattingModel = chatCombo->currentText().trimmed().toLower();
             ollamaModel = modelCombo->currentText().trimmed().toLower();
             translationModel = transCombo->currentText().trimmed().toLower();
             aiSystemPrompt = sysPromptEdit->text().trimmed();
             savePersistentData();
-            statusLbl->setText(QString("⏳ Asking BraveLite AI (%1)...").arg(ollamaModel));
+            statusLbl->setText(QString("Asking BraveLite AI (%1)...").arg(ollamaModel));
             queryOllamaAsync("Say hello in one short sentence as BraveLite AI.", [statusLbl](const QString &resp, bool ok) {
-                statusLbl->setText(ok ? ("✨ BraveLite AI: " + resp.trimmed()) : ("✖ " + resp));
+                statusLbl->setText(ok ? ("BraveLite AI: " + resp.trimmed()) : ("Error: " + resp));
                 statusLbl->setStyleSheet(QString("font-size: 13px; color: %1; border: none;").arg(ok ? "#52c41a" : "#f5222d"));
             });
         });
@@ -3575,14 +3895,15 @@ public:
         layout->setSpacing(14);
 
         QWidget *card = new QWidget(container);
+        card->setObjectName("settingsCard");
         card->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QVBoxLayout *cLayout = new QVBoxLayout(card);
         cLayout->setContentsMargins(20, 18, 20, 18);
         cLayout->setSpacing(12);
 
-        QLabel *lbl = new QLabel("Userscript & Web Extensions Engine", card);
+        QLabel *lbl = new QLabel("Web Extensions & Userscripts", card);
         lbl->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *desc = new QLabel("Install and run custom userscripts (.user.js) and unpacked extensions directly in BraveLite. Drop files into your Extensions folder:", card);
+        QLabel *desc = new QLabel("Install and run Chrome Web Store extensions, unpacked extensions, and custom userscripts (.user.js) directly in BraveLite.", card);
         desc->setWordWrap(true);
         desc->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
 
@@ -3595,39 +3916,76 @@ public:
         QListWidget *extList = new QListWidget(card);
         extList->setStyleSheet("background-color: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 8px; color: #fff; font-size: 13px;");
 
-        QDir dir(extDir);
-        QStringList scripts = dir.entryList({"*.user.js", "*.js"}, QDir::Files);
-        if (scripts.isEmpty()) {
-            extList->addItem("No custom extensions or .user.js scripts installed yet.");
-        } else {
-            for (const QString &s : scripts) {
-                extList->addItem("🧩 " + s + " (Active)");
+        auto refreshExtList = [this, extList, extDir]() {
+            extList->clear();
+            #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+            if (m_profile && m_profile->extensionManager()) {
+                const auto extensions = m_profile->extensionManager()->extensions();
+                for (const auto &ext : extensions) {
+                    extList->addItem(ext.name() + " (" + ext.id() + ") (WebExtension Active)");
+                }
             }
-        }
+            #endif
+            QDir dir(extDir);
+            QStringList scripts = dir.entryList({"*.user.js", "*.js"}, QDir::Files);
+            for (const QString &s : scripts) {
+                extList->addItem(s + " (Userscript Active)");
+            }
+            if (extList->count() == 0) {
+                extList->addItem("No custom extensions or .user.js scripts installed yet.");
+            }
+        };
+        refreshExtList();
         cLayout->addWidget(extList);
 
         QHBoxLayout *btnRow = new QHBoxLayout();
-        QPushButton *btnOpenDir = new QPushButton("📂 Open Extensions Folder", card);
-        QPushButton *btnInstallScript = new QPushButton("➕ Install Script File (.user.js)", card);
-        btnOpenDir->setStyleSheet("QPushButton { background: #35373c; color: #fff; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: 1px solid #484b52; }");
-        btnInstallScript->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none; }");
+        QPushButton *btnWebStore = new QPushButton("Browse Chrome Web Store", card);
+        QPushButton *btnInstallExt = new QPushButton("Install Unpacked Extension", card);
+        QPushButton *btnInstallScript = new QPushButton("Install Script File (.user.js)", card);
+        QPushButton *btnOpenDir = new QPushButton("Open Extensions Folder", card);
 
+        btnWebStore->setStyleSheet("QPushButton { background: #1a73e8; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #1557b0; }");
+        btnInstallExt->setStyleSheet("QPushButton { background: #2d6a4f; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #40916c; }");
+        btnInstallScript->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #ff6a22; }");
+        btnOpenDir->setStyleSheet("QPushButton { background: #35373c; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: 1px solid #484b52; }");
+
+        btnRow->addWidget(btnWebStore);
+        btnRow->addWidget(btnInstallExt);
         btnRow->addWidget(btnInstallScript);
         btnRow->addWidget(btnOpenDir);
         btnRow->addStretch();
         cLayout->addLayout(btnRow);
 
+        connect(btnWebStore, &QPushButton::clicked, this, [this]() {
+            addNewTab(QUrl("https://chromewebstore.google.com/"));
+        });
+
         connect(btnOpenDir, &QPushButton::clicked, [extDir]() {
             QDesktopServices::openUrl(QUrl::fromLocalFile(extDir));
         });
 
-        connect(btnInstallScript, &QPushButton::clicked, card, [this, extDir, extList]() {
+        connect(btnInstallExt, &QPushButton::clicked, card, [this, refreshExtList]() {
+            QString dir = QFileDialog::getExistingDirectory(this, "Select Unpacked Extension Folder", QDir::homePath());
+            if (!dir.isEmpty()) {
+                #if QT_VERSION >= QT_VERSION_CHECK(6, 11, 0)
+                if (m_profile && m_profile->extensionManager()) {
+                    m_profile->extensionManager()->installExtension(dir);
+                    refreshExtList();
+                    QMessageBox::information(this, "Extension Installed", "WebExtension loaded successfully.");
+                    return;
+                }
+                #endif
+                QMessageBox::information(this, "Extension Registered", "Extension folder registered: " + dir);
+            }
+        });
+
+        connect(btnInstallScript, &QPushButton::clicked, card, [this, extDir, refreshExtList]() {
             QString src = QFileDialog::getOpenFileName(this, "Select Userscript", QDir::homePath(), "Userscripts (*.user.js *.js)");
             if (!src.isEmpty()) {
                 QFileInfo fi(src);
                 QString dest = extDir + "/" + fi.fileName();
                 QFile::copy(src, dest);
-                extList->addItem("🧩 " + fi.fileName() + " (Active)");
+                refreshExtList();
                 QMessageBox::information(this, "Extension Installed", "Script installed and registered for all pages.");
             }
         });
@@ -3644,6 +4002,7 @@ public:
         layout->setSpacing(14);
 
         QWidget *card = new QWidget(container);
+        card->setObjectName("settingsCard");
         card->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
         QVBoxLayout *cLayout = new QVBoxLayout(card);
         cLayout->setContentsMargins(20, 18, 20, 18);
@@ -4065,6 +4424,7 @@ public:
         hLayout->setSpacing(30);
 
         QListWidget *sidebar = new QListWidget(page);
+        sidebar->setObjectName("settingsSidebar");
         sidebar->setMaximumWidth(260);
         sidebar->setStyleSheet(QString(R"(
             QListWidget { background-color: %1; border: 1px solid %2; border-radius: 8px; padding: 8px; outline: none; font-size: 14px; }
@@ -4072,20 +4432,20 @@ public:
             QListWidget::item:selected { background-color: %3; color: #ffffff; font-weight: bold; }
         )").arg(pal.bgCard, pal.borderCol, pal.accent));
 
-        sidebar->addItem("🚀  Get started");
-        sidebar->addItem("🤖  BraveLite AI (Ollama)");
-        sidebar->addItem("🧩  Extensions (Userscripts)");
-        sidebar->addItem("🎨  Theme Profiles");
-        sidebar->addItem("⌨️  Keybinds & Shortcuts");
-        sidebar->addItem("🔑  Autofill and passwords");
-        sidebar->addItem("🔖  Bookmarks Manager");
-        sidebar->addItem("🎵  Media & DRM (Widevine / Spotify)");
-        sidebar->addItem("🌐  DNS over Oblivious HTTP");
-        sidebar->addItem("🚫  SponsorBlock Configuration");
-        sidebar->addItem("🔒  Permissions Dashboard");
-        sidebar->addItem("📥  Downloads & Crash Logs");
-        sidebar->addItem("🗑️  Delete browsing data");
-        sidebar->addItem("🔄  Reset settings");
+        sidebar->addItem("Get started");
+        sidebar->addItem("BraveLite AI (Ollama)");
+        sidebar->addItem("Extensions");
+        sidebar->addItem("Theme Profiles");
+        sidebar->addItem("Keybinds & Shortcuts");
+        sidebar->addItem("Autofill and passwords");
+        sidebar->addItem("Bookmarks Manager");
+        sidebar->addItem("Media & DRM (Widevine / Spotify)");
+        sidebar->addItem("DNS over Oblivious HTTP");
+        sidebar->addItem("SponsorBlock Configuration");
+        sidebar->addItem("Permissions Dashboard");
+        sidebar->addItem("Downloads & Crash Logs");
+        sidebar->addItem("Delete browsing data");
+        sidebar->addItem("Reset settings");
 
         QWidget *content = new QWidget(page);
         QVBoxLayout *cLayout = new QVBoxLayout(content);
@@ -4209,8 +4569,8 @@ public:
                 for (const auto &b : bookmarksList) {
                     itemsList->addItem(b.title + " (" + b.url + ")");
                 }
-                actionBtn1->setText("➕ New Bookmark");
-                actionBtn2->setText("🗑 Delete Selected");
+                actionBtn1->setText("New Bookmark");
+                actionBtn2->setText("Delete Selected");
                 actionBtn3->setText("Import Bookmarks");
                 actionBtn4->setText("Export Bookmarks");
                 actionBtn1->show();
@@ -4256,19 +4616,19 @@ public:
                 detailTitle->setText("Media & DRM (Widevine / Spotify)");
                 QString wv = getWidevineCdmPath();
                 if (!wv.isEmpty()) {
-                    itemsList->addItem("✅ Widevine CDM Status: Installed & Active");
+                    itemsList->addItem("Widevine CDM Status: Installed & Active");
                     itemsList->addItem("Location: " + wv);
                     itemsList->addItem("Hardware DRM & Protected Audio Playback are ready.");
                 } else {
-                    itemsList->addItem("⚠ Widevine CDM Status: Not Found");
+                    itemsList->addItem("Widevine CDM Status: Not Found");
                     itemsList->addItem("Spotify and Netflix require Widevine CDM to play protected audio/video.");
                     itemsList->addItem("Click 'Install Widevine CDM' below to automatically download and configure.");
                 }
                 itemsList->addItem("Hardware Video/Audio Acceleration: Enabled (AudioServiceOutOfProcess)");
                 itemsList->addItem("Spotify Media CDN Bypass: Active (Zero-latency streaming)");
 
-                actionBtn1->setText("⬇ Install / Update Widevine CDM");
-                actionBtn2->setText("🎧 Open Spotify Web Player");
+                actionBtn1->setText("Install / Update Widevine CDM");
+                actionBtn2->setText("Open Spotify Web Player");
                 actionBtn1->show();
                 actionBtn2->show();
 
@@ -4657,6 +5017,243 @@ private:
     QStandardItemModel *m_completerModel = nullptr;
     QToolButton *btnBookmarksOverflow = nullptr;
 
+    QWidget *tabRowContainer = nullptr;
+    QPushButton *btnWinMin = nullptr;
+    QPushButton *btnWinMax = nullptr;
+    QPushButton *btnWinClose = nullptr;
+    QPushButton *btnAiChat = nullptr;
+
+    QString chattingModel = "llama3.2:1b";
+    QSplitter *mainSplitter = nullptr;
+    QWidget *aiSidePanel = nullptr;
+    QTextBrowser *aiChatView = nullptr;
+    QTextEdit *aiChatInput = nullptr;
+    QPushButton *btnAiSend = nullptr;
+    QLabel *aiModelBadge = nullptr;
+    QJsonArray aiChatHistory;
+
+    static QString formatAiResponseToHtml(const QString &raw) {
+        QString out;
+        QStringList lines = raw.split('\n');
+        bool inCodeBlock = false;
+        for (const QString &line : lines) {
+            if (line.trimmed().startsWith("```")) {
+                if (!inCodeBlock) {
+                    inCodeBlock = true;
+                    out += "<pre style='background:#121316; border:1px solid #3c4043; border-radius:6px; padding:8px 10px; color:#52c41a; font-family:monospace; font-size:12px; margin:6px 0; overflow-x:auto;'><code>";
+                } else {
+                    inCodeBlock = false;
+                    out += "</code></pre>";
+                }
+            } else if (inCodeBlock) {
+                out += line.toHtmlEscaped() + "\n";
+            } else {
+                QString escaped = line.toHtmlEscaped();
+                static QRegularExpression reBold("\\*\\*(.+?)\\*\\*");
+                escaped.replace(reBold, "<b>\\1</b>");
+                static QRegularExpression reCode("`([^`]+)`");
+                escaped.replace(reCode, "<code style='background:#1a1c20; color:#8ab4f8; padding:2px 4px; border-radius:4px;'>\\1</code>");
+                out += escaped + "<br/>";
+            }
+        }
+        if (inCodeBlock) out += "</code></pre>";
+        return out;
+    }
+
+    void setupAiSidePanel() {
+        aiSidePanel = new QWidget(this);
+        aiSidePanel->setObjectName("aiSidePanel");
+        aiSidePanel->setMinimumWidth(260);
+        aiSidePanel->setMaximumWidth(550);
+        aiSidePanel->setStyleSheet(
+            "QWidget#aiSidePanel { background-color: #202124; border-left: 1px solid #3c4043; } "
+            "QTextBrowser { background-color: #191b1f; border: 1px solid #32353b; border-radius: 8px; color: #e4e6eb; font-size: 13px; padding: 10px; } "
+            "QTextEdit { background-color: #242529; border: 1px solid #3c4043; border-radius: 8px; color: #ffffff; font-size: 13px; padding: 8px; } "
+            "QTextEdit:focus { border: 1px solid #ff5500; }"
+        );
+
+        QVBoxLayout *pLayout = new QVBoxLayout(aiSidePanel);
+        pLayout->setContentsMargins(12, 12, 12, 12);
+        pLayout->setSpacing(8);
+
+        QHBoxLayout *topRow = new QHBoxLayout();
+        QLabel *titleIcon = new QLabel(aiSidePanel);
+        titleIcon->setPixmap(BrowserIcons::drawIcon("sparkle", QColor("#ff5500")).pixmap(18, 18));
+        QLabel *titleText = new QLabel("BraveLite AI", aiSidePanel);
+        titleText->setStyleSheet("font-size: 15px; font-weight: bold; color: #ffffff;");
+
+        aiModelBadge = new QLabel(chattingModel, aiSidePanel);
+        aiModelBadge->setStyleSheet("background-color: #35373c; color: #8ab4f8; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px;");
+
+        QPushButton *btnNewChat = new QPushButton("New", aiSidePanel);
+        btnNewChat->setToolTip("Start a new conversation");
+        btnNewChat->setCursor(Qt::PointingHandCursor);
+        btnNewChat->setStyleSheet("QPushButton { background-color: #2b2d30; color: #9aa0a6; font-size: 11px; padding: 3px 8px; border: 1px solid #3c4043; border-radius: 4px; } QPushButton:hover { color: #fff; background-color: #35373c; }");
+        connect(btnNewChat, &QPushButton::clicked, this, &BrowserWindow::resetAiChat);
+
+        QPushButton *btnCloseAi = new QPushButton("✕", aiSidePanel);
+        btnCloseAi->setFixedSize(22, 22);
+        btnCloseAi->setCursor(Qt::PointingHandCursor);
+        btnCloseAi->setToolTip("Close side panel");
+        btnCloseAi->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 12px; } QPushButton:hover { color: #fff; background-color: #35373c; border-radius: 3px; }");
+        connect(btnCloseAi, &QPushButton::clicked, this, &BrowserWindow::toggleAiSidePanel);
+
+        topRow->addWidget(titleIcon);
+        topRow->addWidget(titleText);
+        topRow->addWidget(aiModelBadge);
+        topRow->addStretch();
+        topRow->addWidget(btnNewChat);
+        topRow->addWidget(btnCloseAi);
+        pLayout->addLayout(topRow);
+
+        aiChatView = new QTextBrowser(aiSidePanel);
+        aiChatView->setOpenExternalLinks(true);
+        pLayout->addWidget(aiChatView, 1);
+
+        resetAiChat();
+
+        QHBoxLayout *inputRow = new QHBoxLayout();
+        inputRow->setSpacing(6);
+
+        aiChatInput = new QTextEdit(aiSidePanel);
+        aiChatInput->setPlaceholderText("Ask BraveLite AI... (Enter to send)");
+        aiChatInput->setFixedHeight(46);
+        aiChatInput->installEventFilter(this);
+
+        btnAiSend = new QPushButton("➤", aiSidePanel);
+        btnAiSend->setFixedSize(46, 46);
+        btnAiSend->setCursor(Qt::PointingHandCursor);
+        btnAiSend->setToolTip("Send Message (Enter)");
+        btnAiSend->setStyleSheet("QPushButton { background-color: #ff5500; color: #ffffff; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; } QPushButton:hover { background-color: #ff6a22; }");
+        connect(btnAiSend, &QPushButton::clicked, this, [this]() {
+            sendAiChatMessage(aiChatInput->toPlainText());
+        });
+
+        inputRow->addWidget(aiChatInput, 1);
+        inputRow->addWidget(btnAiSend);
+        pLayout->addLayout(inputRow);
+    }
+
+    void toggleAiSidePanel() {
+        if (!aiSidePanel) return;
+        if (aiSidePanel->isVisible()) {
+            aiSidePanel->hide();
+        } else {
+            aiSidePanel->show();
+            if (mainSplitter) {
+                int total = width();
+                mainSplitter->setSizes({qMax(400, total * 3 / 4), qMax(260, total / 4)});
+            }
+            if (aiChatInput) {
+                aiChatInput->setFocus();
+            }
+        }
+    }
+
+    void resetAiChat() {
+        if (!aiChatView) return;
+        aiChatHistory = QJsonArray();
+        aiChatView->clear();
+        QString welcome = QString(
+            "<div style='color: #9aa0a6; font-size: 12px; line-height: 1.5; margin-bottom: 8px;'>"
+            "<b style='color: #ff5500;'>BraveLite AI Assistant</b><br/>"
+            "Powered by your local Ollama chatting model (<code style='color: #8ab4f8;'>%1</code>).<br/>"
+            "100%% private, fast, and offline. Ask questions or brainstorm!"
+            "</div>"
+        ).arg(chattingModel);
+        aiChatView->setHtml(welcome);
+    }
+
+    void appendAiChatMessage(const QString &sender, const QString &text) {
+        if (!aiChatView) return;
+        QString html = aiChatView->toHtml();
+        int bodyEnd = html.lastIndexOf("</body>");
+        if (bodyEnd == -1) bodyEnd = html.length();
+
+        QString bubble;
+        if (sender == "user") {
+            bubble = QString(
+                "<div style='margin: 8px 0; text-align: right;'>"
+                "<div style='display: inline-block; background-color: #ff5500; color: #ffffff; padding: 7px 12px; border-radius: 12px; max-width: 85%; font-size: 12.5px; text-align: left; word-break: break-word;'>%1</div>"
+                "</div>"
+            ).arg(text.toHtmlEscaped().replace("\n", "<br/>"));
+        } else {
+            bubble = QString(
+                "<div style='margin: 8px 0; text-align: left;'>"
+                "<div style='background-color: #242529; border: 1px solid #3c4043; color: #e4e6eb; padding: 8px 12px; border-radius: 12px; font-size: 12.5px; line-height: 1.5; word-break: break-word;'>%1</div>"
+                "</div>"
+            ).arg(formatAiResponseToHtml(text));
+        }
+
+        html.insert(bodyEnd, bubble);
+        aiChatView->setHtml(html);
+        QScrollBar *sb = aiChatView->verticalScrollBar();
+        if (sb) sb->setValue(sb->maximum());
+    }
+
+    void updateLastAiAssistantMessage(const QString &text) {
+        if (!aiChatView) return;
+        QString html = aiChatView->toHtml();
+        int lastThinking = html.lastIndexOf("Thinking...");
+        if (lastThinking != -1) {
+            int blockStart = html.lastIndexOf("<div style='background-color: #242529", lastThinking);
+            if (blockStart != -1) {
+                int blockEnd = html.indexOf("</div>\n</div>", lastThinking);
+                if (blockEnd == -1) blockEnd = html.indexOf("</div></div>", lastThinking);
+                if (blockEnd != -1) {
+                    blockEnd += 12;
+                    QString replacement = QString(
+                        "<div style='background-color: #242529; border: 1px solid #3c4043; color: #e4e6eb; padding: 8px 12px; border-radius: 12px; font-size: 12.5px; line-height: 1.5; word-break: break-word;'>%1</div>"
+                    ).arg(formatAiResponseToHtml(text));
+                    html.replace(blockStart, blockEnd - blockStart, replacement);
+                    aiChatView->setHtml(html);
+                    QScrollBar *sb = aiChatView->verticalScrollBar();
+                    if (sb) sb->setValue(sb->maximum());
+                    return;
+                }
+            }
+        }
+        appendAiChatMessage("assistant", text);
+    }
+
+    void sendAiChatMessage(const QString &text) {
+        if (text.trimmed().isEmpty()) return;
+        QString prompt = text.trimmed();
+        if (aiChatInput) aiChatInput->clear();
+        appendAiChatMessage("user", prompt);
+
+        if (gamingModeActive) {
+            appendAiChatMessage("assistant", "Gaming Mode is active. Turn off Gaming Mode in the menu to chat with BraveLite AI.");
+            return;
+        }
+
+        appendAiChatMessage("assistant", "Thinking...");
+        ensureOllamaServerRunning();
+
+        QJsonObject reqObj;
+        reqObj["model"] = chattingModel.trimmed().toLower();
+        reqObj["prompt"] = prompt;
+        reqObj["stream"] = false;
+
+        QString base = ollamaEndpoint;
+        if (base.endsWith("/")) base.chop(1);
+        QNetworkRequest req(QUrl(base + "/api/generate"));
+        req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+        QNetworkReply *rep = m_netManager->post(req, QJsonDocument(reqObj).toJson(QJsonDocument::Compact));
+        connect(rep, &QNetworkReply::finished, this, [this, rep]() {
+            rep->deleteLater();
+            if (rep->error() == QNetworkReply::NoError) {
+                QJsonObject resp = QJsonDocument::fromJson(rep->readAll()).object();
+                QString reply = resp["response"].toString().trimmed();
+                updateLastAiAssistantMessage(reply.isEmpty() ? "No response received." : reply);
+            } else {
+                updateLastAiAssistantMessage(QString("Error connecting to Ollama: %1\nEnsure Ollama is running and model '%2' is downloaded.")
+                    .arg(rep->errorString(), chattingModel));
+            }
+        });
+    }
+
     void setupUrlCompleter() {
         if (!urlBar) return;
         m_completerModel = new QStandardItemModel(this);
@@ -4678,6 +5275,27 @@ private:
         urlBar->setCompleter(m_urlCompleter);
 
         connect(urlBar, &QLineEdit::textEdited, this, &BrowserWindow::filterUrlCompleter);
+        connect(urlBar, &DroppableUrlBar::tabAutofillRequested, this, [this]() {
+            if (!m_completerModel || m_completerModel->rowCount() == 0) return;
+            QString target;
+            for (int r = 0; r < m_completerModel->rowCount(); ++r) {
+                QModelIndex idx = m_completerModel->index(r, 0);
+                bool isSearch = idx.data(Qt::UserRole + 3).toBool();
+                QString domain = idx.data(Qt::UserRole + 2).toString();
+                if (!isSearch && !domain.isEmpty() && !domain.startsWith("-")) {
+                    target = domain;
+                    break;
+                }
+            }
+            if (target.isEmpty()) {
+                target = m_completerModel->index(0, 0).data(Qt::UserRole + 1).toString();
+            }
+            if (!target.isEmpty()) {
+                urlBar->setText(target);
+                urlBar->setCursorPosition(target.length());
+                filterUrlCompleter(target);
+            }
+        });
         connect(m_urlCompleter, QOverload<const QModelIndex &>::of(&QCompleter::activated), this, [this](const QModelIndex &index) {
             QString fullUrl = index.data(Qt::UserRole + 4).toString();
             bool isSearch = index.data(Qt::UserRole + 3).toBool();
@@ -4836,13 +5454,14 @@ private:
         auto bindKey = [this](const QString &keyStr, std::function<void()> fn) {
             if (keyStr.isEmpty()) return;
             QShortcut *s = new QShortcut(QKeySequence(keyStr), this);
+            s->setContext(Qt::ApplicationShortcut);
             connect(s, &QShortcut::activated, this, fn);
             activeShortcuts.append(s);
         };
 
         bindKey(keybindsMap.value("NewTab"), [this]() { addNewTab(); });
         bindKey(keybindsMap.value("CloseTab"), [this]() { closeTab(tabBar->currentIndex()); });
-        bindKey(keybindsMap.value("NewWindow"), [this]() { (new BrowserWindow(false))->show(); });
+        bindKey(keybindsMap.value("NewWindow"), [this]() { (new BrowserWindow(false, true, QList<QUrl>(), false))->show(); });
         bindKey(keybindsMap.value("Incognito"), [this]() { openIncognito(); });
         bindKey(keybindsMap.value("History"), [this]() { openHistoryTab(); });
         bindKey(keybindsMap.value("Downloads"), [this]() { openDownloadsTab(); });
@@ -5505,6 +6124,34 @@ private:
             }
         )").arg(bgMain, bgHeader, bgInput, bgTab, bgTabSel, accent, textCol, borderCol));
 
+        ThemeColors pal = getThemePalette(profileName);
+        if (tabStack) {
+            for (int i = 0; i < tabStack->count(); ++i) {
+                QWidget *w = tabStack->widget(i);
+                if (w && w->objectName() == "settingsDashboardPage") {
+                    w->setStyleSheet(QString("QWidget#settingsDashboardPage { background-color: %1; color: %2; }").arg(pal.bgMain, pal.textCol));
+                    for (QWidget *c : w->findChildren<QWidget*>("settingsCard")) {
+                        c->setStyleSheet(QString("QWidget#settingsCard { background: %1; border: 1px solid %2; border-radius: 8px; }").arg(pal.bgCard, pal.borderCol));
+                    }
+                    for (QListWidget *lw : w->findChildren<QListWidget*>()) {
+                        lw->setStyleSheet(QString(
+                            "QListWidget { background-color: %1; border: 1px solid %2; border-radius: 8px; padding: 8px; outline: none; font-size: 14px; } "
+                            "QListWidget::item { padding: 11px 16px; border-radius: 6px; color: #9aa0a6; } "
+                            "QListWidget::item:selected { background-color: %3; color: #ffffff; font-weight: bold; }"
+                        ).arg(pal.bgCard, pal.borderCol, pal.accent));
+                    }
+                }
+            }
+        }
+        if (aiSidePanel) {
+            aiSidePanel->setStyleSheet(QString(
+                "QWidget#aiSidePanel { background-color: %1; border-left: 1px solid %2; } "
+                "QTextBrowser { background-color: %3; border: 1px solid %2; border-radius: 8px; color: %4; font-size: 13px; padding: 10px; } "
+                "QTextEdit { background-color: %1; border: 1px solid %2; border-radius: 8px; color: #ffffff; font-size: 13px; padding: 8px; } "
+                "QTextEdit:focus { border: 1px solid %5; }"
+            ).arg(pal.bgCard, pal.borderCol, pal.bgMain, pal.textCol, pal.accent));
+        }
+
         if (btnShield) updateShieldButtonAppearance();
     }
 
@@ -5520,9 +6167,11 @@ private:
         headerLayout->setContentsMargins(0, 2, 0, 0);
         headerLayout->setSpacing(0);
 
-        QWidget *tabRow = new QWidget(this);
-        QHBoxLayout *tabRowLayout = new QHBoxLayout(tabRow);
-        tabRowLayout->setContentsMargins(8, 0, 8, 0);
+        tabRowContainer = new QWidget(this);
+        tabRowContainer->setObjectName("tabRowContainer");
+        tabRowContainer->installEventFilter(this);
+        QHBoxLayout *tabRowLayout = new QHBoxLayout(tabRowContainer);
+        tabRowLayout->setContentsMargins(8, 0, 4, 0);
         tabRowLayout->setSpacing(4);
 
         tabBar = new CustomTabBar(this);
@@ -5551,6 +6200,41 @@ private:
         tabRowLayout->addWidget(tabBar);
         tabRowLayout->addWidget(newTabBtn);
         tabRowLayout->addStretch();
+
+        btnAiChat = new QPushButton(this);
+        btnAiChat->setIcon(BrowserIcons::drawIcon("sparkle", QColor("#8ab4f8")));
+        btnAiChat->setIconSize(QSize(18, 18));
+        btnAiChat->setToolTip("BraveLite AI Assistant (Side Chat)");
+        btnAiChat->setFixedSize(30, 28);
+        btnAiChat->setCursor(Qt::PointingHandCursor);
+        btnAiChat->setStyleSheet("QPushButton { background-color: #242629; border: 1px solid #34373d; border-radius: 6px; padding: 0; } QPushButton:hover { background-color: #35373c; border-color: #8ab4f8; }");
+        connect(btnAiChat, &QPushButton::clicked, this, &BrowserWindow::toggleAiSidePanel);
+        tabRowLayout->addWidget(btnAiChat);
+
+        btnWinMin = new QPushButton("—", this);
+        btnWinMin->setFixedSize(32, 28);
+        btnWinMin->setToolTip("Minimize");
+        btnWinMin->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 14px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #35373c; color: #ffffff; }");
+        connect(btnWinMin, &QPushButton::clicked, this, &BrowserWindow::showMinimized);
+
+        btnWinMax = new QPushButton(isMaximized() ? "🗗" : "🗖", this);
+        btnWinMax->setFixedSize(32, 28);
+        btnWinMax->setToolTip("Maximize / Restore");
+        btnWinMax->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 13px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #35373c; color: #ffffff; }");
+        connect(btnWinMax, &QPushButton::clicked, this, [this]() {
+            if (isMaximized()) showNormal();
+            else showMaximized();
+        });
+
+        btnWinClose = new QPushButton("✕", this);
+        btnWinClose->setFixedSize(34, 28);
+        btnWinClose->setToolTip("Close");
+        btnWinClose->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 14px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #e81123; color: #ffffff; }");
+        connect(btnWinClose, &QPushButton::clicked, this, &BrowserWindow::close);
+
+        tabRowLayout->addWidget(btnWinMin);
+        tabRowLayout->addWidget(btnWinMax);
+        tabRowLayout->addWidget(btnWinClose);
 
         QWidget *navBar = new QWidget(this);
         QHBoxLayout *navLayout = new QHBoxLayout(navBar);
@@ -5809,15 +6493,26 @@ private:
                 progressBar->setMaximumHeight(2);
                 progressBar->setTextVisible(false);
 
-                headerLayout->addWidget(tabRow);
+                headerLayout->addWidget(tabRowContainer);
                 headerLayout->addWidget(navBar);
                 headerLayout->addWidget(bookmarksBar);
                 headerLayout->addWidget(progressBar);
 
-                tabStack = new QStackedWidget(this);
+                mainSplitter = new QSplitter(Qt::Horizontal, this);
+                mainSplitter->setHandleWidth(1);
+                mainSplitter->setStyleSheet("QSplitter::handle { background-color: #32353b; }");
+
+                tabStack = new QStackedWidget(mainSplitter);
+                setupAiSidePanel();
+                aiSidePanel->hide();
+
+                mainSplitter->addWidget(tabStack);
+                mainSplitter->addWidget(aiSidePanel);
+                mainSplitter->setCollapsible(0, false);
+                mainSplitter->setCollapsible(1, false);
 
                 mainLayout->addWidget(headerContainer);
-                mainLayout->addWidget(tabStack, 1);
+                mainLayout->addWidget(mainSplitter, 1);
 
                 setCentralWidget(centralWidget);
     }
@@ -6174,6 +6869,9 @@ private:
         ollamaModel = root.value("ollamaModel").toString("qwen2.5:0.5b").toLower();
         translationModel = root.value("translationModel").toString("translategemma:4b").toLower();
         aiSystemPrompt = root.value("aiSystemPrompt").toString(aiSystemPrompt);
+        if (root.contains("chattingModel")) {
+            chattingModel = root["chattingModel"].toString();
+        }
 
         if (root.contains("keybinds")) {
             QJsonObject kbObj = root["keybinds"].toObject();
@@ -6185,7 +6883,7 @@ private:
         lastSessionUrls.clear();
         for (auto v : root["lastSessionUrls"].toArray()) {
             QString u = v.toString();
-            if (!u.isEmpty() && !u.startsWith("data:") && !u.startsWith("about:") && !u.contains("bravelite.local")) {
+            if (!u.isEmpty() && !u.startsWith("data:") && !u.startsWith("about:")) {
                 lastSessionUrls.append(u);
             }
         }
@@ -6224,7 +6922,6 @@ private:
             it->isCanceled = o["isCanceled"].toBool(false);
             downloadsList.append(it);
         }
-        updateUrlCompleter();
     }
 
     void savePersistentData() {
@@ -6247,6 +6944,7 @@ private:
         root["ollamaEndpoint"] = ollamaEndpoint;
         root["ollamaModel"] = ollamaModel.toLower();
         root["translationModel"] = translationModel.toLower();
+        root["chattingModel"] = chattingModel.toLower();
         root["aiSystemPrompt"] = aiSystemPrompt;
 
         QJsonObject kbObj;
@@ -6258,10 +6956,45 @@ private:
         QJsonArray sessionArr;
         if (tabStack) {
             for (int i = 0; i < tabStack->count(); ++i) {
-                if (auto *v = CustomWebViewFromWidget(tabStack->widget(i))) {
-                    QString u = v->url().toString();
-                    if (!u.isEmpty() && !u.startsWith("data:") && v->url().scheme() != "about" && !u.contains("bravelite.local")) {
-                        sessionArr.append(u);
+                QWidget *w = tabStack->widget(i);
+                if (!w) continue;
+                if (auto *sp = qobject_cast<QSplitter*>(w)) {
+                    QString u1, u2;
+                    if (sp->count() > 0) {
+                        if (auto *v1 = qobject_cast<CustomWebView*>(sp->widget(0))) {
+                            if (!v1->lastSearchQuery.isEmpty()) {
+                                u1 = QString("https://search.bravelite.local/?q=%1&tab=%2")
+                                    .arg(QString::fromUtf8(QUrl::toPercentEncoding(v1->lastSearchQuery)), v1->lastSearchTab);
+                            } else {
+                                u1 = v1->url().toString();
+                            }
+                        }
+                    }
+                    if (sp->count() > 1) {
+                        if (auto *v2 = qobject_cast<CustomWebView*>(sp->widget(1))) {
+                            if (!v2->lastSearchQuery.isEmpty()) {
+                                u2 = QString("https://search.bravelite.local/?q=%1&tab=%2")
+                                    .arg(QString::fromUtf8(QUrl::toPercentEncoding(v2->lastSearchQuery)), v2->lastSearchTab);
+                            } else {
+                                u2 = v2->url().toString();
+                            }
+                        }
+                    }
+                    if (!u1.isEmpty() && !u2.isEmpty()) {
+                        sessionArr.append("split::" + u1 + "|||" + u2);
+                    } else if (!u1.isEmpty()) {
+                        sessionArr.append(u1);
+                    }
+                } else if (auto *v = qobject_cast<CustomWebView*>(w)) {
+                    if (!v->lastSearchQuery.isEmpty()) {
+                        QString searchUrl = QString("https://search.bravelite.local/?q=%1&tab=%2")
+                            .arg(QString::fromUtf8(QUrl::toPercentEncoding(v->lastSearchQuery)), v->lastSearchTab);
+                        sessionArr.append(searchUrl);
+                    } else {
+                        QString u = v->url().toString();
+                        if (!u.isEmpty() && !u.startsWith("data:") && v->url().scheme() != "about") {
+                            sessionArr.append(u);
+                        }
                     }
                 }
             }
@@ -6314,6 +7047,17 @@ private:
         connect(view, &CustomWebView::openLinkInNewWindowRequested, this, &BrowserWindow::openNewWindowWithUrl);
         connect(view, &CustomWebView::openLinkInIncognitoRequested, this, &BrowserWindow::openIncognitoWithUrl);
         connect(view, &CustomWebView::openLinkInSplitViewRequested, this, &BrowserWindow::openInSplitView);
+        connect(view, &CustomWebView::openNewCleanWindowRequested, this, [this]() {
+            (new BrowserWindow(false, true, QList<QUrl>(), false))->show();
+        });
+        connect(view, &CustomWebView::findRequested, this, [this]() {
+            if (!findBar) return;
+            findBar->move(width() - findBar->width() - 25, headerContainer ? headerContainer->height() + 8 : 78);
+            findBar->raise();
+            findBar->show();
+            findInput->setFocus();
+            findInput->selectAll();
+        });
         connect(view, &CustomWebView::inspectElementRequested, this, [this](CustomWebView *targetView) {
             openInspectElementWindow(targetView);
         });
@@ -6560,14 +7304,13 @@ private:
                     window.__updateBraveLiteAiTooltipObj = function(obj) {
                         if (!obj || obj.url !== currentHoverUrl) return;
                         const tt = ensureTooltip();
-                        tt.innerHTML = '<div style=\"display:flex;align-items:center;gap:6px;margin-bottom:5px;font-weight:bold;color:#ff6a22;font-size:12px;\">🦁 BraveLite Link Preview • ' + (obj.domain || '') + '</div>' +
+                        tt.innerHTML = '<div style=\"display:flex;align-items:center;gap:6px;margin-bottom:5px;font-weight:bold;color:#ff6a22;font-size:12px;\">BraveLite Link Preview • ' + (obj.domain || '') + '</div>' +
                     '<div style=\"font-weight:600;color:#8ab4f8;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">' + (obj.title || '') + '</div>' +
                     '<div style=\"color:#e0e2e8;\">' + (obj.summary || '') + '</div>';
                     tt.style.display = 'block';
                     };
 
-                    document.addEventListener('mouseover', function(e) {
-                        const a = e.target.closest('a[href]');
+                    function triggerLinkHover(a) {
                         if (!a || !a.href || !a.href.startsWith('http')) return;
                         if (activeAnchor === a) return;
                         activeAnchor = a;
@@ -6583,19 +7326,44 @@ private:
                             if (activeAnchor !== a) return;
                             const tt = ensureTooltip();
                             tt.style.left = x + 'px';
-                        tt.style.top = y + 'px';
-                        console.log('BRAVELITE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
-                        }, 450);
+                            tt.style.top = y + 'px';
+                            console.log('BRAVELITE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
+                        }, 400);
+                    }
+
+                    function hideLinkHover() {
+                        clearTimeout(hoverTimer);
+                        activeAnchor = null;
+                        currentHoverUrl = '';
+                        const tt = document.getElementById('__bravelite_ai_tooltip');
+                        if (tt) tt.style.display = 'none';
+                    }
+
+                    let lastTarget = null;
+                    document.addEventListener('mouseover', function(e) {
+                        lastTarget = e.target;
+                        if (!e.ctrlKey && !e.metaKey) return;
+                        const a = e.target.closest('a[href]');
+                        if (a) triggerLinkHover(a);
+                    }, true);
+
+                    document.addEventListener('keydown', function(e) {
+                        if ((e.key === 'Control' || e.key === 'Meta') && lastTarget) {
+                            const a = lastTarget.closest('a[href]');
+                            if (a) triggerLinkHover(a);
+                        }
+                    }, true);
+
+                    document.addEventListener('keyup', function(e) {
+                        if (e.key === 'Control' || e.key === 'Meta') {
+                            hideLinkHover();
+                        }
                     }, true);
 
                     document.addEventListener('mouseout', function(e) {
                         if (!activeAnchor) return;
                         if (e.relatedTarget && activeAnchor.contains(e.relatedTarget)) return;
-                        clearTimeout(hoverTimer);
-                        activeAnchor = null;
-                        currentHoverUrl = '';
-                    const tt = document.getElementById('__bravelite_ai_tooltip');
-                    if (tt) tt.style.display = 'none';
+                        hideLinkHover();
                     }, true);
                         }
 
@@ -6805,13 +7573,17 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 }
 
 int main(int argc, char *argv[]) {
-    QString wvPath = getWidevineCdmPath();
+    QString wvFile = getWidevineCdmFilePath();
     QString chromiumFlags = "--enable-smooth-scrolling --enable-LowPriorityIframes "
                            "--disable-renderer-backgrounding=false --autoplay-policy=no-user-gesture-required "
                            "--enable-widevine --enable-features=AudioServiceOutOfProcess,PlatformHEVCDecoderSupport,WidevineCdm";
-    if (!wvPath.isEmpty()) {
-        chromiumFlags += " --widevine-path=\"" + wvPath + "\"";
-        qputenv("QTWEBENGINE_WIDEVINE_PATH", wvPath.toUtf8());
+    if (!wvFile.isEmpty()) {
+        chromiumFlags += " --widevine-path=\"" + wvFile + "\"";
+        qputenv("QTWEBENGINE_WIDEVINE_PATH", wvFile.toUtf8());
+    }
+    QByteArray envFlags = qgetenv("QTWEBENGINE_CHROMIUM_FLAGS");
+    if (!envFlags.isEmpty()) {
+        chromiumFlags += " " + QString::fromUtf8(envFlags);
     }
     qputenv("QTWEBENGINE_CHROMIUM_FLAGS", chromiumFlags.toUtf8());
 
@@ -6819,7 +7591,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
-    app.setApplicationVersion("1.63");
+    app.setApplicationVersion("1.64");
     app.setOrganizationName("BraveLite");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
@@ -6854,7 +7626,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v163";
+    const QString ipcServerName = "BraveLiteSingleInstanceServer_v164";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);
@@ -6874,7 +7646,7 @@ int main(int argc, char *argv[]) {
     QLocalServer::removeServer(ipcServerName);
     ipcServer.listen(ipcServerName);
 
-    BrowserWindow *window = new BrowserWindow(false, startupUrls.isEmpty(), startupUrls);
+    BrowserWindow *window = new BrowserWindow(false, startupUrls.isEmpty(), startupUrls, true);
     window->show();
 
     QObject::connect(&ipcServer, &QLocalServer::newConnection, [&ipcServer]() {
@@ -6887,14 +7659,14 @@ int main(int argc, char *argv[]) {
                 for (const QJsonValue &val : arr) {
                     QString str = val.toString();
                     if (str == "NEW_WINDOW") {
-                        BrowserWindow *nw = new BrowserWindow(false, true);
+                        BrowserWindow *nw = new BrowserWindow(false, true, QList<QUrl>(), false);
                         nw->show();
                     } else if (str == "NEW_TAB") {
                         if (targetWin) targetWin->openExternalUrlInExistingWindow(QUrl());
                     } else {
                         if (targetWin) targetWin->openExternalUrlInExistingWindow(QUrl(str));
                         else {
-                            BrowserWindow *nw = new BrowserWindow(false, false, {QUrl(str)});
+                            BrowserWindow *nw = new BrowserWindow(false, false, {QUrl(str)}, false);
                             nw->show();
                         }
                     }

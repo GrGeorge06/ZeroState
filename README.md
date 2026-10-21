@@ -2,7 +2,9 @@
 
 A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
 
-![Version](https://img.shields.io/badge/version-v1.63-orange)
+> **Note:** BraveLite is currently in active **BETA** (`v1.64 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
+
+![Version](https://img.shields.io/badge/version-v1.64%20(Beta)-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -10,9 +12,21 @@ A fast, lightweight, debloated web browser for Linux and Windows built natively 
 
 ## Key Features
 
-* **BraveLite Shield (Ad, YouTube & Spam Redirect Blocker):** Full network request interception and DOM shielding that blocks advertising networks, YouTube video ads, pop-under and spam redirects, analytics scripts, and device-maker telemetry (Xiaomi, Realme, Oppo, Huawei, Apple, Samsung) out of the box. Features a visual indicator button (`🛡 ON` in orange / `🛡 OFF` in gray).
-* **Overhauled Preferences & Settings Dashboard:** Sleek card-based settings interface organized with categorized icons, dynamic theme styling, and 1-click controls.
-* **Detachable & Cross-Window Re-Attachable Tabs:** Drag any tab downward off the tab bar to snap it out into an independent window, or drop it onto another existing window's tab bar to seamlessly merge tabs.
+* **Top-Right BraveLite AI Assistant (Side Chat Panel):** Integrated side panel (~1/4 window width) connected locally to Ollama LLMs (e.g. `smollm2:360m`, `smollm2:135m`, `qwen2.5:0.5b`, `llama3.2:1b`). Provides offline, private AI assistance with Markdown code syntax formatting, clearable chat sessions, and independent Chatting / Overview / Translation model selectors.
+* **Seamless Frameless Top Bar (Matching Photo 1):** Clean modern title bar with tabs positioned directly at the top, custom minimize (`—`), maximize (`🗖`), and close (`✕`) buttons, window dragging/resizing, and double-click to maximize/restore.
+* **Real-Time Instant Theme Engine:** Instantaneous live theme updates across all windows, settings cards, sidebars, and borders without requiring a browser restart.
+* **WebExtensions & Chrome Web Store:** Direct 1-click access to the Chrome Web Store (`https://chromewebstore.google.com/`) with support for installing unpacked WebExtensions and custom userscripts (`.user.js`).
+* **Clean, De-Emojified Settings UI:** Streamlined, distraction-free preferences interface with all emojis removed across categories, cards, statuses, and action buttons.
+* **Spotify Web Playback & Widevine DRM Fix:** Complete Widevine CDM support with automated `manifest.json` generation and direct library file loading on both Linux (`libwidevinecdm.so`) and Windows (`widevinecdm.dll`).
+* **Fixed Startup Bookmark Bar:** Fixed bookmark initialization sizing so all bookmarks render immediately on startup without needing YouTube or another site to load first.
+* **Preserved Fullscreen Navigation:** Fixed YouTube and video fullscreen transitions to cleanly preserve and restore window maximized state without unmaximizing.
+* **Minimalist Floating Find in Page (`Ctrl+F`):** Floating search pill anchored to the top-right corner with match counter, previous/next buttons, and ESC closing.
+* **Omnibox `Tab` Key Autofill:** Pressing `Tab` in the address bar autofills the best suggested domain (e.g. typing `yo` and pressing `Tab` fills `youtube.com`).
+* **Controlled Link AI Summaries:** Link hover previews require holding the `Ctrl` key (or `Cmd` on macOS) to prevent accidental popups.
+* **"Continue Where You Left Off" Tab Persistence:** Accurately saves and restores all open tabs, including BraveLite search queries and split view tabs upon exit and startup.
+* **Context Menu "Open New Window":** Clean window separation ensuring only the initial startup restores previous sessions.
+* **BraveLite Shield (Ad, YouTube & Spam Redirect Blocker):** Full network request interception and DOM shielding that blocks advertising networks, YouTube video ads, pop-under and spam redirects, analytics scripts, and device-maker telemetry out of the box.
+* **Detachable & Cross-Window Re-Attachable Tabs:** Drag any tab downward off the tab bar to detach it into an independent window, or drop it onto another window's tab bar to merge tabs.
 * **Dynamic Tab Shrinking:** Tabs maintain clean spacing with the `+` button directly adjacent to the last tab, smoothly scaling down to 36px only when tab count exceeds available screen width.
 * **Brave-Style Omnibox Autocomplete:** Rich autocomplete popup featuring high-res vector logos for popular services (YouTube, YouTube Music, Reddit, GitHub, Spotify, Google, etc.), bold titles, and clean domain subtitles.
 * **Spotify Web Playback & Widevine DRM:** Automatic Widevine CDM detection, 1-click Widevine downloader in Settings -> Media & DRM, and fast-path CDN bypassing for smooth music playback on `open.spotify.com`.
