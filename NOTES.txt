@@ -1,12 +1,4 @@
-1) remove all starting page branding from my bravelite browser and the redirection, i just want the cosmetic change, also the search does not actualy work or it takes an extreme amount of time, I want it to be bravelite engine just with the theme of startingpage not actualy startingpage.
-
-2) make sure the ui is corectly and perfectly scaled in all resolutions and not need sliders to view the whole page
-
-3) make more space in the top by removing all text from the translation button just keep the emoji and remove the zoom in/out buttons and keep them in the 3bar menu
-
-4) make the buttons smaller next to the url bar to make space for more in the future
-
-change to version v1.71
+1) remove all starting page branding from my bravelite browser and the redirection, i just want the cosmetic change, also the search does not actualy work or it takes an extreme amount of time, I want it to be bravelite engine just with the theme of startingpage not actualy startingpage. AT THE MOMENT THE SEARCH DOES NOT WORK
 
 update the changelog and the README
 

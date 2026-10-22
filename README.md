@@ -2,9 +2,9 @@
 
 A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
 
-> **Note:** BraveLite is currently in active **BETA** (`v1.70 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
+> **Note:** BraveLite is currently in active **BETA** (`v1.71 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
 
-![Version](https://img.shields.io/badge/version-v1.70%20(Beta)-orange)
+![Version](https://img.shields.io/badge/version-v1.71%20(Beta)-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -18,19 +18,28 @@ A fast, lightweight, debloated web browser for Linux and Windows built natively 
   * Decoupled size constraints: `minimumSizeHint()` and `minimumTabSizeHint()` return `QSize(28, 32)` so opening 50+ tabs will never unmaximize the window or alter display bounds.
   * Intelligent close buttons: on compact tabs (< 55px), close buttons are hidden on inactive tabs to prevent accidental closure while staying fully available on hover and the active tab.
   * Comprehensive tab management: right-click tab context menu ("New tab to the right", "Reload", "Duplicate", "Close tab", "Close other tabs", "Close tabs to the right", "Reopen closed tab"), middle-click to close, mouse wheel cycling, and double-click to maximize/restore.
-* **Startpage-Powered BraveLite Engine (https://www.startpage.com/):** Reworked the default BraveLite Engine based on and functioning like Startpage:
-  * Full Startpage privacy design aesthetic: deep navy palette (`#141724`), Startpage signature blue (`#6580ff`), and privacy trust badges ("Startpage Protected: Zero personal data logged • No search profiling").
-  * **Anonymous View Proxy Integration:** Every web search result card features an official **"🛡️ Anonymous View"** proxy button linking to `https://www.startpage.com/av/proxy?piurl=...`, allowing users to visit search destinations 100% anonymously with masked IP addresses and zero tracking.
-  * Category Navigation Tabs: 🔍 All, 🖼 Images, 🎬 Videos, 📰 News with dedicated Startpage-style result layouts.
-  * Private AI Overview: grounded on verified search results with local Ollama acceleration, styled to match the Startpage interface.
-* **Multi-Search Engine Selection (Startpage + Google + Bing + DDG + Yahoo + Yandex):** Seamless search engine switching in Settings -> Get Started. Full cross-platform support for **Startpage**, **Google**, **Microsoft Bing**, **DuckDuckGo**, **Yahoo**, and **Yandex**, while keeping **BraveLite Engine** (Startpage-powered with local AI Overviews) as default. Address bar queries, start page searches, and autocomplete dynamically adapt to the active search engine.
+* **Pure BraveLite Engine with Startpage Cosmetic Aesthetic:** Default BraveLite search engine featuring the sleek Startpage design aesthetic without any third-party branding or redirection:
+  * Deep navy palette (`#141724`), signature blue (`#6580ff`), and privacy badges ("BraveLite Protected: Zero personal data logged • No search profiling • AI Grounding enabled").
+  * **Fast Direct Search Backend:** Erased external bot-challenge timeouts with a direct, ultra-fast DuckDuckGo HTML and Lite fallback backend ensuring instant search responses without hanging.
+  * **Direct Destination Links:** Result links open directly with zero third-party proxy redirects.
+  * Category Navigation Tabs: 🔍 All, 🖼 Images (Wikimedia API), 🎬 Videos, 📰 News.
+  * Private AI Overview: grounded on verified search results with local Ollama acceleration, styled to match the dark aesthetic.
+* **Multi-Search Engine Selection (Google + Bing + DDG + Yahoo + Yandex):** Seamless search engine switching in Settings -> Get Started. Full cross-platform support for **Google**, **Microsoft Bing**, **DuckDuckGo**, **Yahoo**, and **Yandex**, while keeping **BraveLite Engine** (private search with local AI Overviews) as default. Address bar queries, start page searches, and autocomplete dynamically adapt to the active search engine.
+* **Fluid Resolution & DPI Scaling (Zero Sliders / Scrollbars):** Perfectly scaled UI across all screen resolutions (4K, 1440p, 1080p, 1366x768, 1280x720, down to 800x600) and OS scaling factors (100%, 125%, 150%, 175%):
+  * PassThrough high-DPI rounding policy prevents fractional scaling rounding bugs.
+  * Redesigned Starting Page with `overflow: hidden;` and responsive CSS `clamp()` typography so no sliders/scrollbars are ever needed to view the page.
+  * Responsive Search Results layout with flexible wrapping header, fluid navigation tabs, and horizontal overflow protection.
+  * Scrollable Settings panel with compact sidebar ensuring all configuration cards are completely accessible on lower-resolution screens.
+* **Streamlined Navigation Toolbar & Compact Buttons:**
+  * Cleaned up the top bar by moving the Zoom buttons into the 3-bar menu (and universal shortcuts `Ctrl++` / `Ctrl+-` / `Ctrl+0`).
+  * Streamlined the AI translation button into a sleek, fixed-width 28x28 emoji icon ("🌐", showing "⏳" during active local AI translation).
+  * Compacted all buttons next to the URL bar to a uniform 28x28 dimension, freeing up over 240 pixels of space for the omnibox and future toolbar tools.
 * **Comprehensive Multi-Language Support (5 Most Popular Languages + Greek):** Full browser UI localization across 6 languages: **English, Greek (Ελληνικά), Spanish (Español), French (Français), German (Deutsch), and Chinese (中文)**:
   * **Settings Dashboard:** All 15 sidebar categories, detail headings, cards, statuses, and action buttons.
   * **Starting Page (New Tab):** Localized greeting ("Welcome!"), search input placeholder, privacy tagline ("because privacy matters"), date display, and real-time localized clock adhering to native locale formats (`el-GR`, `es-ES`, `fr-FR`, `de-DE`, `zh-CN`, `en-US`).
   * **URL Box (Omnibox):** Localized search placeholders, autocomplete search hints (`- Search with %1`), and context menus (Cut, Copy, Paste, Paste and Search, Delete, Select All, Undo, Redo).
   * **Toolbar & Menus:** Full tooltip localization across all navigation buttons, a localized ☰ App Menu with a dedicated "🌐 Language" switching submenu, and automatic HTTP `Accept-Language` header synchronization.
 * **Seamless Window Border Drag Resizing (All Sides & Corners):** Click and drag on any of the four window borders or corners to fluidly resize the browser window like any native desktop application. Powered by native `WM_NCHITTEST` on Windows and `startSystemResize` with automatic fallback on Linux.
-* **Streamlined Navigation Toolbar & Compact Translation Button:** Cleaned up the main address bar row by moving the Zoom buttons into the 3-bar menu (and shortcuts `Ctrl++` / `Ctrl+-` / `Ctrl+0`), and streamlining the AI translation button into a sleek, fixed-width emoji icon ("🌐").
 * **Official BraveLite Window & Application Logo:** High-definition vector SVG branding (`assets/bravelite.svg`) loaded natively as the primary application and window icon, with multi-resolution `.ico` generation for Windows executable and taskbar fidelity.
 * **Top Bar Extensions Button & Dropdown Manager:** Dedicated Extensions button (crisp puzzle piece icon) sitting directly next to the BraveLite AI Assistant in the top tab row. Provides a quick dropdown menu displaying all installed WebExtensions, custom userscripts, and CRX packages with live enable/disable toggling, action popup launching, removal options, and shortcuts to install new extensions or browse the Chrome Web Store.
 * **Chrome Web Store Native "Add to Chrome" & Extension Installer:** Native 1-click installation from the Chrome Web Store (`https://chromewebstore.google.com/`). Full `chrome.webstorePrivate` API implementation and DOM event capturing that activates the official "Add to Chrome" button, automatically downloads `.crx` packages, and loads them into BraveLite Extensions storage. Also includes the floating "⚡ Add to BraveLite" installer button.

@@ -229,7 +229,7 @@ namespace L10n {
                 {"Open the New Tab page", "Άνοιγμα της σελίδας Νέα καρτέλα"},
                 {"Continue where you left off", "Συνέχεια από εκεί που μείνατε"},
                 {"Search engine", "Μηχανή αναζήτησης"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Επιλέξτε την προεπιλεγμένη μηχανή αναζήτησης: BraveLite Engine (Ιδιωτική Αναζήτηση & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, ή Yandex."},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Επιλέξτε την προεπιλεγμένη μηχανή αναζήτησης: BraveLite Engine (Ιδιωτική Αναζήτηση & AI), Google, Bing, DuckDuckGo, Yahoo, ή Yandex."},
                 {"Search or enter address", "Αναζήτηση ή εισαγωγή διεύθυνσης..."},
                 {"Search with %1 or enter address", "Αναζήτηση με %1 ή πληκτρολογήστε διεύθυνση"},
                 {"Search privately with BraveLite Engine or enter address", "Ιδιωτική αναζήτηση με BraveLite Engine ή εισαγωγή διεύθυνσης"},
@@ -238,19 +238,16 @@ namespace L10n {
                 {"- Search with %1", "- Αναζήτηση με %1"},
                 {"Welcome!", "Καλώς ήρθατε!"},
                 {"because privacy matters", "επειδή η ιδιωτικότητα έχει σημασία"},
-                {"Startpage Privacy Search", "Ιδιωτική αναζήτηση Startpage"},
-                {"Search privately with BraveLite Engine (Startpage)...", "Ιδιωτική αναζήτηση με το BraveLite Engine (Startpage)..."},
-                {"Startpage Protected", "Προστασία Startpage"},
-                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Μηδενική καταγραφή προσωπικών δεδομένων • Χωρίς προφίλ αναζήτησης • Ανώνυμη προβολή σε κάθε αποτέλεσμα"},
-                {"🛡️ Anonymous View", "🛡️ Ανώνυμη προβολή"},
-                {"View page anonymously via Startpage Proxy", "Προβολή σελίδας ανώνυμα μέσω του Startpage Proxy"},
-                {"Open in Startpage.com", "Άνοιγμα στο Startpage.com"},
+                {"Private Search & AI", "Ιδιωτική αναζήτηση & AI"},
+                {"Search privately with BraveLite Engine...", "Ιδιωτική αναζήτηση με το BraveLite Engine..."},
+                {"BraveLite Protected", "Προστασία BraveLite"},
+                {"Zero personal data logged • No search profiling • AI Grounding enabled", "Μηδενική καταγραφή προσωπικών δεδομένων • Χωρίς προφίλ αναζήτησης • Ενεργοποιημένη AI"},
                 {"🔍 All", "🔍 Όλα"},
                 {"🖼 Images", "🖼 Εικόνες"},
                 {"🎬 Videos", "🎬 Βίντεο"},
                 {"📰 News", "📰 Ειδήσεις"},
                 {"Search", "Αναζήτηση"},
-                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Αναζήτηση στο Startpage & BraveLite Engine (%1) για %2..."},
+                {"Searching BraveLite Engine (%1) for %2...", "Αναζήτηση στο BraveLite Engine (%1) για %2..."},
                 {"No instant results found.", "Δεν βρέθηκαν άμεσα αποτελέσματα."},
                 {"No images found for this query.", "Δεν βρέθηκαν εικόνες για αυτό το ερώτημα."},
                 {"BraveLite Engine • AI Overview", "BraveLite Engine • Επισκόπηση AI"},
@@ -262,7 +259,7 @@ namespace L10n {
                 {"Less ▴", "Λιγότερα ▴"},
                 {"Grounded on verified search results", "Βασισμένο σε επαληθευμένα αποτελέσματα αναζήτησης"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Βασισμένο σε επαληθευμένα αποτελέσματα • Τοπικό Ollama (%1)"},
-                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
                 {"GPU Accelerated", "Επιτάχυνση GPU"},
                 {"Back", "Πίσω"},
                 {"Forward", "Μπροστά"},
@@ -386,7 +383,7 @@ namespace L10n {
                 {"Open the New Tab page", "Abrir la página Nueva pestaña"},
                 {"Continue where you left off", "Continuar donde lo dejaste"},
                 {"Search engine", "Motor de búsqueda"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Elija su motor de búsqueda predeterminado: BraveLite Engine (Búsqueda privada y AI), Startpage, Google, Bing, DuckDuckGo, Yahoo o Yandex."},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Elija su motor de búsqueda predeterminado: BraveLite Engine (Búsqueda privada y AI), Google, Bing, DuckDuckGo, Yahoo o Yandex."},
                 {"Search or enter address", "Buscar o ingresar dirección..."},
                 {"Search with %1 or enter address", "Buscar con %1 o ingresar dirección"},
                 {"Search privately with BraveLite Engine or enter address", "Buscar privadamente con BraveLite Engine o ingresar dirección"},
@@ -395,19 +392,16 @@ namespace L10n {
                 {"- Search with %1", "- Buscar con %1"},
                 {"Welcome!", "¡Bienvenido!"},
                 {"because privacy matters", "porque la privacidad importa"},
-                {"Startpage Privacy Search", "Búsqueda privada de Startpage"},
-                {"Search privately with BraveLite Engine (Startpage)...", "Buscar privadamente con BraveLite Engine (Startpage)..."},
-                {"Startpage Protected", "Protegido por Startpage"},
-                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Cero datos personales registrados • Sin perfiles • Vista anónima habilitada en cada resultado"},
-                {"🛡️ Anonymous View", "🛡️ Vista anónima"},
-                {"View page anonymously via Startpage Proxy", "Ver página de forma anónima mediante el proxy de Startpage"},
-                {"Open in Startpage.com", "Abrir en Startpage.com"},
+                {"Private Search & AI", "Búsqueda privada y AI"},
+                {"Search privately with BraveLite Engine...", "Buscar privadamente con BraveLite Engine..."},
+                {"BraveLite Protected", "Protegido por BraveLite"},
+                {"Zero personal data logged • No search profiling • AI Grounding enabled", "Cero datos personales registrados • Sin perfiles • IA habilitada"},
                 {"🔍 All", "🔍 Todo"},
                 {"🖼 Images", "🖼 Imágenes"},
                 {"🎬 Videos", "🎬 Vídeos"},
                 {"📰 News", "📰 Noticias"},
                 {"Search", "Buscar"},
-                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Buscando en Startpage y BraveLite Engine (%1) para %2..."},
+                {"Searching BraveLite Engine (%1) for %2...", "Buscando en BraveLite Engine (%1) para %2..."},
                 {"No instant results found.", "No se encontraron resultados instantáneos."},
                 {"No images found for this query.", "No se encontraron imágenes para esta consulta."},
                 {"BraveLite Engine • AI Overview", "BraveLite Engine • Resumen AI"},
@@ -419,7 +413,7 @@ namespace L10n {
                 {"Less ▴", "Menos ▴"},
                 {"Grounded on verified search results", "Basado en resultados de búsqueda verificados"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Basado en resultados verificados • Ollama local (%1)"},
-                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
                 {"GPU Accelerated", "Acelerado por GPU"},
                 {"Back", "Atrás"},
                 {"Forward", "Adelante"},
@@ -543,7 +537,7 @@ namespace L10n {
                 {"Open the New Tab page", "Ouvrir la page Nouvel onglet"},
                 {"Continue where you left off", "Reprendre là où vous vous étiez arrêté"},
                 {"Search engine", "Moteur de recherche"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Choisissez votre moteur de recherche par défaut : BraveLite Engine (Recherche privée & IA), Startpage, Google, Bing, DuckDuckGo, Yahoo ou Yandex."},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Choisissez votre moteur de recherche par défaut : BraveLite Engine (Recherche privée & IA), Google, Bing, DuckDuckGo, Yahoo ou Yandex."},
                 {"Search or enter address", "Rechercher ou saisir une adresse..."},
                 {"Search with %1 or enter address", "Rechercher avec %1 ou saisir une adresse"},
                 {"Search privately with BraveLite Engine or enter address", "Rechercher en toute confidentialité avec BraveLite Engine ou saisir une adresse"},
@@ -552,19 +546,16 @@ namespace L10n {
                 {"- Search with %1", "- Rechercher avec %1"},
                 {"Welcome!", "Bienvenue !"},
                 {"because privacy matters", "parce que la confidentialité compte"},
-                {"Startpage Privacy Search", "Recherche privée Startpage"},
-                {"Search privately with BraveLite Engine (Startpage)...", "Rechercher en toute confidentialité avec BraveLite Engine (Startpage)..."},
-                {"Startpage Protected", "Protégé par Startpage"},
-                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Zéro donnée personnelle enregistrée • Aucun profilage • Vue anonyme activée sur chaque résultat"},
-                {"🛡️ Anonymous View", "🛡️ Vue anonyme"},
-                {"View page anonymously via Startpage Proxy", "Afficher la page anonymement via le proxy Startpage"},
-                {"Open in Startpage.com", "Ouvrir sur Startpage.com"},
+                {"Private Search & AI", "Recherche privée & IA"},
+                {"Search privately with BraveLite Engine...", "Rechercher en toute confidentialité avec BraveLite Engine..."},
+                {"BraveLite Protected", "Protégé par BraveLite"},
+                {"Zero personal data logged • No search profiling • AI Grounding enabled", "Zéro donnée personnelle enregistrée • Aucun profilage • IA activée"},
                 {"🔍 All", "🔍 Tous"},
                 {"🖼 Images", "🖼 Images"},
                 {"🎬 Videos", "🎬 Vidéos"},
                 {"📰 News", "📰 Actualités"},
                 {"Search", "Rechercher"},
-                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Recherche sur Startpage et BraveLite Engine (%1) pour %2..."},
+                {"Searching BraveLite Engine (%1) for %2...", "Recherche sur BraveLite Engine (%1) pour %2..."},
                 {"No instant results found.", "Aucun résultat instantané trouvé."},
                 {"No images found for this query.", "Aucune image trouvée pour cette requête."},
                 {"BraveLite Engine • AI Overview", "BraveLite Engine • Aperçu IA"},
@@ -576,7 +567,7 @@ namespace L10n {
                 {"Less ▴", "Moins ▴"},
                 {"Grounded on verified search results", "Fondé sur des résultats de recherche vérifiés"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Fondé sur des résultats vérifiés • Ollama local (%1)"},
-                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
                 {"GPU Accelerated", "Accélération GPU"},
                 {"Back", "Précédent"},
                 {"Forward", "Suivant"},
@@ -700,7 +691,7 @@ namespace L10n {
                 {"Open the New Tab page", "Neuer-Tab-Seite öffnen"},
                 {"Continue where you left off", "Dort fortfahren, wo Sie aufgehört haben"},
                 {"Search engine", "Suchmaschine"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Wählen Sie Ihre Standard-Suchmaschine: BraveLite Engine (Private Suche & KI), Startpage, Google, Bing, DuckDuckGo, Yahoo oder Yandex."},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Wählen Sie Ihre Standard-Suchmaschine: BraveLite Engine (Private Suche & KI), Google, Bing, DuckDuckGo, Yahoo oder Yandex."},
                 {"Search or enter address", "Suchen oder Adresse eingeben..."},
                 {"Search with %1 or enter address", "Mit %1 suchen oder Adresse eingeben"},
                 {"Search privately with BraveLite Engine or enter address", "Privat mit BraveLite Engine suchen oder Adresse eingeben"},
@@ -709,19 +700,16 @@ namespace L10n {
                 {"- Search with %1", "- Mit %1 suchen"},
                 {"Welcome!", "Willkommen!"},
                 {"because privacy matters", "weil Datenschutz zählt"},
-                {"Startpage Privacy Search", "Startpage Privatsphäre-Suche"},
-                {"Search privately with BraveLite Engine (Startpage)...", "Privat mit BraveLite Engine (Startpage) suchen..."},
-                {"Startpage Protected", "Startpage-geschützt"},
-                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Keine Datenspeicherung • Kein Profiling • Anonyme Ansicht bei jedem Ergebnis"},
-                {"🛡️ Anonymous View", "🛡️ Anonyme Ansicht"},
-                {"View page anonymously via Startpage Proxy", "Seite anonym über den Startpage-Proxy anzeigen"},
-                {"Open in Startpage.com", "Auf Startpage.com öffnen"},
+                {"Private Search & AI", "Private Suche & KI"},
+                {"Search privately with BraveLite Engine...", "Privat mit BraveLite Engine suchen..."},
+                {"BraveLite Protected", "BraveLite-geschützt"},
+                {"Zero personal data logged • No search profiling • AI Grounding enabled", "Keine Datenspeicherung • Kein Profiling • KI-Unterstützung"},
                 {"🔍 All", "🔍 Alle"},
                 {"🖼 Images", "🖼 Bilder"},
                 {"🎬 Videos", "🎬 Videos"},
                 {"📰 News", "📰 Nachrichten"},
                 {"Search", "Suchen"},
-                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Suche in Startpage & BraveLite Engine (%1) nach %2..."},
+                {"Searching BraveLite Engine (%1) for %2...", "Suche in BraveLite Engine (%1) nach %2..."},
                 {"No instant results found.", "Keine Sofortergebnisse gefunden."},
                 {"No images found for this query.", "Keine Bilder für diese Suchanfrage gefunden."},
                 {"BraveLite Engine • AI Overview", "BraveLite Engine • KI-Übersicht"},
@@ -733,7 +721,7 @@ namespace L10n {
                 {"Less ▴", "Weniger ▴"},
                 {"Grounded on verified search results", "Fundiert auf verifizierten Suchergebnissen"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Fundiert auf verifizierten Suchergebnissen • Lokales Ollama (%1)"},
-                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
                 {"GPU Accelerated", "GPU-beschleunigt"},
                 {"Back", "Zurück"},
                 {"Forward", "Vorwärts"},
@@ -857,7 +845,7 @@ namespace L10n {
                 {"Open the New Tab page", "打开新标签页"},
                 {"Continue where you left off", "继续浏览上次打开的网页"},
                 {"Search engine", "搜索引擎"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "选择您的默认搜索引擎：BraveLite Engine（隐私搜索与AI）、Startpage、Google、Bing、DuckDuckGo、Yahoo 或 Yandex。"},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "选择您的默认搜索引擎：BraveLite Engine（隐私搜索与AI）、Google、Bing、DuckDuckGo、Yahoo 或 Yandex。"},
                 {"Search or enter address", "搜索或输入网址..."},
                 {"Search with %1 or enter address", "使用 %1 搜索或输入网址"},
                 {"Search privately with BraveLite Engine or enter address", "使用 BraveLite Engine 隐私搜索或输入网址"},
@@ -866,19 +854,16 @@ namespace L10n {
                 {"- Search with %1", "- 使用 %1 搜索"},
                 {"Welcome!", "欢迎！"},
                 {"because privacy matters", "因为隐私至关重要"},
-                {"Startpage Privacy Search", "Startpage 隐私搜索"},
-                {"Search privately with BraveLite Engine (Startpage)...", "使用 BraveLite Engine (Startpage) 隐私搜索..."},
-                {"Startpage Protected", "Startpage 隐私保护"},
-                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "零个人数据记录 • 无搜索用户画像 • 每个结果均启用匿名视图代理"},
-                {"🛡️ Anonymous View", "🛡️ 匿名视图"},
-                {"View page anonymously via Startpage Proxy", "通过 Startpage 代理匿名访问网页"},
-                {"Open in Startpage.com", "在 Startpage.com 中打开"},
+                {"Private Search & AI", "隐私搜索与 AI"},
+                {"Search privately with BraveLite Engine...", "使用 BraveLite Engine 隐私搜索..."},
+                {"BraveLite Protected", "BraveLite 隐私保护"},
+                {"Zero personal data logged • No search profiling • AI Grounding enabled", "零个人数据记录 • 无搜索用户画像 • 启用 AI"},
                 {"🔍 All", "🔍 全部"},
                 {"🖼 Images", "🖼 图片"},
                 {"🎬 Videos", "🎬 视频"},
                 {"📰 News", "📰 新闻"},
                 {"Search", "搜索"},
-                {"Searching Startpage & BraveLite Engine (%1) for %2...", "正在 Startpage 和 BraveLite Engine (%1) 中搜索 %2..."},
+                {"Searching BraveLite Engine (%1) for %2...", "正在 BraveLite Engine (%1) 中搜索 %2..."},
                 {"No instant results found.", "未找到即时结果。"},
                 {"No images found for this query.", "未找到与此查询匹配的图片。"},
                 {"BraveLite Engine • AI Overview", "BraveLite Engine • AI 概述"},
@@ -890,7 +875,7 @@ namespace L10n {
                 {"Less ▴", "收起 ▴"},
                 {"Grounded on verified search results", "基于已验证的搜索结果"},
                 {"Grounded on verified search results • Local Ollama (%1)", "基于已验证结果 • 本地 Ollama (%1)"},
-                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
                 {"GPU Accelerated", "GPU 硬件加速"},
                 {"Back", "后退"},
                 {"Forward", "前进"},
@@ -1381,7 +1366,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.70 Extensive Crash & Diagnostic Report\n";
+            out << "BraveLite v1.71 Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -2583,60 +2568,65 @@ static QString buildBraveLiteSearchHtml(const QString &query, const QString &cle
     html += R"HTML( - __ENGINE_TITLE__</title>
 <style>
 * { box-sizing: border-box; }
-body { margin: 0; background: #141724; color: #e2e8f0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
+body { margin: 0; background: #141724; color: #e2e8f0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; overflow-x: hidden; }
 a { text-decoration: none; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #0e111a; }
 ::-webkit-scrollbar-thumb { background: #2a3148; border-radius: 5px; border: 2px solid #0e111a; }
 ::-webkit-scrollbar-thumb:hover { background: #6580ff; }
-.sp-header { background: #141724; border-bottom: 1px solid #23293d; padding: 14px 24px 0 24px; position: sticky; top: 0; z-index: 100; }
-.sp-top-row { display: flex; align-items: center; gap: 16px; max-width: 1180px; margin-bottom: 12px; }
-.sp-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
+.sp-header { background: #141724; border-bottom: 1px solid #23293d; padding: 12px 20px 0 20px; position: sticky; top: 0; z-index: 100; width: 100%; box-sizing: border-box; }
+.sp-top-row { display: flex; align-items: center; gap: 14px; max-width: 100%; margin-bottom: 10px; flex-wrap: wrap; }
+.sp-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .sp-logo-badge { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(101,128,255,0.3); }
 .sp-logo-text { display: flex; flex-direction: column; }
 .sp-logo-title { font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
-.sp-logo-sub { font-size: 10.5px; font-weight: 500; color: #8298ff; text-transform: uppercase; letter-spacing: 0.5px; }
-.sp-search-form { flex: 1; max-width: 650px; display: flex; align-items: center; background: #1c2236; border: 1px solid #2e3752; border-radius: 10px; height: 42px; padding: 0 8px 0 16px; transition: border-color 0.2s, box-shadow 0.2s; }
+.sp-logo-sub { font-size: 10px; font-weight: 500; color: #8298ff; text-transform: uppercase; letter-spacing: 0.5px; }
+.sp-search-form { flex: 1; min-width: 220px; max-width: 680px; display: flex; align-items: center; background: #1c2236; border: 1px solid #2e3752; border-radius: 10px; height: 40px; padding: 0 8px 0 14px; transition: border-color 0.2s, box-shadow 0.2s; }
 .sp-search-form:focus-within { border-color: #6580ff; box-shadow: 0 0 0 3px rgba(101,128,255,0.2); background: #181d2e; }
-.sp-search-form input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; }
-.sp-clear-btn { background: transparent; border: none; color: #64748b; font-size: 15px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+.sp-search-form input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 14.5px; min-width: 50px; }
+.sp-clear-btn { background: transparent; border: none; color: #64748b; font-size: 14px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
 .sp-clear-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
-.sp-submit-btn { background: #6580ff; border: none; color: #fff; font-size: 14px; cursor: pointer; padding: 6px 14px; font-weight: 600; border-radius: 6px; margin-left: 6px; transition: background 0.15s; }
+.sp-submit-btn { background: #6580ff; border: none; color: #fff; font-size: 13.5px; cursor: pointer; padding: 6px 14px; font-weight: 600; border-radius: 6px; margin-left: 6px; transition: background 0.15s; flex-shrink: 0; }
 .sp-submit-btn:hover { background: #526fe8; }
-.sp-ext-link { background: #1c2236; border: 1px solid #2e3752; color: #8298ff; border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s; }
-.sp-ext-link:hover { background: #6580ff; color: #ffffff; border-color: #6580ff; }
-.sp-nav-tabs { display: flex; gap: 24px; padding-left: 196px; font-size: 13.5px; }
-.sp-tab { color: #94a3b8; padding-bottom: 10px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; user-select: none; transition: color 0.15s; }
+.sp-nav-tabs { display: flex; gap: 20px; padding-left: 170px; font-size: 13px; flex-wrap: wrap; }
+.sp-tab { color: #94a3b8; padding-bottom: 8px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; user-select: none; transition: color 0.15s; }
 .sp-tab:hover { color: #ffffff; }
 .sp-tab.active { color: #8298ff; border-bottom-color: #6580ff; font-weight: 600; }
-.sp-main { padding: 16px 24px 60px 196px; max-width: 1140px; }
-@media (max-width: 860px) { .sp-nav-tabs { padding-left: 0; } .sp-main { padding-left: 24px; } }
-.sp-privacy-banner { display: flex; align-items: center; gap: 10px; background: rgba(101, 128, 255, 0.08); border: 1px solid rgba(101, 128, 255, 0.22); border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; font-size: 12.5px; color: #cbd5e1; max-width: 820px; }
-.sp-privacy-badge { background: #6580ff; color: #fff; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; text-transform: uppercase; }
-.sp-results { max-width: 780px; }
-.sp-result { padding: 14px 16px; margin-bottom: 14px; background: #1c2236; border: 1px solid #28314a; border-radius: 10px; transition: transform 0.1s, border-color 0.15s; }
+.sp-main { padding: 16px 20px 50px 170px; max-width: 1100px; width: 100%; box-sizing: border-box; }
+@media (max-width: 860px) {
+  .sp-nav-tabs { padding-left: 0; }
+  .sp-main { padding-left: 14px; padding-right: 14px; }
+  .sp-search-form { max-width: 100%; }
+}
+.sp-privacy-banner { display: flex; align-items: center; gap: 10px; background: rgba(101, 128, 255, 0.08); border: 1px solid rgba(101, 128, 255, 0.22); border-radius: 10px; padding: 9px 14px; margin-bottom: 18px; font-size: 12px; color: #cbd5e1; max-width: 800px; width: 100%; box-sizing: border-box; }
+.sp-privacy-badge { background: #6580ff; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; text-transform: uppercase; white-space: nowrap; }
+.sp-results { max-width: 780px; width: 100%; }
+.sp-result { padding: 13px 15px; margin-bottom: 12px; background: #1c2236; border: 1px solid #28314a; border-radius: 10px; transition: border-color 0.15s; word-break: break-word; }
 .sp-result:hover { border-color: #3f4b70; background: #1f263c; }
-.sp-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12.5px; color: #94a3b8; flex-wrap: wrap; }
-.sp-fav { width: 16px; height: 16px; border-radius: 3px; }
-.sp-anon-pill { display: inline-flex; align-items: center; gap: 4px; background: rgba(101, 128, 255, 0.14); border: 1px solid rgba(101, 128, 255, 0.35); color: #8298ff; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 12px; text-decoration: none; margin-left: auto; transition: all 0.15s; }
-.sp-anon-pill:hover { background: #6580ff; color: #ffffff; border-color: #6580ff; }
-.sp-title { font-size: 18px; line-height: 1.35; color: #6580ff; font-weight: 600; display: block; margin-bottom: 6px; }
+.sp-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 12px; color: #94a3b8; }
+.sp-fav { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; }
+.sp-title { font-size: 17px; line-height: 1.35; color: #6580ff; font-weight: 600; display: block; margin-bottom: 5px; }
 .sp-title:hover { text-decoration: underline; color: #8298ff; }
-.sp-snippet { font-size: 13.5px; line-height: 1.55; color: #cbd5e1; }
-.sp-image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; max-width: 960px; }
+.sp-snippet { font-size: 13px; line-height: 1.55; color: #cbd5e1; }
+.sp-image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; max-width: 960px; width: 100%; }
 .sp-img-card { background: #1c2236; border: 1px solid #28314a; border-radius: 8px; overflow: hidden; display: block; color: #eee; transition: border-color 0.15s; }
 .sp-img-card:hover { border-color: #6580ff; }
-.sp-img-card img { width: 100%; height: 140px; object-fit: cover; display: block; background: #141724; }
-.sp-img-caption { padding: 8px 10px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #cbd5e1; }
-.g-ai-wrapper { background: linear-gradient(180deg, #1b2138 0%, #151a2c 100%); border: 1px solid #2e3858; border-radius: 14px; padding: 18px 22px 14px 22px; margin-bottom: 22px; max-width: 820px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-.g-ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.g-ai-title-row { display: flex; align-items: center; gap: 10px; }
-.bl-ai-logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 15px; }
-.g-ai-label { font-size: 15px; font-weight: 600; color: #e2e8f0; }
-.g-ai-meta { font-size: 11.5px; color: #8298ff; background: rgba(101,128,255,0.12); padding: 3px 9px; border-radius: 12px; border: 1px solid rgba(101,128,255,0.25); }
-.g-ai-grid { display: flex; gap: 20px; align-items: flex-start; }
+.sp-img-card img { width: 100%; height: 130px; object-fit: cover; display: block; background: #141724; }
+.sp-img-caption { padding: 7px 9px; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #cbd5e1; }
+.g-ai-wrapper { background: linear-gradient(180deg, #1b2138 0%, #151a2c 100%); border: 1px solid #2e3858; border-radius: 12px; padding: 16px 18px 12px 18px; margin-bottom: 20px; max-width: 800px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.g-ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.g-ai-title-row { display: flex; align-items: center; gap: 8px; }
+.bl-ai-logo { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.g-ai-label { font-size: 14.5px; font-weight: 600; color: #e2e8f0; }
+.g-ai-meta { font-size: 11px; color: #8298ff; background: rgba(101,128,255,0.12); padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(101,128,255,0.25); }
+.g-ai-grid { display: flex; gap: 16px; align-items: flex-start; }
+@media (max-width: 760px) {
+  .g-ai-grid { flex-direction: column; }
+  .g-ai-sources { width: 100% !important; flex-direction: row !important; flex-wrap: wrap; }
+  .g-source-chip { flex: 1 1 180px; }
+}
 .g-ai-main { flex: 1; min-width: 0; }
-.g-ai-text { font-size: 14px; line-height: 1.65; color: #e2e8f0; overflow: hidden; transition: max-height 0.25s ease; }
+.g-ai-text { font-size: 13.5px; line-height: 1.6; color: #e2e8f0; overflow: hidden; transition: max-height 0.25s ease; }
 .g-ai-text.collapsed { max-height: 170px; mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
 .bl-code-wrap { background: #0e111a; border: 1px solid #28314a; border-radius: 8px; margin: 10px 0; overflow: hidden; }
 .bl-code-bar { display: flex; justify-content: space-between; align-items: center; background: #161b2c; padding: 5px 12px; font-size: 11.5px; color: #94a3b8; border-bottom: 1px solid #28314a; }
@@ -2653,12 +2643,12 @@ a { text-decoration: none; }
 .g-ai-chat-form button { background: #6580ff; color: #fff; border: none; border-radius: 18px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
 .g-ai-more-btn { margin-top: 10px; display: inline-block; width: auto; background: #232a42; border: 1px solid #364268; color: #8298ff; border-radius: 16px; padding: 5px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .g-ai-more-btn:hover { background: #2f3859; color: #fff; }
-.g-ai-sources { width: 210px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-.g-source-chip { display: block; background: #1c2236; border: 1px solid #28314a; border-radius: 10px; padding: 8px 10px; color: #e2e8f0; font-size: 12px; }
+.g-ai-sources { width: 200px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.g-source-chip { display: block; background: #1c2236; border: 1px solid #28314a; border-radius: 8px; padding: 7px 9px; color: #e2e8f0; font-size: 11.5px; }
 .g-source-chip:hover { background: #242c46; border-color: #6580ff; }
-.g-source-title { font-weight: 600; color: #8298ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
-.g-source-domain { color: #94a3b8; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.g-ai-footer { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 10px; border-top: 1px solid #242b44; font-size: 11.5px; color: #8298ff; }
+.g-source-title { font-weight: 600; color: #8298ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.g-source-domain { color: #94a3b8; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-ai-footer { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #242b44; font-size: 11px; color: #8298ff; }
 @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
 .shimmer-line { height: 14px; margin-bottom: 10px; border-radius: 6px; background: linear-gradient(90deg, #1e253b 25%, #2d3859 50%, #1e253b 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite linear; }
 </style></head><body>
@@ -2673,7 +2663,6 @@ a { text-decoration: none; }
 <button type='button' class='sp-clear-btn' onclick="var i=document.getElementById('qInput'); i.value=''; i.focus();">✕</button>
 <button type='submit' class='sp-submit-btn'>__SEARCH_BTN__</button>
 </form>
-<a class='sp-ext-link' href='https://www.startpage.com/do/dsearch?query=__QUERY_ESC__' target='_blank' title='__OPEN_SP_TITLE__'>🌐 Startpage ↗</a>
 </div>
 <div class='sp-nav-tabs'>
 <a class='sp-tab __TAB_ALL_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'all'}));">__TAB_ALL_LABEL__</a>
@@ -2786,11 +2775,9 @@ window.__setWebResults = function(items) {
         var host = '';
         try { host = (new URL(it.url)).hostname; } catch(e) { host = it.url; }
         var fav = 'https://www.google.com/s2/favicons?sz=32&domain_url=' + encodeURIComponent(it.url);
-        var anonUrl = 'https://www.startpage.com/av/proxy?piurl=' + encodeURIComponent(it.url);
         var card = document.createElement('div');
         card.className = 'sp-result';
-        card.innerHTML = '<div class="sp-site-row"><img class="sp-fav" src="' + fav + '" /><span>' + host + '</span>' +
-        '<a class="sp-anon-pill" href="' + anonUrl + '" target="_blank" title="__ANON_TITLE__">__ANON_LABEL__</a></div>' +
+        card.innerHTML = '<div class="sp-site-row"><img class="sp-fav" src="' + fav + '" /><span>' + host + '</span></div>' +
         '<a class="sp-title" href="' + it.url + '">' + it.title + '</a>' +
         '<div class="sp-snippet">' + it.snippet + '</div>';
         container.appendChild(card);
@@ -2807,19 +2794,16 @@ window.__setWebResults = function(items) {
 )HTML";
 
     html.replace("__ENGINE_TITLE__", L10n::tr("BraveLite Engine"));
-    html.replace("__STARTPAGE_SUB__", L10n::tr("Startpage Privacy Search"));
-    html.replace("__SEARCH_PLACEHOLDER__", L10n::tr("Search privately with BraveLite Engine (Startpage)..."));
+    html.replace("__STARTPAGE_SUB__", L10n::tr("Private Search & AI"));
+    html.replace("__SEARCH_PLACEHOLDER__", L10n::tr("Search privately with BraveLite Engine..."));
     html.replace("__SEARCH_BTN__", L10n::tr("Search"));
-    html.replace("__OPEN_SP_TITLE__", L10n::tr("Open in Startpage.com"));
     html.replace("__TAB_ALL_LABEL__", L10n::tr("🔍 All"));
     html.replace("__TAB_IMAGES_LABEL__", L10n::tr("🖼 Images"));
     html.replace("__TAB_VIDEOS_LABEL__", L10n::tr("🎬 Videos"));
     html.replace("__TAB_NEWS_LABEL__", L10n::tr("📰 News"));
-    html.replace("__PRIVACY_BADGE__", L10n::tr("Startpage Protected"));
-    html.replace("__PRIVACY_TEXT__", L10n::tr("Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result"));
-    html.replace("__SEARCHING_STATUS__", QString(L10n::tr("Searching Startpage & BraveLite Engine (%1) for %2...")).arg(cleanTab, escapedQuery));
-    html.replace("__ANON_TITLE__", L10n::tr("View page anonymously via Startpage Proxy"));
-    html.replace("__ANON_LABEL__", L10n::tr("🛡️ Anonymous View"));
+    html.replace("__PRIVACY_BADGE__", L10n::tr("BraveLite Protected"));
+    html.replace("__PRIVACY_TEXT__", L10n::tr("Zero personal data logged • No search profiling • AI Grounding enabled"));
+    html.replace("__SEARCHING_STATUS__", QString(L10n::tr("Searching BraveLite Engine (%1) for %2...")).arg(cleanTab, escapedQuery));
     html.replace("__NO_RESULTS__", L10n::tr("No instant results found."));
     html.replace("__NO_IMAGES__", L10n::tr("No images found for this query."));
     html.replace("__MORE_BTN__", L10n::tr("More ▾"));
@@ -2862,7 +2846,7 @@ public:
         setAttribute(Qt::WA_Hover, true);
 
         resize(1280, 840);
-        setWindowTitle(m_isIncognito ? "BraveLite v1.70 [Incognito] (Beta)" : "BraveLite v1.70 (Beta)");
+        setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito] (Beta)" : "BraveLite v1.71 (Beta)");
         qApp->installEventFilter(this);
 
         setWindowIcon(loadBraveLiteAppIcon());
@@ -3617,7 +3601,7 @@ public slots:
                 QNetworkReply *r = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
                 connect(r, &QNetworkReply::finished, r, &QObject::deleteLater);
             }
-            setWindowTitle(m_isIncognito ? "BraveLite v1.70 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.70 [🎮 Gaming Mode]");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.71 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
                                      "• BraveLite Engine AI Overview & Hover Link Previews paused.\n"
@@ -3625,7 +3609,7 @@ public slots:
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
             if (aiEnabled) ensureOllamaServerRunning();
-            setWindowTitle(m_isIncognito ? "BraveLite v1.70 [Incognito]" : "BraveLite v1.70");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito]" : "BraveLite v1.71");
             QMessageBox::information(this, "Gaming Mode Disabled",
                                      "🎮 Gaming Mode is now OFF.\n\n"
                                      "• AI Overview, Link Previews, and Full-Site Translation are re-enabled!");
@@ -3644,7 +3628,8 @@ public slots:
 
         ensureOllamaServerRunning();
         QString targetLang = langCombo->currentText();
-        btnTranslate->setText("⏳ Translating...");
+        btnTranslate->setText("⏳");
+        btnTranslate->setToolTip(L10n::tr("Translating site with local AI..."));
         btnTranslate->setEnabled(false);
 
         QPointer<CustomWebView> safeView(view);
@@ -3687,7 +3672,8 @@ public slots:
             auto translateBatchPtr = std::make_shared<std::function<void(int)>>();
             *translateBatchPtr = [this, safeView, srcArr, targetLang, translateBatchPtr](int startIndex) {
                 if (!safeView || !safeView->page() || startIndex >= srcArr.size()) {
-                    btnTranslate->setText("🌐 Translate");
+                    btnTranslate->setText("🌐");
+                    btnTranslate->setToolTip(L10n::tr("Translate entire page with local AI (translategemma:4b)"));
                     btnTranslate->setEnabled(true);
                     return;
                 }
@@ -3698,7 +3684,8 @@ public slots:
                     batchLines.append(QString("[%1] %2").arg(i).arg(srcArr[i].toString()));
                 }
 
-                btnTranslate->setText(QString("⏳ %1/%2").arg(endIndex).arg(srcArr.size()));
+                btnTranslate->setText("⏳");
+                btnTranslate->setToolTip(QString(L10n::tr("Translating %1/%2...")).arg(endIndex).arg(srcArr.size()));
 
                 QString prompt = QString(
                     "Translate every numbered line below into %1. Keep the exact [number] prefix at the start of each line and output ONLY the translated lines:\n\n%2"
@@ -3765,11 +3752,13 @@ public slots:
                         if (endIndex < srcArr.size()) {
                             (*translateBatchPtr)(endIndex);
                         } else {
-                            btnTranslate->setText("🌐 Translate");
+                            btnTranslate->setText("🌐");
+                            btnTranslate->setToolTip(L10n::tr("Translate entire page with local AI (translategemma:4b)"));
                             btnTranslate->setEnabled(true);
                         }
                     } else {
-                        btnTranslate->setText("🌐 Translate");
+                        btnTranslate->setText("🌐");
+                        btnTranslate->setToolTip(L10n::tr("Translate entire page with local AI (translategemma:4b)"));
                         btnTranslate->setEnabled(true);
                         QMessageBox::warning(this, "Translation Model Missing",
                                              QString("Could not translate with '%1'. Open Settings -> BraveLite AI and click '⬇ Pull / Download Translation Model'.").arg(translationModel));
@@ -4070,7 +4059,7 @@ public slots:
             "  </div>"
             "  <div class='g-ai-footer'>"
             "    <span>%8 • Local Ollama (%1)</span>"
-            "    <span>BraveLite Engine v1.70</span>"
+            "    <span>BraveLite Engine v1.71</span>"
             "  </div>"
             "</div>"
         ).arg(ollamaModel.toHtmlEscaped(),
@@ -4098,7 +4087,7 @@ public slots:
             QUrl imgApiUrl("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
             QUrl::toPercentEncoding(query) + "&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=420&format=json");
             QNetworkRequest req(imgApiUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.70");
+            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.71");
             QNetworkReply *rep = m_netManager->get(req);
             connect(rep, &QNetworkReply::finished, this, [rep, safeView, currentSearchId]() {
                 if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId && rep->error() == QNetworkReply::NoError) {
@@ -4198,111 +4187,115 @@ public slots:
             }
         };
 
-        auto runDdgFallback = [this, safeView, currentSearchId, searchQueryMod, dispatchSearchResults]() {
-            QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(searchQueryMod));
-            QNetworkRequest req(ddgUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-            QNetworkReply *reply = m_netManager->get(req);
-            connect(reply, &QNetworkReply::finished, this, [reply, safeView, currentSearchId, dispatchSearchResults]() {
-                if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
-                    reply->deleteLater();
-                    return;
-                }
-                QJsonArray resultsArr;
-                QStringList groundingContext;
-                if (reply->error() == QNetworkReply::NoError) {
-                    QString html = QString::fromUtf8(reply->readAll());
-                    QRegularExpression re(
+        QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(searchQueryMod));
+        QNetworkRequest req(ddgUrl);
+        req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+        req.setRawHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+        req.setRawHeader("Accept-Language", "en-US,en;q=0.9");
+        req.setTransferTimeout(5000);
+        QNetworkReply *reply = m_netManager->get(req);
+
+        connect(reply, &QNetworkReply::finished, this, [this, reply, safeView, currentSearchId, searchQueryMod, dispatchSearchResults]() {
+            if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
+                reply->deleteLater();
+                return;
+            }
+            QJsonArray resultsArr;
+            QStringList groundingContext;
+            if (reply->error() == QNetworkReply::NoError) {
+                QString html = QString::fromUtf8(reply->readAll());
+                QRegularExpression re(
+                    "<a[^>]*class=\"[^\"]*result__a[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
+                    "<a[^>]*class=\"[^\"]*result__snippet[^\"]*\"[^>]*>([\\s\\S]*?)</a>",
+                    QRegularExpression::CaseInsensitiveOption
+                );
+                if (!re.match(html).hasMatch()) {
+                    re = QRegularExpression(
                         "<a[^>]*result__a[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
                         "<a[^>]*result__snippet[^>]*>([\\s\\S]*?)</a>",
                         QRegularExpression::CaseInsensitiveOption
                     );
-                    auto it = re.globalMatch(html);
-                    int count = 0;
-                    while (it.hasNext() && count < 10) {
-                        auto match = it.next();
-                        QString rawHref = match.captured(1);
-                        if (rawHref.contains("uddg=")) {
-                            QUrl parsed("https://duckduckgo.com" + rawHref);
-                            QUrlQuery q(parsed);
-                            QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
-                            if (!uddg.isEmpty()) rawHref = uddg;
-                        }
-                        QString title = match.captured(2);
-                        title.remove(QRegularExpression("<[^>]+>"));
-                        title = title.simplified();
-
-                        QString snippet = match.captured(3);
-                        snippet.remove(QRegularExpression("<[^>]+>"));
-                        snippet = snippet.simplified();
-
-                        if (rawHref.startsWith("http") && !title.isEmpty()) {
-                            QJsonObject item;
-                            item["url"] = rawHref;
-                            item["title"] = title;
-                            item["snippet"] = snippet;
-                            resultsArr.append(item);
-                            if (count < 5) {
-                                groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
-                            }
-                            count++;
-                        }
-                    }
                 }
-                reply->deleteLater();
-                dispatchSearchResults(resultsArr, groundingContext);
-            });
-        };
-
-        // Send query to Startpage search endpoint
-        QUrl spUrl("https://www.startpage.com/sp/search?query=" + QUrl::toPercentEncoding(searchQueryMod));
-        QNetworkRequest spReq(spUrl);
-        spReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
-        spReq.setRawHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        spReq.setRawHeader("Accept-Language", "en-US,en;q=0.9");
-        QNetworkReply *spReply = m_netManager->get(spReq);
-
-        connect(spReply, &QNetworkReply::finished, this, [spReply, safeView, currentSearchId, dispatchSearchResults, runDdgFallback]() {
-            if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
-                spReply->deleteLater();
-                return;
-            }
-            bool parsedOk = false;
-            QJsonArray resultsArr;
-            QStringList groundingContext;
-            if (spReply->error() == QNetworkReply::NoError) {
-                QString html = QString::fromUtf8(spReply->readAll());
-                QRegularExpression reSp(
-                    "<a[^>]*class=\"[^\"]*(?:result-link|w-gl__result-title|result-title)[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
-                    "<(?:p|span|div)[^>]*class=\"[^\"]*(?:result-snippet|w-gl__description)[^\"]*\"[^>]*>([\\s\\S]*?)</(?:p|span|div)>",
-                    QRegularExpression::CaseInsensitiveOption
-                );
-                auto it = reSp.globalMatch(html);
+                auto it = re.globalMatch(html);
                 int count = 0;
                 while (it.hasNext() && count < 10) {
                     auto match = it.next();
                     QString rawHref = match.captured(1);
+                    if (rawHref.contains("uddg=")) {
+                        QUrl parsed("https://duckduckgo.com" + rawHref);
+                        QUrlQuery q(parsed);
+                        QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
+                        if (!uddg.isEmpty()) rawHref = uddg;
+                    }
                     QString title = match.captured(2).remove(QRegularExpression("<[^>]+>")).simplified();
                     QString snippet = match.captured(3).remove(QRegularExpression("<[^>]+>")).simplified();
+
                     if (rawHref.startsWith("http") && !title.isEmpty()) {
                         QJsonObject item;
                         item["url"] = rawHref;
                         item["title"] = title;
                         item["snippet"] = snippet;
                         resultsArr.append(item);
-                        if (count < 5) groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
+                        if (count < 5) {
+                            groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
+                        }
                         count++;
                     }
                 }
-                if (!resultsArr.isEmpty()) {
-                    parsedOk = true;
-                }
             }
-            spReply->deleteLater();
-            if (parsedOk) {
+            reply->deleteLater();
+
+            if (!resultsArr.isEmpty()) {
                 dispatchSearchResults(resultsArr, groundingContext);
             } else {
-                runDdgFallback();
+                QUrl liteUrl("https://lite.duckduckgo.com/lite/");
+                QNetworkRequest liteReq(liteUrl);
+                liteReq.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+                liteReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+                liteReq.setTransferTimeout(4000);
+                QByteArray postData = "q=" + QUrl::toPercentEncoding(searchQueryMod);
+                QNetworkReply *liteReply = m_netManager->post(liteReq, postData);
+                connect(liteReply, &QNetworkReply::finished, this, [liteReply, safeView, currentSearchId, dispatchSearchResults]() {
+                    if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
+                        liteReply->deleteLater();
+                        return;
+                    }
+                    QJsonArray liteArr;
+                    QStringList liteGrounding;
+                    if (liteReply->error() == QNetworkReply::NoError) {
+                        QString lHtml = QString::fromUtf8(liteReply->readAll());
+                        QRegularExpression reLite(
+                            "<a[^>]*class=\"[^\"]*result-link[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
+                            "<td[^>]*class=\"[^\"]*result-snippet[^\"]*\"[^>]*>([\\s\\S]*?)</td>",
+                            QRegularExpression::CaseInsensitiveOption
+                        );
+                        auto itL = reLite.globalMatch(lHtml);
+                        int count = 0;
+                        while (itL.hasNext() && count < 10) {
+                            auto m = itL.next();
+                            QString rawHref = m.captured(1);
+                            if (rawHref.contains("uddg=")) {
+                                QUrl parsed("https://duckduckgo.com" + rawHref);
+                                QUrlQuery q(parsed);
+                                QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
+                                if (!uddg.isEmpty()) rawHref = uddg;
+                            }
+                            QString title = m.captured(2).remove(QRegularExpression("<[^>]+>")).simplified();
+                            QString snippet = m.captured(3).remove(QRegularExpression("<[^>]+>")).simplified();
+                            if (rawHref.startsWith("http") && !title.isEmpty()) {
+                                QJsonObject item;
+                                item["url"] = rawHref;
+                                item["title"] = title;
+                                item["snippet"] = snippet;
+                                liteArr.append(item);
+                                if (count < 5) liteGrounding.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
+                                count++;
+                            }
+                        }
+                    }
+                    liteReply->deleteLater();
+                    dispatchSearchResults(liteArr, liteGrounding);
+                });
             }
         });
     }
@@ -4638,7 +4631,7 @@ public:
         QWidget *page = new QWidget(this);
         page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(page);
-        layout->setContentsMargins(60, 40, 60, 40);
+        layout->setContentsMargins(24, 20, 24, 20);
         layout->setSpacing(18);
 
         QLabel *todayLabel = new QLabel("Downloads (Finished files can be dragged directly into folders/apps)", page);
@@ -4647,6 +4640,7 @@ public:
 
         QScrollArea *scroll = new QScrollArea(page);
         scroll->setWidgetResizable(true);
+        scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         scroll->setStyleSheet(
             "QScrollArea { border: none; background: transparent; } "
             "QScrollBar:vertical { background: #1c1c1c; width: 10px; } "
@@ -4679,7 +4673,7 @@ public:
         QWidget *page = new QWidget(this);
         page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(page);
-        layout->setContentsMargins(60, 40, 60, 40);
+        layout->setContentsMargins(24, 20, 24, 20);
         layout->setSpacing(20);
 
         QLineEdit *searchBox = new QLineEdit(page);
@@ -4744,7 +4738,7 @@ public:
         QWidget *page = new QWidget(this);
         page->setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(page);
-        layout->setContentsMargins(60, 40, 60, 40);
+        layout->setContentsMargins(24, 20, 24, 20);
         layout->setSpacing(20);
 
         QLabel *title = new QLabel("Per-Site Permission Dashboard", page);
@@ -4921,13 +4915,13 @@ public:
         QVBoxLayout *searchTextLayout = new QVBoxLayout();
         QLabel *sTitle = new QLabel(L10n::tr("Search engine"), searchCard);
         sTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *sSub = new QLabel(L10n::tr("Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex."), searchCard);
+        QLabel *sSub = new QLabel(L10n::tr("Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex."), searchCard);
         sSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         searchTextLayout->addWidget(sTitle);
         searchTextLayout->addWidget(sSub);
 
         QComboBox *engineCombo = new QComboBox(searchCard);
-        engineCombo->addItems({"BraveLite Engine", "Startpage", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
+        engineCombo->addItems({"BraveLite Engine", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
         engineCombo->setCurrentText(defaultSearchEngine);
         if (engineCombo->currentIndex() < 0) {
             engineCombo->setCurrentIndex(0);
@@ -6070,12 +6064,12 @@ public:
         page->setObjectName("settingsDashboardPage");
         page->setStyleSheet(QString("QWidget#settingsDashboardPage { background-color: %1; color: %2; }").arg(pal.bgMain, pal.textCol));
         QHBoxLayout *hLayout = new QHBoxLayout(page);
-        hLayout->setContentsMargins(40, 30, 40, 20);
-        hLayout->setSpacing(30);
+        hLayout->setContentsMargins(24, 20, 24, 20);
+        hLayout->setSpacing(20);
 
         QListWidget *sidebar = new QListWidget(page);
         sidebar->setObjectName("settingsSidebar");
-        sidebar->setMaximumWidth(260);
+        sidebar->setFixedWidth(230);
         sidebar->setStyleSheet(QString(R"(
             QListWidget { background-color: %1; border: 1px solid %2; border-radius: 8px; padding: 8px; outline: none; font-size: 14px; }
             QListWidget::item { padding: 11px 16px; border-radius: 6px; color: #9aa0a6; }
@@ -6381,7 +6375,13 @@ public:
         sidebar->setCurrentRow(initialCategoryIndex);
 
         hLayout->addWidget(sidebar);
-        hLayout->addWidget(content, 1);
+        QScrollArea *contentScroll = new QScrollArea(page);
+        contentScroll->setWidgetResizable(true);
+        contentScroll->setFrameShape(QFrame::NoFrame);
+        contentScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        contentScroll->setStyleSheet("QScrollArea { border: none; background: transparent; } QScrollBar:vertical { background: #1c1c1c; width: 8px; } QScrollBar::handle:vertical { background: #3c4043; border-radius: 4px; }");
+        contentScroll->setWidget(content);
+        hLayout->addWidget(contentScroll, 1);
 
         int idx = tabStack->addWidget(page);
         tabBar->addTab(L10n::tr("Settings"));
@@ -6402,7 +6402,10 @@ public:
         if (btnMenu) btnMenu->setToolTip(L10n::tr("BraveLite Menu"));
         if (btnPasswords) btnPasswords->setToolTip(L10n::tr("Passwords & Autofill Vault"));
         if (btnSplitView) btnSplitView->setToolTip(L10n::tr("Split View Options"));
-        if (btnTranslate) btnTranslate->setText("🌐 " + L10n::tr("Translate"));
+        if (btnTranslate) {
+            btnTranslate->setText("🌐");
+            btnTranslate->setToolTip(L10n::tr("Translate entire page with local AI (translategemma:4b)"));
+        }
         if (newTabBtn) newTabBtn->setToolTip(L10n::tr("New tab") + " (Ctrl+T)");
 
         if (m_profile) {
@@ -7246,7 +7249,6 @@ private:
             QString url;
         };
         static const QVector<PopSite> popSites = {
-            {"Startpage", "startpage.com", "globe", "https://www.startpage.com"},
             {"YouTube", "youtube.com", "youtube", "https://www.youtube.com"},
             {"YouTube Music", "music.youtube.com", "youtube_music", "https://music.youtube.com"},
             {"Reddit", "reddit.com", "reddit", "https://www.reddit.com"},
@@ -7922,20 +7924,20 @@ private:
 
     void updateShieldButtonAppearance() {
         bool active = m_adBlocker->isEnabled();
+        btnShield->setText("🛡");
+        btnShield->setFixedSize(28, 28);
         if (active) {
-            btnShield->setText("🛡 ON");
             btnShield->setToolTip("BraveLite Shield: ON (Blocking ads, trackers & spam redirects)");
             btnShield->setStyleSheet(
-                "QPushButton { background-color: #2b211d; border: 1px solid #ff5500; border-radius: 6px; "
-                "color: #ff6a22; font-size: 12px; font-weight: bold; padding: 4px 10px; } "
+                "QPushButton { background-color: #2b211d; border: 1.5px solid #ff5500; border-radius: 6px; "
+                "color: #ff6a22; font-size: 13px; font-weight: bold; padding: 0; } "
                 "QPushButton:hover { background-color: #ff5500; color: #ffffff; }"
             );
         } else {
-            btnShield->setText("🛡 OFF");
             btnShield->setToolTip("BraveLite Shield: OFF (Click to enable protection)");
             btnShield->setStyleSheet(
                 "QPushButton { background-color: #25272b; border: 1px solid #3e4146; border-radius: 6px; "
-                "color: #8e9297; font-size: 12px; font-weight: bold; padding: 4px 10px; } "
+                "color: #8e9297; font-size: 13px; font-weight: bold; padding: 0; } "
                 "QPushButton:hover { background-color: #35373c; color: #ffffff; }"
             );
         }
@@ -8280,14 +8282,15 @@ private:
 
         QWidget *navBar = new QWidget(this);
         QHBoxLayout *navLayout = new QHBoxLayout(navBar);
-        navLayout->setContentsMargins(8, 5, 8, 5);
-        navLayout->setSpacing(6);
+        navLayout->setContentsMargins(6, 4, 6, 4);
+        navLayout->setSpacing(5);
 
-        QString navBtnStyle = "QPushButton { background-color: #25272b; border: 1px solid #34373d; border-radius: 6px; padding: 4px 10px; color: #e4e6eb; font-size: 14px; font-weight: bold; } QPushButton:hover { background-color: #35373c; border-color: #4b4f57; color: #fff; }";
+        QString navBtnStyle = "QPushButton { background-color: #25272b; border: 1px solid #34373d; border-radius: 6px; padding: 0; color: #e4e6eb; font-size: 13px; font-weight: bold; } QPushButton:hover { background-color: #35373c; border-color: #4b4f57; color: #fff; }";
 
         btnBack = new QPushButton(this);
+        btnBack->setFixedSize(28, 28);
         btnBack->setIcon(BrowserIcons::drawIcon("back"));
-        btnBack->setIconSize(QSize(20, 20));
+        btnBack->setIconSize(QSize(16, 16));
         btnBack->setToolTip(L10n::tr("Back") + " (Alt+Left)");
         btnBack->setCursor(Qt::PointingHandCursor);
         btnBack->setStyleSheet(navBtnStyle);
@@ -8304,8 +8307,9 @@ private:
         });
 
         btnForward = new QPushButton(this);
+        btnForward->setFixedSize(28, 28);
         btnForward->setIcon(BrowserIcons::drawIcon("forward"));
-        btnForward->setIconSize(QSize(20, 20));
+        btnForward->setIconSize(QSize(16, 16));
         btnForward->setToolTip(L10n::tr("Forward") + " (Alt+Right)");
         btnForward->setCursor(Qt::PointingHandCursor);
         btnForward->setStyleSheet(navBtnStyle);
@@ -8314,8 +8318,9 @@ private:
         });
 
             btnReload = new QPushButton(this);
+            btnReload->setFixedSize(28, 28);
             btnReload->setIcon(BrowserIcons::drawIcon("reload"));
-            btnReload->setIconSize(QSize(20, 20));
+            btnReload->setIconSize(QSize(16, 16));
             btnReload->setToolTip(L10n::tr("Reload") + " (Ctrl+R)");
             btnReload->setCursor(Qt::PointingHandCursor);
             btnReload->setStyleSheet(navBtnStyle);
@@ -8330,12 +8335,13 @@ private:
             });
 
             btnSplitView = new QPushButton(this);
+            btnSplitView->setFixedSize(28, 28);
             btnSplitView->setIcon(BrowserIcons::drawIcon("split", QColor("#ff5500")));
-            btnSplitView->setIconSize(QSize(20, 20));
+            btnSplitView->setIconSize(QSize(16, 16));
             btnSplitView->setToolTip(L10n::tr("Split View Options"));
             btnSplitView->setCursor(Qt::PointingHandCursor);
             btnSplitView->setStyleSheet(
-                "QPushButton { background-color: #25272b; border: 1px solid #ff5500; border-radius: 6px; padding: 4px 8px; } "
+                "QPushButton { background-color: #25272b; border: 1px solid #ff5500; border-radius: 6px; padding: 0; } "
                 "QPushButton:hover { background-color: #ff5500; }"
             );
             btnSplitView->hide();
@@ -8353,69 +8359,62 @@ private:
                 langCombo = new QComboBox(this);
                 langCombo->addItems({"English", "Greek", "Spanish", "French", "German", "Italian", "Japanese", "Chinese", "Russian", "Portuguese"});
                 langCombo->setToolTip("Target language for AI Site Translation (translategemma:4b)");
-                langCombo->setStyleSheet("QComboBox { background: #25272b; border: 1px solid #34373d; border-radius: 6px; color: #fff; padding: 4px 8px; font-size: 12px; }");
+                langCombo->setFixedHeight(28);
+                langCombo->setMaximumWidth(88);
+                langCombo->setStyleSheet("QComboBox { background: #25272b; border: 1px solid #34373d; border-radius: 6px; color: #fff; padding: 2px 6px; font-size: 11px; }");
 
-                btnTranslate = new QPushButton("🌐 " + L10n::tr("Translate"), this);
-                btnTranslate->setToolTip("Translate entire page with local AI (translategemma:4b)");
+                btnTranslate = new QPushButton("🌐", this);
+                btnTranslate->setFixedSize(28, 28);
+                btnTranslate->setToolTip(L10n::tr("Translate entire page with local AI (translategemma:4b)"));
                 btnTranslate->setCursor(Qt::PointingHandCursor);
-                btnTranslate->setStyleSheet("QPushButton { background-color: #25272b; border: 1px solid #34373d; border-radius: 6px; padding: 4px 10px; color: #8ab4f8; font-size: 12px; font-weight: bold; } QPushButton:hover { background-color: #35373c; border-color: #8ab4f8; }");
+                btnTranslate->setStyleSheet("QPushButton { background-color: #25272b; border: 1px solid #34373d; border-radius: 6px; padding: 0; color: #8ab4f8; font-size: 13px; font-weight: bold; } QPushButton:hover { background-color: #35373c; border-color: #8ab4f8; }");
                 connect(btnTranslate, &QPushButton::clicked, this, &BrowserWindow::triggerSiteTranslation);
 
                 btnBookmark = new QPushButton(this);
+                btnBookmark->setFixedSize(28, 28);
                 btnBookmark->setIcon(BrowserIcons::drawIcon("star", QColor("#fadb14")));
-                btnBookmark->setIconSize(QSize(20, 20));
+                btnBookmark->setIconSize(QSize(16, 16));
                 btnBookmark->setToolTip(L10n::tr("Bookmark this page"));
                 btnBookmark->setCursor(Qt::PointingHandCursor);
                 btnBookmark->setStyleSheet(navBtnStyle);
                 connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
 
                 btnPasswords = new QPushButton(this);
+                btnPasswords->setFixedSize(28, 28);
                 btnPasswords->setIcon(BrowserIcons::drawIcon("key", QColor("#ff9c6e")));
-                btnPasswords->setIconSize(QSize(20, 20));
+                btnPasswords->setIconSize(QSize(16, 16));
                 btnPasswords->setToolTip(L10n::tr("Passwords & Autofill Vault"));
                 btnPasswords->setCursor(Qt::PointingHandCursor);
                 btnPasswords->setStyleSheet(navBtnStyle);
                 connect(btnPasswords, &QPushButton::clicked, this, &BrowserWindow::openPasswordManagerDialog);
 
                 btnShield = new QPushButton(this);
+                btnShield->setFixedSize(28, 28);
                 btnShield->setCursor(Qt::PointingHandCursor);
                 updateShieldButtonAppearance();
                 connect(btnShield, &QPushButton::clicked, this, &BrowserWindow::toggleShield);
 
                 btnPrivacyGrade = new QPushButton("A", this);
+                btnPrivacyGrade->setFixedSize(22, 22);
                 btnPrivacyGrade->setToolTip("Site Privacy Grade: A");
                 btnPrivacyGrade->setCursor(Qt::PointingHandCursor);
-                btnPrivacyGrade->setStyleSheet("QPushButton { background-color: #52c41a; color: white; font-weight: bold; border-radius: 5px; padding: 3px 8px; font-size: 11px; border: none; }");
+                btnPrivacyGrade->setStyleSheet("QPushButton { background-color: #52c41a; color: white; font-weight: bold; border-radius: 4px; padding: 0; font-size: 11px; border: none; }");
                 btnPrivacyGrade->hide();
                 connect(btnPrivacyGrade, &QPushButton::clicked, this, &BrowserWindow::showPrivacyDetails);
 
-                btnZoomOut = new QPushButton(this);
-                btnZoomOut->setIcon(BrowserIcons::drawIcon("zoom_out"));
-                btnZoomOut->setIconSize(QSize(18, 18));
-                btnZoomOut->setToolTip(L10n::tr("Zoom Out"));
-                btnZoomOut->setCursor(Qt::PointingHandCursor);
-                btnZoomOut->setStyleSheet(navBtnStyle);
-                connect(btnZoomOut, &QPushButton::clicked, this, &BrowserWindow::zoomOut);
-
-                btnZoomIn = new QPushButton(this);
-                btnZoomIn->setIcon(BrowserIcons::drawIcon("zoom_in"));
-                btnZoomIn->setIconSize(QSize(18, 18));
-                btnZoomIn->setToolTip(L10n::tr("Zoom In"));
-                btnZoomIn->setCursor(Qt::PointingHandCursor);
-                btnZoomIn->setStyleSheet(navBtnStyle);
-                connect(btnZoomIn, &QPushButton::clicked, this, &BrowserWindow::zoomIn);
-
                 btnDownload = new QPushButton(this);
+                btnDownload->setFixedSize(28, 28);
                 btnDownload->setIcon(BrowserIcons::drawIcon("download", QColor("#52c41a")));
-                btnDownload->setIconSize(QSize(20, 20));
+                btnDownload->setIconSize(QSize(16, 16));
                 btnDownload->setToolTip(L10n::tr("Downloads") + " (Ctrl+J)");
                 btnDownload->setCursor(Qt::PointingHandCursor);
                 btnDownload->setStyleSheet(navBtnStyle);
                 connect(btnDownload, &QPushButton::clicked, this, &BrowserWindow::openDownloadsPopup);
 
                 btnMenu = new QPushButton(this);
+                btnMenu->setFixedSize(28, 28);
                 btnMenu->setIcon(BrowserIcons::drawIcon("menu"));
-                btnMenu->setIconSize(QSize(20, 20));
+                btnMenu->setIconSize(QSize(16, 16));
                 btnMenu->setToolTip(L10n::tr("BraveLite Menu"));
                 btnMenu->setCursor(Qt::PointingHandCursor);
                 btnMenu->setStyleSheet(navBtnStyle);
@@ -8432,8 +8431,6 @@ private:
                 navLayout->addWidget(btnBookmark);
                 navLayout->addWidget(btnPasswords);
                 navLayout->addWidget(btnShield);
-                navLayout->addWidget(btnZoomOut);
-                navLayout->addWidget(btnZoomIn);
                 navLayout->addWidget(btnDownload);
                 navLayout->addWidget(btnMenu);
 
@@ -8627,26 +8624,27 @@ private:
                 <title>%1</title>
                 <style>
                     * { box-sizing: border-box; }
-                    body {
-                        margin: 0; background: %2; color: %3;
+                    html, body {
+                        margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+                        background: %2; color: %3;
                         font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
-                        height: 82vh; text-align: center;
+                        text-align: center;
                     }
                     .hero-wrapper {
-                        width: 580px; max-width: 92vw;
+                        width: 100%; max-width: 580px; padding: 0 20px; box-sizing: border-box;
                         display: flex; flex-direction: column; align-items: center; justify-content: center;
                     }
                     h1 {
                         width: 100%; text-align: center;
-                        font-size: 3.2rem; margin: 0 0 24px 0; font-weight: 600; letter-spacing: -0.5px;
+                        font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 clamp(12px, 2.5vh, 24px) 0; font-weight: 600; letter-spacing: -0.5px;
                     }
                     .search-container {
-                        width: 100%;
+                        width: 100%; max-width: 560px;
                         background: %4; border: 1px solid %5;
-                        border-radius: 28px; padding: 6px 18px;
+                        border-radius: 28px; padding: clamp(4px, 1vh, 8px) 18px;
                         display: flex; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.28);
-                        margin-bottom: 24px;
+                        margin-bottom: clamp(12px, 2.5vh, 24px);
                     }
                     .search-container:focus-within {
                         border-color: %6;
@@ -8654,14 +8652,14 @@ private:
                     }
                     .search-container input {
                         width: 100%; border: none; background: transparent;
-                        color: #ffffff; font-size: 16px; outline: none; padding: 8px 8px;
+                        color: #ffffff; font-size: clamp(14px, 2vw, 16px); outline: none; padding: 6px 8px;
                         text-align: center;
                     }
                     .datetime {
-                        font-size: 1.15rem; color: #a0a4ab; margin-bottom: 8px; font-weight: 500;
+                        font-size: clamp(0.95rem, 2vw, 1.15rem); color: #a0a4ab; margin-bottom: 8px; font-weight: 500;
                     }
                     .tagline {
-                        font-size: 0.95rem; color: %7; letter-spacing: 0.6px; font-style: italic; opacity: 0.95;
+                        font-size: clamp(0.85rem, 1.8vw, 0.95rem); color: %7; letter-spacing: 0.6px; font-style: italic; opacity: 0.95;
                     }
                     </style>
                     </head>
@@ -9688,7 +9686,7 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
         QString a = QString::fromLocal8Bit(argv[i]);
         if (a == "--version" || a == "-v") {
-            printf("BraveLite v1.70 (Beta)\n");
+            printf("BraveLite v1.71 (Beta)\n");
             return 0;
         }
     }
@@ -9709,9 +9707,13 @@ int main(int argc, char *argv[]) {
 
     CrashLogger::installCrashHandlers();
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+#endif
+
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
-    app.setApplicationVersion("1.70");
+    app.setApplicationVersion("1.71");
     app.setOrganizationName("BraveLite");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
@@ -9742,7 +9744,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v170";
+    const QString ipcServerName = "BraveLiteSingleInstanceServer_v171";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);
