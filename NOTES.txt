@@ -1,14 +1,8 @@
-1) when opening more tabs than fitting in the sceen it unmaximazed itself and went to my second monitor, make the tab sizes variable so when they exceed the limit they become smaller and smaller in width to fit in the same window see photo 1 for example
+1)MAKE TABS WORK JUST LIKE ANY OTHER BROWSER, I DONT EVEN KNOW WHAT IS THIS THAT I OPEN A NEW TAB AND THE OTHER DISAPEARS, FIX THE TABS JUST LIKE THEY FUNCTION IN ANY OTHER BROWSER
 
-2) add multiple language support (top 5 most popular) and make one of them greek
+2) rework the bravelite engine to be based on and fuction like startpage (https://www.startpage.com/) and also add startpage to the search engine list
 
-3) make the browser's window resizable by dragging on its sides like any other normal app
-
-4) remove the zoom buttons on the main ui just leave them in the 3bar menu
-
-5) make the translation button smaller by removing the text and just keeping the emoji
-
-change to version v1.69
+change to version v1.70
 
 update the changelog and the README
 

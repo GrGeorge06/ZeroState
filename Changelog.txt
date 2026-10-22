@@ -1,4 +1,87 @@
 ================================================================================
+BraveLite v1.70 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Standard Browser Tab Bar Mechanics (Disappearing Tab Bug Fixed):
+   - Eliminated the critical tab-loss bug where opening new tabs caused existing tabs to scroll off-screen into negative coordinates and disappear.
+   - Standard browser tab scaling: tabs smoothly scale horizontally from 185px down to 28px as tabs are added, fitting the exact available tab strip space.
+   - Dynamic geometry synchronization: container layout activates synchronously upon tab insertion and removal, preventing any momentary geometry discrepancy from triggering internal scrolling.
+   - Decoupled size constraints: `minimumSizeHint()` and `minimumTabSizeHint()` return `QSize(28, 32)` so opening 50+ tabs will never unmaximize the window or alter display bounds.
+   - Intelligent close buttons: on compact tabs (< 55px), close buttons are cleanly hidden on inactive tabs to prevent accidental closures while staying fully available on hover and the active tab.
+   - Comprehensive tab management: right-click tab context menu ("New tab to the right", "Reload", "Duplicate", "Close tab", "Close other tabs", "Close tabs to the right", "Reopen closed tab"), middle-click to close, mouse wheel cycling, and double-click to maximize/restore.
+
+2. Startpage-Powered BraveLite Engine (https://www.startpage.com/):
+   - Completely reworked the BraveLite Engine based on and functioning like Startpage:
+     * Full Startpage privacy design aesthetic: deep navy palette (`#141724`), Startpage signature blue (`#6580ff`), and privacy trust badges ("Startpage Protected: Zero personal data logged • No search profiling").
+     * Anonymous View Proxy Integration: every web result card now features an official **"🛡️ Anonymous View"** proxy button linking to `https://www.startpage.com/av/proxy?piurl=...`, allowing users to browse result destinations 100% anonymously with masked IP addresses and zero tracking.
+     * Category Navigation Tabs: 🔍 All, 🖼 Images, 🎬 Videos, 📰 News with dedicated Startpage-style result layouts.
+     * Private AI Overview: grounded on verified results with local Ollama acceleration, styled to match the Startpage interface.
+
+3. Startpage Added to Multi-Search Engine List:
+   - Added Startpage as an official search engine in Settings -> "Get Started" alongside Google, Bing, DuckDuckGo, Yahoo, and Yandex.
+   - Direct Startpage omnibox queries (`https://www.startpage.com/do/dsearch?query=%s`) and autocomplete support (`startpage.com`).
+
+4. Full Windows & Linux Parity & Version Bump to v1.70:
+   - Complete cross-platform feature parity across Windows 10/11 and Linux.
+   - Native Windows border drag resizing with `WM_NCHITTEST` and Aero Snap.
+   - Updated Inno Setup Windows installer (`installer.iss`), IPC socket (`BraveLiteSingleInstanceServer_v170`), and diagnostic crash logger to v1.70.
+
+================================================================================
+BraveLite v1.69 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Native Brave/Chromium Tab Mechanics & Photo 1 Visual Styling:
+   - Full Brave & Chromium tab behavior:
+     * Comprehensive right-click tab context menu: "New tab to the right", "Reload" (Ctrl+R), "Duplicate", "Mute/Unmute site", "Close tab" (Ctrl+W), "Close other tabs", "Close tabs to the right", and "Reopen closed tab" (Ctrl+Shift+T).
+     * Reopen closed tab history stack with `Ctrl+Shift+T` restoring closed tab URLs, titles, and search states.
+     * Tab cycling with mouse wheel: hovering over any tab bar area and scrolling cycles through active tabs.
+     * Double-clicking empty space in the tab bar maximizes and restores the window.
+     * Smooth, fluid tab reordering: increased detach threshold so horizontal dragging stays within the tab bar without accidental tear-off window creation.
+     * Modern flat tab close buttons: replaced bright red close circles with clean, translucent circular hover pills (`rgba(255, 255, 255, 0.18)`), matching modern desktop Brave.
+     * Keyboard navigation: `Ctrl+Tab` and `Ctrl+Shift+Tab` for cycling tabs, `Ctrl+1` through `Ctrl+8` for direct tab switching, and `Ctrl+9` to jump to the last tab.
+   - Reverted tab visual styling to faithfully match Photo 1 when many tabs are open:
+     * Inactive tabs render with transparent background and subtle vertical divider lines (`border-right: 1px solid rgba(255, 255, 255, 0.12)`).
+     * Inactive compact tabs display the official shield favicon and truncated title ("Ne") with close buttons hidden to keep tabs clean and readable.
+     * Active tab is styled as a distinct highlighted rounded pill (`border-radius: 6px`) containing both the favicon and the `✕` close button.
+     * Hovering over any inactive tab reveals its close button for quick closing.
+   - Dynamic width scaling (`availForTabs / cnt`) smoothly scales tabs down to 28px as more tabs are added.
+   - Fixed unmaximize issue: decoupled tab bar size hints from the window layout with `minimumSizeHint() = QSize(0, 32)` and `BrowserWindow::minimumSizeHint() = QSize(400, 300)`. Opening dozens or hundreds of tabs will never unmaximize the window or alter display resolution.
+
+2. Comprehensive Multi-Language Localization (Start Page & Settings UI):
+   - Expanded localization system across all supported languages (English, Greek, Spanish, French, German, Chinese):
+     * Start Page (New Tab): welcome heading ("Welcome!" / "Καλώς ήρθατε!"), search engine placeholder, tagline ("because privacy matters" / "επειδή η ιδιωτικότητα έχει σημασία"), localized page title, and live JavaScript clock (`toLocaleDateString` / `toLocaleTimeString`).
+     * Settings Dashboard: all 15 sidebar categories, detail titles, cards, descriptions, and action buttons ("Make default", "New Bookmark", "Import Passwords", "Install Widevine", "Reset All Data", etc.).
+   - Instant live updates: switching languages in the Settings combo box or 3-bar menu immediately refreshes all open Start Pages and active Settings tabs.
+   - Automatically synchronizes `QWebEngineProfile` HTTP `Accept-Language` headers (e.g. `el-GR,el;q=0.9,en-US;q=0.8`).
+
+3. Seamless Window Border Drag Resizing (All Sides & Corners):
+   - Enabled smooth, intuitive window resizing by clicking and dragging on any of the four window borders or corners, matching standard desktop applications.
+   - Configured non-maximized border margins to expose border zones directly to window drag handlers, preventing child web views from intercepting edge clicks.
+   - Implemented native `WM_NCHITTEST` border hit-testing on Windows for 100% native resizing, Aero Snap, and cursor handling.
+   - Integrated cross-platform system resize (`QWindow::startSystemResize`) with automatic manual resizing fallback in the application event filter to guarantee fluid resizing across Linux and Windows.
+
+4. Streamlined Navigation Toolbar (Zoom Buttons Relocated):
+   - Removed the Zoom In and Zoom Out buttons from the main navigation toolbar to reduce clutter and free up space.
+   - Preserved full zoom management (Zoom In, Zoom Out, Reset 100%) inside the 3-bar application menu and via keyboard shortcuts (`Ctrl++`, `Ctrl+-`, `Ctrl+0`).
+
+5. Compact Emoji-Only AI Translation Button:
+   - Redesigned the neural translation button (`btnTranslate`) into a sleek, fixed-width icon-only button ("🌐").
+   - Removed redundant button text while keeping informative hover tooltips and dynamic progress status ("⏳").
+
+6. Official BraveLite Window & Application Logo:
+   - Configured the official SVG logo (`/home/george/Documents/GitHub/braveLite/assets/bravelite.svg`) as the primary application and window icon.
+   - Re-encoded `assets/icon.ico` with multi-resolution embedded PNG layers (16x16 to 256x256) from `assets/bravelite.svg` for native Windows executable and taskbar fidelity.
+   - Integrated system-wide SVG and 512x512 desktop icon paths.
+
+7. Full Windows & Linux Parity & Version Bump to v1.69:
+   - Full feature parity between Linux and Windows platforms.
+   - Updated Inno Setup Windows installer (`installer.iss`), IPC server instance (`BraveLiteSingleInstanceServer_v169`), and diagnostic crash logs to v1.69.
+
+================================================================================
 BraveLite v1.68 - Official Release Changelog
 Author: GrGeorge
 ================================================================================

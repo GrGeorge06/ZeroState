@@ -116,6 +116,167 @@
 #include <unistd.h>
 #endif
 
+
+#ifdef Q_OS_WIN
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#include <windowsx.h>
+#endif
+
+inline QIcon loadBraveLiteAppIcon() {
+    QIcon icon = QIcon("assets/bravelite.svg");
+    if (icon.isNull()) icon = QIcon("assets/bravelite.ico");
+    if (icon.isNull()) icon = QIcon("assets/icon.ico");
+    if (icon.isNull()) icon = QIcon::fromTheme("bravelite");
+    if (icon.isNull()) icon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
+    return icon;
+}
+
+namespace L10n {
+    inline QString currentLang = "English";
+
+    inline void setLanguage(const QString &lang) {
+        currentLang = lang;
+    }
+
+    inline QString getLanguage() {
+        return currentLang;
+    }
+
+    inline QString getLocaleCode() {
+        QString l = currentLang;
+        if (l == "Greek" || l == "Ελληνικά") return "el-GR";
+        if (l == "Spanish" || l == "Español") return "es-ES";
+        if (l == "French" || l == "Français") return "fr-FR";
+        if (l == "German" || l == "Deutsch") return "de-DE";
+        if (l == "Chinese" || l == "中文") return "zh-CN";
+        return "en-US";
+    }
+
+    inline QString tr(const QString &key) {
+        if (currentLang == "English") return key;
+
+        static const QMap<QString, QMap<QString, QString>> translations = {
+            {"Greek", {
+                {"New tab", "Νέα καρτέλα"},
+                {"New Tab", "Νέα καρτέλα"},
+                {"New window", "Νέο παράθυρο"},
+                {"New Window", "Νέο παράθυρο"},
+                {"New private window", "Νέα ανώνυμη περιήγηση"},
+                {"New Incognito Window", "Νέα ανώνυμη περιήγηση"},
+                {"New tab to the right", "Νέα καρτέλα δεξιά"},
+                {"Duplicate", "Δημιουργία αντιγράφου"},
+                {"Close tab", "Κλείσιμο καρτέλας"},
+                {"Close Tab", "Κλείσιμο καρτέλας"},
+                {"Close other tabs", "Κλείσιμο άλλων καρτελών"},
+                {"Close tabs to the right", "Κλείσιμο καρτελών στα δεξιά"},
+                {"Reopen closed tab", "Επαναφορά κλειστής καρτέλας"},
+                {"History", "Ιστορικό"},
+                {"Downloads", "Λήψεις"},
+                {"Bookmarks", "Σελιδοδείκτες"},
+                {"Bookmarks Manager", "Διαχειριστής σελιδοδεικτών"},
+                {"Passwords", "Κωδικοί πρόσβασης"},
+                {"Settings", "Ρυθμίσεις"},
+                {"Search or enter address", "Αναζήτηση ή εισαγωγή διεύθυνσης..."},
+                {"Find in page", "Εύρεση στη σελίδα..."},
+                {"Language", "Γλώσσα"},
+                {"Default browser", "Προεπιλεγμένος περιηγητής"},
+                {"Search engine", "Μηχανή αναζήτησης"},
+                {"Extensions", "Επεκτάσεις"},
+                {"AI Assistant", "Βοηθός AI"},
+                {"Translate", "Μετάφραση"},
+                {"Shields", "Ασπίδες προστασίας"},
+                {"Inspect Element", "Έλεγχος στοιχείου"},
+                {"Back", "Πίσω (Alt+Left)"},
+                {"Forward", "Μπροστά (Alt+Right)"},
+                {"Reload", "Επαναφόρτωση (Ctrl+R)"},
+                {"Minimize", "Ελαχιστοποίηση"},
+                {"Maximize", "Μεγιστοποίηση"},
+                {"Restore", "Επαναφορά"},
+                {"Close", "Κλείσιμο"}
+            }},
+            {"Spanish", {
+                {"New tab", "Nueva pestaña"},
+                {"New Tab", "Nueva pestaña"},
+                {"New window", "Nueva ventana"},
+                {"New Window", "Nueva ventana"},
+                {"New private window", "Nueva ventana privada"},
+                {"Close tab", "Cerrar pestaña"},
+                {"Close Tab", "Cerrar pestaña"},
+                {"History", "Historial"},
+                {"Downloads", "Descargas"},
+                {"Bookmarks", "Marcadores"},
+                {"Passwords", "Contraseñas"},
+                {"Settings", "Configuración"},
+                {"Language", "Idioma"},
+                {"Search engine", "Motor de búsqueda"}
+            }},
+            {"French", {
+                {"New tab", "Nouvel onglet"},
+                {"New Tab", "Nouvel onglet"},
+                {"New window", "Nouvelle fenêtre"},
+                {"New Window", "Nouvelle fenêtre"},
+                {"New private window", "Nouvelle fenêtre privée"},
+                {"Close tab", "Fermer l'onglet"},
+                {"Close Tab", "Fermer l'onglet"},
+                {"History", "Historique"},
+                {"Downloads", "Téléchargements"},
+                {"Bookmarks", "Favoris"},
+                {"Passwords", "Mots de passe"},
+                {"Settings", "Paramètres"},
+                {"Language", "Langue"},
+                {"Search engine", "Moteur de recherche"}
+            }},
+            {"German", {
+                {"New tab", "Neuer Tab"},
+                {"New Tab", "Neuer Tab"},
+                {"New window", "Neues Fenster"},
+                {"New Window", "Neues Fenster"},
+                {"New private window", "Neues privates Fenster"},
+                {"Close tab", "Tab schließen"},
+                {"Close Tab", "Tab schließen"},
+                {"History", "Verlauf"},
+                {"Downloads", "Downloads"},
+                {"Bookmarks", "Lesezeichen"},
+                {"Passwords", "Passwörter"},
+                {"Settings", "Einstellungen"},
+                {"Language", "Sprache"},
+                {"Search engine", "Suchmaschine"}
+            }},
+            {"Chinese", {
+                {"New tab", "新建标签页"},
+                {"New Tab", "新建标签页"},
+                {"New window", "新建窗口"},
+                {"New Window", "新建窗口"},
+                {"New private window", "新建无痕窗口"},
+                {"Close tab", "关闭标签页"},
+                {"Close Tab", "关闭标签页"},
+                {"History", "历史记录"},
+                {"Downloads", "下载"},
+                {"Bookmarks", "书签"},
+                {"Passwords", "密码"},
+                {"Settings", "设置"},
+                {"Language", "语言"},
+                {"Search engine", "搜索引擎"}
+            }}
+        };
+
+        QString langKey = currentLang;
+        if (langKey == "Ελληνικά") langKey = "Greek";
+        else if (langKey == "Español") langKey = "Spanish";
+        else if (langKey == "Français") langKey = "French";
+        else if (langKey == "Deutsch") langKey = "German";
+        else if (langKey == "中文") langKey = "Chinese";
+
+        if (translations.contains(langKey) && translations[langKey].contains(key)) {
+            return translations[langKey][key];
+        }
+        return key;
+    }
+}
+
 // ---------------- CRISP CROSS-PLATFORM VECTOR ICON RENDERER (Fixes Windows & Linux Icons) ----------------
 namespace BrowserIcons {
     inline QIcon drawIcon(const QString &type, const QColor &color = QColor("#e4e6eb")) {
@@ -489,7 +650,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.68 Extensive Crash & Diagnostic Report\n";
+            out << "BraveLite v1.70 Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -1321,13 +1482,13 @@ public:
         setEnabled(true);
         if (visible) {
             setStyleSheet(
-                "QPushButton { background-color: #e81123; border: none; border-radius: 8px; "
-                "color: white; font-size: 9px; font-weight: bold; margin: 0; padding: 0; } "
-                "QPushButton:hover { background-color: #ff5460; }"
+                "QPushButton { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; "
+                "color: #ffffff; font-size: 9px; font-weight: bold; margin: 0; padding: 0; } "
+                "QPushButton:hover { background-color: #e81123; color: white; }"
             );
         } else {
             setStyleSheet(
-                "QPushButton { background: rgba(255,255,255,0.08); border: none; border-radius: 8px; "
+                "QPushButton { background: transparent; border: none; border-radius: 8px; "
                 "color: #9aa0a6; font-size: 9px; font-weight: bold; margin: 0; padding: 0; } "
                 "QPushButton:hover { background-color: #e81123; color: white; }"
             );
@@ -1392,17 +1553,51 @@ public:
         setMinimumWidth(0);
     }
 
+    int availableTabSpace() const {
+        QWidget *p = parentWidget(); // tabRowContainer
+        if (!p) return 800;
+        int reserved = 220; // 28(newTab) + 30(ext) + 30(ai) + 32(min) + 32(max) + 36(close) + margins + spacings
+        int avail = p->width() - reserved;
+        return qMax(avail, 100);
+    }
+
     QSize tabSizeHint(int index) const override {
-        QSize s = QTabBar::tabSizeHint(index);
+        Q_UNUSED(index);
         int cnt = count();
-        if (cnt <= 0) return QSize(160, 32);
-        int maxTabWidth = 180;
-        int avail = parentWidget() ? (parentWidget()->width() - 60) : 800;
-        if (avail > 0 && (cnt * maxTabWidth) > avail) {
-            int w = qBound(36, avail / cnt, maxTabWidth);
+        if (cnt <= 0) return QSize(185, 32);
+        int maxTabWidth = 185;
+        int avail = availableTabSpace();
+        if (cnt * maxTabWidth > avail) {
+            int w = qBound(28, avail / cnt, maxTabWidth);
             return QSize(w, 32);
         }
         return QSize(maxTabWidth, 32);
+    }
+
+    QSize minimumTabSizeHint(int index) const override {
+        Q_UNUSED(index);
+        return QSize(28, 32);
+    }
+
+    QSize minimumSizeHint() const override {
+        return QSize(28, 32);
+    }
+
+    void updateTabButtonsVisibility() {
+        int cnt = count();
+        for (int i = 0; i < cnt; ++i) {
+            if (auto *btn = qobject_cast<TabCloseButton*>(tabButton(i, QTabBar::RightSide))) {
+                QRect r = tabRect(i);
+                if (r.width() < 55) {
+                    bool shouldShow = (i == currentIndex() || i == m_hoveredIndex);
+                    btn->setVisible(shouldShow);
+                    btn->updateState(i == currentIndex());
+                } else {
+                    btn->setVisible(true);
+                    btn->updateState(i == currentIndex() || i == m_hoveredIndex);
+                }
+            }
+        }
     }
 
 signals:
@@ -1413,6 +1608,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override {
         QTabBar::resizeEvent(event);
         updateGeometry();
+        updateTabButtonsVisibility();
     }
 
     void dragEnterEvent(QDragEnterEvent *event) override;
@@ -1435,11 +1631,19 @@ protected:
 
         setTabButton(index, QTabBar::RightSide, closeBtn);
         updateGeometry();
+        if (parentWidget() && parentWidget()->layout()) {
+            parentWidget()->layout()->activate();
+        }
+        updateTabButtonsVisibility();
     }
 
     void tabRemoved(int index) override {
         QTabBar::tabRemoved(index);
         updateGeometry();
+        if (parentWidget() && parentWidget()->layout()) {
+            parentWidget()->layout()->activate();
+        }
+        updateTabButtonsVisibility();
     }
 
     void mousePressEvent(QMouseEvent *event) override {
@@ -1468,17 +1672,42 @@ protected:
 
     void leaveEvent(QEvent *event) override {
         QTabBar::leaveEvent(event);
-        for (int i = 0; i < count(); ++i) {
-            if (auto *btn = qobject_cast<TabCloseButton*>(tabButton(i, QTabBar::RightSide))) {
-                btn->updateState(i == currentIndex());
+        m_hoveredIndex = -1;
+        updateTabButtonsVisibility();
+    }
+
+    void wheelEvent(QWheelEvent *event) override {
+        if (count() > 1) {
+            int numDegrees = event->angleDelta().y();
+            if (numDegrees != 0) {
+                int delta = (numDegrees > 0) ? -1 : 1;
+                int next = (currentIndex() + delta + count()) % count();
+                setCurrentIndex(next);
+                event->accept();
+                return;
             }
         }
+        QTabBar::wheelEvent(event);
     }
+
+    void mouseDoubleClickEvent(QMouseEvent *event) override {
+        if (event->button() == Qt::LeftButton && tabAt(event->pos()) == -1) {
+            if (window()) {
+                if (window()->isMaximized()) window()->showNormal();
+                else window()->showMaximized();
+                event->accept();
+                return;
+            }
+        }
+        QTabBar::mouseDoubleClickEvent(event);
+    }
+
 
 private:
     int m_dragIndex = -1;
     QPoint m_dragStartPos;
     bool m_isTearOffDragging = false;
+    int m_hoveredIndex = -1;
 };
 
 // ---------------- 7. DATA STRUCTURES & DRAGGABLE DOWNLOAD FILE CARD ----------------
@@ -1566,11 +1795,263 @@ struct SitePermission {
     bool granted;
 };
 
+
+static QString buildBraveLiteSearchHtml(const QString &query, const QString &cleanTab, const QString &escapedQuery, const QString &googleAiOverviewHtml) {
+    QString html;
+    html.reserve(28000);
+    html += R"HTML(<!DOCTYPE html><html><head><meta charset='utf-8'>
+<title>)HTML";
+    html += escapedQuery;
+    html += R"HTML( at BraveLite Engine</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #141724; color: #e2e8f0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
+a { text-decoration: none; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0e111a; }
+::-webkit-scrollbar-thumb { background: #2a3148; border-radius: 5px; border: 2px solid #0e111a; }
+::-webkit-scrollbar-thumb:hover { background: #6580ff; }
+.sp-header { background: #141724; border-bottom: 1px solid #23293d; padding: 14px 24px 0 24px; position: sticky; top: 0; z-index: 100; }
+.sp-top-row { display: flex; align-items: center; gap: 20px; max-width: 1140px; margin-bottom: 12px; }
+.sp-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
+.sp-logo-badge { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(101,128,255,0.3); }
+.sp-logo-text { display: flex; flex-direction: column; }
+.sp-logo-title { font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
+.sp-logo-sub { font-size: 10.5px; font-weight: 500; color: #8298ff; text-transform: uppercase; letter-spacing: 0.5px; }
+.sp-search-form { flex: 1; max-width: 650px; display: flex; align-items: center; background: #1c2236; border: 1px solid #2e3752; border-radius: 10px; height: 42px; padding: 0 8px 0 16px; transition: border-color 0.2s, box-shadow 0.2s; }
+.sp-search-form:focus-within { border-color: #6580ff; box-shadow: 0 0 0 3px rgba(101,128,255,0.2); background: #181d2e; }
+.sp-search-form input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; }
+.sp-clear-btn { background: transparent; border: none; color: #64748b; font-size: 15px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+.sp-clear-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.sp-submit-btn { background: #6580ff; border: none; color: #fff; font-size: 14px; cursor: pointer; padding: 6px 14px; font-weight: 600; border-radius: 6px; margin-left: 6px; transition: background 0.15s; }
+.sp-submit-btn:hover { background: #526fe8; }
+.sp-nav-tabs { display: flex; gap: 24px; padding-left: 196px; font-size: 13.5px; }
+.sp-tab { color: #94a3b8; padding-bottom: 10px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; user-select: none; transition: color 0.15s; }
+.sp-tab:hover { color: #ffffff; }
+.sp-tab.active { color: #8298ff; border-bottom-color: #6580ff; font-weight: 600; }
+.sp-main { padding: 16px 24px 60px 196px; max-width: 1140px; }
+@media (max-width: 860px) { .sp-nav-tabs { padding-left: 0; } .sp-main { padding-left: 24px; } }
+.sp-privacy-banner { display: flex; align-items: center; gap: 10px; background: rgba(101, 128, 255, 0.08); border: 1px solid rgba(101, 128, 255, 0.22); border-radius: 10px; padding: 10px 16px; margin-bottom: 20px; font-size: 12.5px; color: #cbd5e1; max-width: 820px; }
+.sp-privacy-badge { background: #6580ff; color: #fff; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; text-transform: uppercase; }
+.sp-results { max-width: 780px; }
+.sp-result { padding: 14px 16px; margin-bottom: 14px; background: #1c2236; border: 1px solid #28314a; border-radius: 10px; transition: transform 0.1s, border-color 0.15s; }
+.sp-result:hover { border-color: #3f4b70; background: #1f263c; }
+.sp-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12.5px; color: #94a3b8; flex-wrap: wrap; }
+.sp-fav { width: 16px; height: 16px; border-radius: 3px; }
+.sp-anon-pill { display: inline-flex; align-items: center; gap: 4px; background: rgba(101, 128, 255, 0.14); border: 1px solid rgba(101, 128, 255, 0.35); color: #8298ff; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 12px; text-decoration: none; margin-left: auto; transition: all 0.15s; }
+.sp-anon-pill:hover { background: #6580ff; color: #ffffff; border-color: #6580ff; }
+.sp-title { font-size: 18px; line-height: 1.35; color: #6580ff; font-weight: 600; display: block; margin-bottom: 6px; }
+.sp-title:hover { text-decoration: underline; color: #8298ff; }
+.sp-snippet { font-size: 13.5px; line-height: 1.55; color: #cbd5e1; }
+.sp-image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; max-width: 960px; }
+.sp-img-card { background: #1c2236; border: 1px solid #28314a; border-radius: 8px; overflow: hidden; display: block; color: #eee; transition: border-color 0.15s; }
+.sp-img-card:hover { border-color: #6580ff; }
+.sp-img-card img { width: 100%; height: 140px; object-fit: cover; display: block; background: #141724; }
+.sp-img-caption { padding: 8px 10px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #cbd5e1; }
+.g-ai-wrapper { background: linear-gradient(180deg, #1b2138 0%, #151a2c 100%); border: 1px solid #2e3858; border-radius: 14px; padding: 18px 22px 14px 22px; margin-bottom: 22px; max-width: 820px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.g-ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.g-ai-title-row { display: flex; align-items: center; gap: 10px; }
+.bl-ai-logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.g-ai-label { font-size: 15px; font-weight: 600; color: #e2e8f0; }
+.g-ai-meta { font-size: 11.5px; color: #8298ff; background: rgba(101,128,255,0.12); padding: 3px 9px; border-radius: 12px; border: 1px solid rgba(101,128,255,0.25); }
+.g-ai-grid { display: flex; gap: 20px; align-items: flex-start; }
+.g-ai-main { flex: 1; min-width: 0; }
+.g-ai-text { font-size: 14px; line-height: 1.65; color: #e2e8f0; overflow: hidden; transition: max-height 0.25s ease; }
+.g-ai-text.collapsed { max-height: 170px; mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
+.bl-code-wrap { background: #0e111a; border: 1px solid #28314a; border-radius: 8px; margin: 10px 0; overflow: hidden; }
+.bl-code-bar { display: flex; justify-content: space-between; align-items: center; background: #161b2c; padding: 5px 12px; font-size: 11.5px; color: #94a3b8; border-bottom: 1px solid #28314a; }
+.bl-copy-btn { background: #232a42; color: #fff; border: 1px solid #364268; border-radius: 4px; padding: 3px 9px; font-size: 11px; cursor: pointer; font-weight: 600; }
+.bl-copy-btn:hover { background: #6580ff; border-color: #6580ff; }
+.bl-code-pre { margin: 0; padding: 12px; overflow-x: auto; font-family: 'Consolas', 'JetBrains Mono', monospace; font-size: 13px; color: #93c5fd; white-space: pre; }
+.g-ai-chat-box { margin-top: 14px; padding-top: 12px; border-top: 1px solid #262e48; }
+.g-ai-chat-history { max-height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.chat-msg-user { align-self: flex-end; background: #6580ff; color: #fff; padding: 7px 12px; border-radius: 12px 12px 2px 12px; font-size: 13px; max-width: 85%; }
+.chat-msg-ai { align-self: flex-start; background: #1c2236; color: #e2e8f0; border: 1px solid #2e3858; padding: 8px 12px; border-radius: 12px 12px 12px 2px; font-size: 13px; max-width: 92%; line-height: 1.5; }
+.g-ai-chat-form { display: flex; gap: 8px; }
+.g-ai-chat-form input { flex: 1; background: #0e111a; border: 1px solid #2c3652; border-radius: 18px; padding: 7px 14px; color: #fff; font-size: 13px; outline: none; }
+.g-ai-chat-form input:focus { border-color: #6580ff; }
+.g-ai-chat-form button { background: #6580ff; color: #fff; border: none; border-radius: 18px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.g-ai-more-btn { margin-top: 10px; display: inline-block; width: auto; background: #232a42; border: 1px solid #364268; color: #8298ff; border-radius: 16px; padding: 5px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.g-ai-more-btn:hover { background: #2f3859; color: #fff; }
+.g-ai-sources { width: 210px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.g-source-chip { display: block; background: #1c2236; border: 1px solid #28314a; border-radius: 10px; padding: 8px 10px; color: #e2e8f0; font-size: 12px; }
+.g-source-chip:hover { background: #242c46; border-color: #6580ff; }
+.g-source-title { font-weight: 600; color: #8298ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+.g-source-domain { color: #94a3b8; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-ai-footer { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 10px; border-top: 1px solid #242b44; font-size: 11.5px; color: #8298ff; }
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+.shimmer-line { height: 14px; margin-bottom: 10px; border-radius: 6px; background: linear-gradient(90deg, #1e253b 25%, #2d3859 50%, #1e253b 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite linear; }
+</style></head><body>
+<div class='sp-header'>
+<div class='sp-top-row'>
+<div class='sp-logo' onclick="console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);">
+<div class='sp-logo-badge'>🛡️</div>
+<div class='sp-logo-text'><span class='sp-logo-title'>BraveLite Engine</span><span class='sp-logo-sub'>Startpage Privacy Search</span></div>
+</div>
+<form class='sp-search-form' onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: '__TAB_TYPE__'}));">
+<input id='qInput' type='text' value="__QUERY_ESC__" placeholder='Search privately with BraveLite Engine (Startpage)...' autocomplete='off' />
+<button type='button' class='sp-clear-btn' onclick="var i=document.getElementById('qInput'); i.value=''; i.focus();">✕</button>
+<button type='submit' class='sp-submit-btn'>Search</button>
+</form>
+</div>
+<div class='sp-nav-tabs'>
+<a class='sp-tab __TAB_ALL_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'all'}));">🔍 All</a>
+<a class='sp-tab __TAB_IMAGES_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'images'}));">🖼 Images</a>
+<a class='sp-tab __TAB_VIDEOS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'videos'}));">🎬 Videos</a>
+<a class='sp-tab __TAB_NEWS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'news'}));">📰 News</a>
+</div>
+</div>
+<div class='sp-main'>
+<div class='sp-privacy-banner'>
+<span class='sp-privacy-badge'>Startpage Protected</span>
+<span>Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result</span>
+</div>
+__AI_OVERVIEW_HTML__
+<div class='sp-results' id='webResults'>
+<div class='sp-result'><div class='sp-snippet'>Searching Startpage & BraveLite Engine (__TAB_TYPE__) for <b>__QUERY_ESC__</b>...</div></div>
+</div>
+</div>
+<script>
+window.__copyCode = function(btn) {
+    if (btn && btn.parentElement && btn.parentElement.nextElementSibling) {
+        navigator.clipboard.writeText(btn.parentElement.nextElementSibling.innerText);
+        btn.textContent = "✔ Copied";
+    }
+};
+window.__formatAiMarkdown = function(raw) {
+    var safe = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    safe = safe.replace(/```([a-zA-Z0-9_-]*)
+([\s\S]*?)```/g, function(_, lang, code) {
+        var lbl = lang ? lang : 'code';
+        return '<div class="bl-code-wrap"><div class="bl-code-bar"><span>' + lbl + '</span><button type="button" class="bl-copy-btn" onclick="window.__copyCode(this)">📋 Copy code</button></div><pre class="bl-code-pre">' + code + '</pre></div>';
+    });
+    safe = safe.replace(/`([^`
+]+)`/g, '<code style="background:#0e111a;color:#8298ff;padding:2px 6px;border-radius:4px;">$1</code>');
+    safe = safe.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    safe = safe.replace(/
+/g, '<br>');
+    return safe;
+};
+window.__aiExpanded = false;
+window.__toggleAiExpand = function() {
+    var t = document.getElementById('aiOverviewText');
+    var b = document.getElementById('aiShowMoreBtn');
+    var c = document.getElementById('aiChatBox');
+    if (!t || !b) return;
+    window.__aiExpanded = !window.__aiExpanded;
+    if (window.__aiExpanded) {
+        t.classList.remove('collapsed');
+        if (c) c.style.display = 'block';
+        b.textContent = 'Less ▴';
+    } else {
+        t.classList.add('collapsed');
+        if (c) c.style.display = 'none';
+        b.textContent = 'More ▾';
+    }
+};
+window.__submitAiFollowup = function(e) {
+    e.preventDefault();
+    var inp = document.getElementById('aiChatInput');
+    var hist = document.getElementById('aiChatHistory');
+    if (!inp || !hist || !inp.value.trim()) return;
+    var q = inp.value.trim();
+    inp.value = '';
+    var uDiv = document.createElement('div'); uDiv.className = 'chat-msg-user'; uDiv.textContent = q; hist.appendChild(uDiv);
+    var aDiv = document.createElement('div'); aDiv.className = 'chat-msg-ai'; aDiv.id = 'pendingAiReply'; aDiv.textContent = '⏳ Thinking...'; hist.appendChild(aDiv);
+    hist.scrollTop = hist.scrollHeight;
+    console.log('BRAVELITE_AI_CHAT::Context: __QUERY_ESC__ | Followup: ' + q);
+};
+window.__appendAiChat = function(obj) {
+    var pending = document.getElementById('pendingAiReply');
+    if (pending) { pending.removeAttribute('id'); pending.innerHTML = window.__formatAiMarkdown(obj.reply); }
+};
+window.__setAiOverview = function(text) {
+    var el = document.getElementById('aiOverviewText');
+    var btn = document.getElementById('aiShowMoreBtn');
+    if (!el) return;
+    el.innerHTML = window.__formatAiMarkdown(text);
+    if (btn) btn.style.display = 'block';
+    if (text && text.length > 340) el.classList.add('collapsed');
+};
+window.__setImageResults = function(items) {
+    var container = document.getElementById('webResults');
+    if (!container) return;
+    container.className = 'sp-image-grid';
+    container.innerHTML = '';
+    if (!items || items.length === 0) {
+        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">No images found for this query.</div></div>';
+        return;
+    }
+    items.forEach(function(it) {
+        var card = document.createElement('a');
+        card.className = 'sp-img-card';
+        card.href = it.url;
+        card.innerHTML = '<img src="' + it.img + '" loading="lazy" /><div class="sp-img-caption">' + it.title + '</div>';
+        container.appendChild(card);
+    });
+};
+window.__setWebResults = function(items) {
+    var container = document.getElementById('webResults');
+    var rail = document.getElementById('aiSourcesRail');
+    if (!container) return;
+    container.className = 'sp-results';
+    container.innerHTML = '';
+    if (rail) rail.innerHTML = '';
+    if (!items || items.length === 0) {
+        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">No instant results found.</div></div>';
+        return;
+    }
+    items.forEach(function(it, idx) {
+        var host = '';
+        try { host = (new URL(it.url)).hostname; } catch(e) { host = it.url; }
+        var fav = 'https://www.google.com/s2/favicons?sz=32&domain_url=' + encodeURIComponent(it.url);
+        var anonUrl = 'https://www.startpage.com/av/proxy?piurl=' + encodeURIComponent(it.url);
+        var card = document.createElement('div');
+        card.className = 'sp-result';
+        card.innerHTML = '<div class="sp-site-row"><img class="sp-fav" src="' + fav + '" /><span>' + host + '</span>' +
+        '<a class="sp-anon-pill" href="' + anonUrl + '" target="_blank" title="View page anonymously via Startpage Proxy">🛡️ Anonymous View</a></div>' +
+        '<a class="sp-title" href="' + it.url + '">' + it.title + '</a>' +
+        '<div class="sp-snippet">' + it.snippet + '</div>';
+        container.appendChild(card);
+        if (rail && idx < 3) {
+            var chip = document.createElement('a');
+            chip.className = 'g-source-chip';
+            chip.href = it.url;
+            chip.innerHTML = '<div class="g-source-title">' + it.title + '</div><div class="g-source-domain">🔗 ' + host + '</div>';
+            rail.appendChild(chip);
+        }
+    });
+};
+</script></body></html>
+)HTML";
+
+    html.replace("__QUERY_ESC__", escapedQuery);
+    html.replace("__AI_OVERVIEW_HTML__", googleAiOverviewHtml);
+    html.replace("__TAB_TYPE__", cleanTab);
+    html.replace("__TAB_ALL_ACTIVE__", cleanTab == "all" ? "active" : "");
+    html.replace("__TAB_IMAGES_ACTIVE__", cleanTab == "images" ? "active" : "");
+    html.replace("__TAB_VIDEOS_ACTIVE__", cleanTab == "videos" ? "active" : "");
+    html.replace("__TAB_NEWS_ACTIVE__", cleanTab == "news" ? "active" : "");
+    return html;
+}
+
+struct ClosedTabRecord {
+    QUrl url;
+    QString title;
+    QIcon icon;
+    QString lastSearchQuery;
+    QString lastSearchTab;
+};
+
 // ---------------- 8. MAIN BROWSER WINDOW ----------------
 class BrowserWindow : public QMainWindow {
     Q_OBJECT
 public:
     static QList<BrowserWindow*> s_openWindows;
+
+    QSize minimumSizeHint() const override {
+        return QSize(400, 300);
+    }
 
     BrowserWindow(bool isIncognito = false, bool openDefaultTab = true, const QList<QUrl> &startupUrls = QList<QUrl>(), bool restoreSession = false, QWidget *parent = nullptr)
     : QMainWindow(parent), m_isIncognito(isIncognito), m_profile(nullptr) {
@@ -1581,14 +2062,10 @@ public:
         setAttribute(Qt::WA_Hover, true);
 
         resize(1280, 840);
-        setWindowTitle(m_isIncognito ? "BraveLite [Incognito] (Beta)" : "BraveLite (Beta)");
+        setWindowTitle(m_isIncognito ? "BraveLite v1.70 [Incognito] (Beta)" : "BraveLite v1.70 (Beta)");
         qApp->installEventFilter(this);
 
-        QIcon appIcon = QIcon::fromTheme("bravelite");
-        if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
-        if (appIcon.isNull()) appIcon = QIcon("assets/bravelite.ico");
-        if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
-        setWindowIcon(appIcon);
+        setWindowIcon(loadBraveLiteAppIcon());
 
         m_netManager = new QNetworkAccessManager(this);
         m_adBlocker = new AdBlocker(this);
@@ -1701,6 +2178,124 @@ public:
     }
 
     CustomWebView* createNewTabWithView(const QUrl &url = QUrl());
+
+
+    CustomWebView* insertNewTab(int index, const QUrl &url = QUrl()) {
+        bool wasMax = isMaximized();
+        CustomWebView *view = new CustomWebView(this);
+        CustomWebEnginePage *p = new CustomWebEnginePage(m_profile, m_adBlocker, view);
+        view->setPage(p);
+
+        int insertPos = qBound(0, index, tabStack->count());
+        tabStack->insertWidget(insertPos, view);
+        int tabIdx = tabBar->insertTab(insertPos, loadBraveLiteAppIcon(), L10n::tr("New Tab"));
+        if (tabRowContainer && tabRowContainer->layout()) {
+            tabRowContainer->layout()->activate();
+        }
+        tabBar->setCurrentIndex(tabIdx);
+        tabStack->setCurrentIndex(insertPos);
+
+        bindWebViewSignals(view);
+
+        if (url.isEmpty()) view->setHtml(getNewTabHtml());
+        else view->load(url);
+
+        updateSplitButtonState();
+        if (wasMax && !isMaximized()) {
+            showMaximized();
+        }
+        return view;
+    }
+
+    void reopenLastClosedTab() {
+        if (m_closedTabsHistory.isEmpty()) return;
+        ClosedTabRecord rec = m_closedTabsHistory.takeLast();
+        CustomWebView *v = createNewTabWithView(rec.url);
+        if (v) {
+            v->lastSearchQuery = rec.lastSearchQuery;
+            v->lastSearchTab = rec.lastSearchTab;
+            if (!rec.lastSearchQuery.isEmpty() && rec.url.host() == "search.bravelite.local") {
+                runBraveLiteSearch(rec.lastSearchQuery, rec.lastSearchTab);
+            }
+            int idx = tabStack->indexOf(v);
+            if (idx != -1 && !rec.title.isEmpty() && rec.title != "New Tab") {
+                tabBar->setTabText(idx, rec.title);
+                if (!rec.icon.isNull()) tabBar->setTabIcon(idx, rec.icon);
+            }
+        }
+    }
+
+    void showTabContextMenu(const QPoint &pos) {
+        int idx = tabBar->tabAt(pos);
+        QMenu menu(this);
+        menu.setStyleSheet(
+            "QMenu { background-color: #242529; border: 1px solid #3c4043; border-radius: 8px; padding: 6px; color: #fff; } "
+            "QMenu::item { padding: 7px 22px 7px 12px; border-radius: 4px; font-size: 13px; } "
+            "QMenu::item:selected { background-color: #ff5500; color: #ffffff; } "
+            "QMenu::item:disabled { color: #666a70; } "
+            "QMenu::separator { height: 1px; background: #34373d; margin: 4px 8px; }"
+        );
+
+        if (idx >= 0 && idx < tabBar->count()) {
+            QAction *actNewRight = menu.addAction(L10n::tr("New tab to the right"));
+            connect(actNewRight, &QAction::triggered, this, [this, idx]() {
+                insertNewTab(idx + 1);
+            });
+
+            QAction *actReload = menu.addAction(L10n::tr("Reload") + "\tCtrl+R");
+            connect(actReload, &QAction::triggered, this, [this, idx]() {
+                if (QWidget *w = tabStack->widget(idx)) {
+                    if (CustomWebView *v = CustomWebViewFromWidget(w)) {
+                        if (v->url().host() == "search.bravelite.local" && !v->lastSearchQuery.isEmpty()) {
+                            runBraveLiteSearch(v->lastSearchQuery, v->lastSearchTab);
+                        } else {
+                            v->reload();
+                        }
+                    }
+                }
+            });
+
+            QAction *actDup = menu.addAction(L10n::tr("Duplicate"));
+            connect(actDup, &QAction::triggered, this, [this, idx]() {
+                if (QWidget *w = tabStack->widget(idx)) {
+                    if (CustomWebView *v = CustomWebViewFromWidget(w)) {
+                        insertNewTab(idx + 1, v->url());
+                    }
+                }
+            });
+
+            menu.addSeparator();
+
+            QAction *actClose = menu.addAction(L10n::tr("Close tab") + "\tCtrl+W");
+            connect(actClose, &QAction::triggered, this, [this, idx]() {
+                closeTab(idx);
+            });
+
+            QAction *actCloseOthers = menu.addAction(L10n::tr("Close other tabs"));
+            actCloseOthers->setEnabled(tabBar->count() > 1);
+            connect(actCloseOthers, &QAction::triggered, this, [this, idx]() {
+                for (int i = tabBar->count() - 1; i >= 0; --i) {
+                    if (i != idx) closeTab(i);
+                }
+            });
+
+            QAction *actCloseRight = menu.addAction(L10n::tr("Close tabs to the right"));
+            actCloseRight->setEnabled(idx < tabBar->count() - 1);
+            connect(actCloseRight, &QAction::triggered, this, [this, idx]() {
+                for (int i = tabBar->count() - 1; i > idx; --i) {
+                    closeTab(i);
+                }
+            });
+
+            menu.addSeparator();
+        }
+
+        QAction *actReopen = menu.addAction(L10n::tr("Reopen closed tab") + "\tCtrl+Shift+T");
+        actReopen->setEnabled(!m_closedTabsHistory.isEmpty());
+        connect(actReopen, &QAction::triggered, this, &BrowserWindow::reopenLastClosedTab);
+
+        menu.exec(tabBar->mapToGlobal(pos));
+    }
 
     void openExternalUrlInExistingWindow(const QUrl &url) {
         if (isFullScreen()) {
@@ -1827,6 +2422,39 @@ protected:
         QMainWindow::mousePressEvent(event);
     }
 
+#ifdef Q_OS_WIN
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override {
+#else
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override {
+#endif
+        if (eventType == "windows_generic_MSG") {
+            MSG *msg = static_cast<MSG*>(message);
+            if (msg->message == WM_NCHITTEST && !isMaximized()) {
+                POINT pt = { GET_X_LPARAM(msg->lParam), GET_Y_LPARAM(msg->lParam) };
+                RECT winrect;
+                GetWindowRect(msg->hwnd, &winrect);
+                int border = 8;
+                bool left = pt.x < winrect.left + border;
+                bool right = pt.x >= winrect.right - border;
+                bool top = pt.y < winrect.top + border;
+                bool bottom = pt.y >= winrect.bottom - border;
+
+                if (top && left) { *result = HTTOPLEFT; return true; }
+                if (top && right) { *result = HTTOPRIGHT; return true; }
+                if (bottom && left) { *result = HTBOTTOMLEFT; return true; }
+                if (bottom && right) { *result = HTBOTTOMRIGHT; return true; }
+                if (top) { *result = HTTOP; return true; }
+                if (bottom) { *result = HTBOTTOM; return true; }
+                if (left) { *result = HTLEFT; return true; }
+                if (right) { *result = HTRIGHT; return true; }
+            }
+        }
+        return QMainWindow::nativeEvent(eventType, message, result);
+    }
+#endif
+
+
     bool eventFilter(QObject *watched, QEvent *event) override {
         static bool s_inFilter = false;
         if (s_inFilter) return false;
@@ -1907,16 +2535,45 @@ public slots:
         createNewTabWithView(url);
     }
 
-    void closeTab(int idx) {
+
+
+
+        void closeTab(int idx) {
+        if (idx < 0 || idx >= tabBar->count()) return;
+        bool wasMax = isMaximized();
+
+        QWidget *w = tabStack->widget(idx);
+        CustomWebView *v = CustomWebViewFromWidget(w);
+        if (v) {
+            ClosedTabRecord rec;
+            rec.url = v->url();
+            rec.title = tabBar->tabText(idx);
+            rec.icon = tabBar->tabIcon(idx);
+            rec.lastSearchQuery = v->lastSearchQuery;
+            rec.lastSearchTab = v->lastSearchTab;
+            m_closedTabsHistory.append(rec);
+            if (m_closedTabsHistory.size() > 40) {
+                m_closedTabsHistory.removeFirst();
+            }
+        }
+
         if (tabBar->count() > 1) {
-            QWidget *w = tabStack->widget(idx);
             tabStack->removeWidget(w);
             tabBar->removeTab(idx);
             if (w) w->deleteLater();
+            int newCur = qBound(0, tabBar->currentIndex(), tabStack->count() - 1);
+            if (tabRowContainer && tabRowContainer->layout()) {
+                tabRowContainer->layout()->activate();
+            }
+            tabBar->setCurrentIndex(newCur);
+            tabStack->setCurrentIndex(newCur);
         } else {
             close();
         }
         updateSplitButtonState();
+        if (wasMax && !isMaximized()) {
+            showMaximized();
+        }
     }
 
     void openNewWindowWithUrl(const QUrl &url) {
@@ -2160,7 +2817,7 @@ public slots:
                 QNetworkReply *r = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
                 connect(r, &QNetworkReply::finished, r, &QObject::deleteLater);
             }
-            setWindowTitle(m_isIncognito ? "BraveLite v1.68 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.68 [🎮 Gaming Mode]");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.70 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.70 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
                                      "• BraveLite Engine AI Overview & Hover Link Previews paused.\n"
@@ -2168,7 +2825,7 @@ public slots:
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
             if (aiEnabled) ensureOllamaServerRunning();
-            setWindowTitle(m_isIncognito ? "BraveLite v1.68 [Incognito]" : "BraveLite v1.68");
+            setWindowTitle(m_isIncognito ? "BraveLite v1.70 [Incognito]" : "BraveLite v1.70");
             QMessageBox::information(this, "Gaming Mode Disabled",
                                      "🎮 Gaming Mode is now OFF.\n\n"
                                      "• AI Overview, Link Previews, and Full-Site Translation are re-enabled!");
@@ -2618,227 +3275,7 @@ public slots:
             "</div>"
         ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
 
-        QString ddgSearchPageHtml;
-        ddgSearchPageHtml.reserve(24000);
-        ddgSearchPageHtml += R"HTML(
-            <!DOCTYPE html><html><head><meta charset='utf-8'>
-            <title>__QUERY_ESC__ at BraveLite Engine</title>
-            <style>
-            * { box-sizing: border-box; }
-            body { margin: 0; background: #1c1c1c; color: #eeeeee; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
-            a { text-decoration: none; }
-            ::-webkit-scrollbar { width: 10px; height: 10px; }
-            ::-webkit-scrollbar-track { background: #16171a; }
-            ::-webkit-scrollbar-thumb { background: #3c4043; border-radius: 5px; border: 2px solid #16171a; }
-            ::-webkit-scrollbar-thumb:hover { background: #ff5500; }
-            .ddg-header { background: #1c1c1c; border-bottom: 1px solid #2e2e2e; padding: 14px 24px 0 24px; position: sticky; top: 0; z-index: 100; }
-            .ddg-top-row { display: flex; align-items: center; gap: 22px; max-width: 1120px; margin-bottom: 12px; }
-            .ddg-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
-            .ddg-logo-badge { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #ff5500, #de5833); display: flex; align-items: center; justify-content: center; font-size: 19px; }
-            .ddg-search-form { flex: 1; max-width: 630px; display: flex; align-items: center; background: #2b2b2b; border: 1px solid #3d3d3d; border-radius: 8px; height: 42px; padding: 0 6px 0 16px; }
-            .ddg-search-form:focus-within { border-color: #de5833; background: #242424; }
-            .ddg-search-form input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; }
-            .ddg-clear-btn { background: transparent; border: none; color: #888; font-size: 16px; cursor: pointer; padding: 4px 8px; }
-            .ddg-clear-btn:hover { color: #fff; }
-            .ddg-submit-btn { background: transparent; border: none; color: #de5833; font-size: 17px; cursor: pointer; padding: 6px 10px; font-weight: bold; }
-            .ddg-nav-tabs { display: flex; gap: 24px; padding-left: 192px; font-size: 13.5px; }
-            .ddg-tab { color: #aaaaaa; padding-bottom: 10px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; user-select: none; }
-            .ddg-tab:hover { color: #ffffff; }
-            .ddg-tab.active { color: #ffffff; border-bottom-color: #de5833; font-weight: 600; }
-            .ddg-main { padding: 20px 24px 60px 192px; max-width: 1120px; }
-            "@media (max-width: 860px) { .ddg-nav-tabs { padding-left: 0; } .ddg-main { padding-left: 24px; } }"
-            .g-ai-wrapper { background: linear-gradient(180deg, #1f242d 0%, #181b22 100%); border: 1px solid #333a48; border-radius: 16px; padding: 20px 24px 14px 24px; margin-bottom: 26px; max-width: 820px; box-shadow: 0 4px 20px rgba(0,0,0,0.35); }
-            .g-ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-            .g-ai-title-row { display: flex; align-items: center; gap: 10px; }
-            .bl-ai-logo { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #ff5500, #de5833); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-            .g-ai-label { font-size: 16px; font-weight: 600; color: #e8eaed; }
-            .g-ai-meta { font-size: 11.5px; color: #9aa0a6; background: rgba(255,255,255,0.06); padding: 3px 9px; border-radius: 12px; }
-            .g-ai-grid { display: flex; gap: 20px; align-items: flex-start; }
-            .g-ai-main { flex: 1; min-width: 0; }
-            .g-ai-text { font-size: 14.5px; line-height: 1.65; color: #e8eaed; overflow: hidden; transition: max-height 0.25s ease; }
-            .g-ai-text.collapsed { max-height: 170px; mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
-            .bl-code-wrap { background: #111318; border: 1px solid #2e3440; border-radius: 8px; margin: 10px 0; overflow: hidden; }
-            .bl-code-bar { display: flex; justify-content: space-between; align-items: center; background: #191c24; padding: 5px 12px; font-size: 11.5px; color: #9aa0a6; border-bottom: 1px solid #2e3440; }
-            .bl-copy-btn { background: #2b303c; color: #fff; border: 1px solid #3e4556; border-radius: 4px; padding: 3px 9px; font-size: 11px; cursor: pointer; font-weight: 600; }
-            .bl-copy-btn:hover { background: #ff5500; border-color: #ff5500; }
-            .bl-code-pre { margin: 0; padding: 12px; overflow-x: auto; font-family: 'Consolas', 'JetBrains Mono', monospace; font-size: 13px; color: #8ab4f8; white-space: pre; }
-            .g-ai-chat-box { margin-top: 14px; padding-top: 12px; border-top: 1px solid #2e3442; }
-            .g-ai-chat-history { max-height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-            .chat-msg-user { align-self: flex-end; background: #ff5500; color: #fff; padding: 7px 12px; border-radius: 12px 12px 2px 12px; font-size: 13px; max-width: 85%; }
-            .chat-msg-ai { align-self: flex-start; background: #262b36; color: #e8eaed; border: 1px solid #363d4c; padding: 8px 12px; border-radius: 12px 12px 12px 2px; font-size: 13px; max-width: 92%; line-height: 1.5; }
-            .g-ai-chat-form { display: flex; gap: 8px; }
-            .g-ai-chat-form input { flex: 1; background: #14171d; border: 1px solid #383f4f; border-radius: 18px; padding: 7px 14px; color: #fff; font-size: 13px; outline: none; }
-            .g-ai-chat-form input:focus { border-color: #ff5500; }
-            .g-ai-chat-form button { background: #ff5500; color: #fff; border: none; border-radius: 18px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
-            .g-ai-more-btn { margin-top: 10px; display: inline-block; width: auto; background: #282e3a; border: 1px solid #3c4454; color: #8ab4f8; border-radius: 16px; padding: 5px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-            .g-ai-more-btn:hover { background: #353d4d; color: #fff; }
-            .g-ai-sources { width: 210px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-            .g-source-chip { display: block; background: #262b36; border: 1px solid #363d4c; border-radius: 10px; padding: 8px 10px; color: #e8eaed; font-size: 12px; }
-            .g-source-chip:hover { background: #303746; border-color: #8ab4f8; }
-            .g-source-title { font-weight: 600; color: #8ab4f8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
-            .g-source-domain { color: #9aa0a6; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .g-ai-footer { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 10px; border-top: 1px solid #2c323f; font-size: 11.5px; color: #8e9297; }
-            @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
-            .shimmer-line { height: 14px; margin-bottom: 10px; border-radius: 6px; background: linear-gradient(90deg, #282e3b 25%, #3a4356 50%, #282e3b 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite linear; }
-            .ddg-results { max-width: 720px; }
-            .ddg-result { padding: 14px 16px; margin: 0 -16px 10px -16px; border-radius: 8px; }
-            .ddg-result:hover { background: #242424; }
-            .ddg-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 13px; color: #b0b0b0; }
-            .ddg-fav { width: 16px; height: 16px; border-radius: 3px; }
-            .ddg-title { font-size: 19px; line-height: 1.3; color: #7399ff; font-weight: 500; display: block; margin-bottom: 5px; }
-            .ddg-title:hover { text-decoration: underline; }
-            .ddg-snippet { font-size: 14px; line-height: 1.55; color: #cccccc; }
-            .ddg-image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; max-width: 960px; }
-            .ddg-img-card { background: #242424; border: 1px solid #333; border-radius: 8px; overflow: hidden; display: block; color: #eee; }
-            .ddg-img-card:hover { border-color: #de5833; }
-            .ddg-img-card img { width: 100%; height: 140px; object-fit: cover; display: block; background: #151515; }
-            .ddg-img-caption { padding: 8px 10px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            </style></head><body>
-            <div class='ddg-header'>
-            <div class='ddg-top-row'>
-            <div class='ddg-logo' onclick="console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);">
-            <div class='ddg-logo-badge'>🦁</div>
-            <span>BraveLite Engine</span>
-            </div>
-            <form class='ddg-search-form' onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: '__TAB_TYPE__'}));">
-            <input id='qInput' type='text' value="__QUERY_ESC__" placeholder='Search privately with BraveLite Engine...' autocomplete='off' />
-            <button type='button' class='ddg-clear-btn' onclick="var i=document.getElementById('qInput'); i.value=''; i.focus();">✕</button>
-            <button type='submit' class='ddg-submit-btn'>🔍</button>
-            </form>
-            </div>
-            <div class='ddg-nav-tabs'>
-            <a class='ddg-tab __TAB_ALL_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'all'}));">🔍 All</a>
-            <a class='ddg-tab __TAB_IMAGES_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'images'}));">🖼 Images</a>
-            <a class='ddg-tab __TAB_VIDEOS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'videos'}));">🎬 Videos</a>
-            <a class='ddg-tab __TAB_NEWS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'news'}));">📰 News</a>
-            </div>
-            </div>
-            <div class='ddg-main'>
-            __AI_OVERVIEW_HTML__
-            <div class='ddg-results' id='webResults'>
-            <div class='ddg-result'><div class='ddg-snippet'>Searching BraveLite Engine (__TAB_TYPE__) for <b>__QUERY_ESC__</b>...</div></div>
-            </div>
-            </div>
-            )HTML";
-        ddgSearchPageHtml += R"HTML(
-            <script>
-            window.__copyCode = function(btn) {
-                if (btn && btn.parentElement && btn.parentElement.nextElementSibling) {
-                    navigator.clipboard.writeText(btn.parentElement.nextElementSibling.innerText);
-                    btn.textContent = "✔ Copied";
-                }
-            };
-            window.__formatAiMarkdown = function(raw) {
-                var safe = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                safe = safe.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, function(_, lang, code) {
-                    var lbl = lang ? lang : 'code';
-                return '<div class="bl-code-wrap"><div class="bl-code-bar"><span>' + lbl + '</span>' +
-                '<button type="button" class="bl-copy-btn" onclick="window.__copyCode(this)">📋 Copy code</button></div>' +
-                '<pre class="bl-code-pre">' + code + '</pre></div>';
-                });
-                safe = safe.replace(/`([^`\n]+)`/g, '<code style="background:#111318;color:#8ab4f8;padding:2px 6px;border-radius:4px;">$1</code>');
-                safe = safe.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-                safe = safe.replace(/\n/g, '<br>');
-                return safe;
-            };
-            window.__aiExpanded = false;
-            window.__toggleAiExpand = function() {
-                var t = document.getElementById('aiOverviewText');
-                var b = document.getElementById('aiShowMoreBtn');
-                var c = document.getElementById('aiChatBox');
-                if (!t || !b) return;
-                window.__aiExpanded = !window.__aiExpanded;
-                if (window.__aiExpanded) {
-                    t.classList.remove('collapsed');
-                    if (c) c.style.display = 'block';
-                    b.textContent = 'Less ▴';
-                } else {
-                    t.classList.add('collapsed');
-                    if (c) c.style.display = 'none';
-                    b.textContent = 'More ▾';
-                }
-            };
-            window.__submitAiFollowup = function(e) {
-                e.preventDefault();
-                var inp = document.getElementById('aiChatInput');
-                var hist = document.getElementById('aiChatHistory');
-                if (!inp || !hist || !inp.value.trim()) return;
-                var q = inp.value.trim();
-                inp.value = '';
-                var uDiv = document.createElement('div'); uDiv.className = 'chat-msg-user'; uDiv.textContent = q; hist.appendChild(uDiv);
-                var aDiv = document.createElement('div'); aDiv.className = 'chat-msg-ai'; aDiv.id = 'pendingAiReply'; aDiv.textContent = '⏳ Thinking...'; hist.appendChild(aDiv);
-                hist.scrollTop = hist.scrollHeight;
-                console.log('BRAVELITE_AI_CHAT::Context: __QUERY_ESC__ | Followup: ' + q);
-            };
-            window.__appendAiChat = function(obj) {
-                var pending = document.getElementById('pendingAiReply');
-                if (pending) { pending.removeAttribute('id'); pending.innerHTML = window.__formatAiMarkdown(obj.reply); }
-            };
-            window.__setAiOverview = function(text) {
-                var el = document.getElementById('aiOverviewText');
-                var btn = document.getElementById('aiShowMoreBtn');
-                if (!el) return;
-                el.innerHTML = window.__formatAiMarkdown(text);
-                if (btn) btn.style.display = 'block';
-                if (text && text.length > 340) el.classList.add('collapsed');
-            };
-                window.__setImageResults = function(items) {
-                    var container = document.getElementById('webResults');
-                    if (!container) return;
-                    container.className = 'ddg-image-grid';
-                    container.innerHTML = '';
-                    if (!items || items.length === 0) {
-                        container.innerHTML = '<div class="ddg-result"><div class="ddg-snippet">No images found for this query.</div></div>';
-                        return;
-                    }
-                    items.forEach(function(it) {
-                        var card = document.createElement('a');
-                        card.className = 'ddg-img-card';
-                    card.href = it.url;
-                    card.innerHTML = '<img src="' + it.img + '" loading="lazy" /><div class="ddg-img-caption">' + it.title + '</div>';
-                    container.appendChild(card);
-                    });
-                };
-                window.__setWebResults = function(items) {
-                    var container = document.getElementById('webResults');
-                    var rail = document.getElementById('aiSourcesRail');
-                    if (!container) return;
-                    container.className = 'ddg-results';
-                    container.innerHTML = '';
-                    if (rail) rail.innerHTML = '';
-                    if (!items || items.length === 0) {
-                        container.innerHTML = '<div class="ddg-result"><div class="ddg-snippet">No instant results found.</div></div>';
-                        return;
-                    }
-                    items.forEach(function(it, idx) {
-                        var host = '';
-                    try { host = (new URL(it.url)).hostname; } catch(e) { host = it.url; }
-                    var fav = 'https://www.google.com/s2/favicons?sz=32&domain_url=' + encodeURIComponent(it.url);
-                    var card = document.createElement('div');
-                    card.setAttribute('class', 'ddg-result');
-                    card.innerHTML = '<div class="ddg-site-row"><img class="ddg-fav" src="' + fav + '" /><span>' + host + '</span></div>' +
-                    '<a class="ddg-title" href="' + it.url + '">' + it.title + '</a>' +
-                    '<div class="ddg-snippet">' + it.snippet + '</div>';
-                    container.appendChild(card);
-                    if (rail && idx < 3) {
-                        var chip = document.createElement('a');
-                        chip.setAttribute('class', 'g-source-chip');
-                        chip.href = it.url;
-                        chip.innerHTML = '<div class="g-source-title">' + it.title + '</div><div class="g-source-domain">🔗 ' + host + '</div>';
-                    rail.appendChild(chip);
-                    }
-                    });
-                };
-                </script></body></html>
-                )HTML";
-
-        ddgSearchPageHtml.replace("__QUERY_ESC__", escapedQuery);
-        ddgSearchPageHtml.replace("__AI_OVERVIEW_HTML__", googleAiOverviewHtml);
-        ddgSearchPageHtml.replace("__TAB_TYPE__", cleanTab);
-        ddgSearchPageHtml.replace("__TAB_ALL_ACTIVE__", cleanTab == "all" ? "active" : "");
-        ddgSearchPageHtml.replace("__TAB_IMAGES_ACTIVE__", cleanTab == "images" ? "active" : "");
-        ddgSearchPageHtml.replace("__TAB_VIDEOS_ACTIVE__", cleanTab == "videos" ? "active" : "");
-        ddgSearchPageHtml.replace("__TAB_NEWS_ACTIVE__", cleanTab == "news" ? "active" : "");
+        QString ddgSearchPageHtml = buildBraveLiteSearchHtml(query, cleanTab, escapedQuery, googleAiOverviewHtml);
 
         if (auto *customPage = qobject_cast<CustomWebEnginePage*>(view->page())) {
             customPage->isRenderingSearchHtml = true;
@@ -2854,7 +3291,7 @@ public slots:
             QUrl imgApiUrl("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
             QUrl::toPercentEncoding(query) + "&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=420&format=json");
             QNetworkRequest req(imgApiUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.68");
+            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.70");
             QNetworkReply *rep = m_netManager->get(req);
             connect(rep, &QNetworkReply::finished, this, [rep, safeView, currentSearchId]() {
                 if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId && rep->error() == QNetworkReply::NoError) {
@@ -3595,13 +4032,13 @@ public:
         QVBoxLayout *searchTextLayout = new QVBoxLayout();
         QLabel *sTitle = new QLabel("Search engine", searchCard);
         sTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *sSub = new QLabel("Choose your default search engine: BraveLite Engine (with AI Overview), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", searchCard);
+        QLabel *sSub = new QLabel("Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", searchCard);
         sSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         searchTextLayout->addWidget(sTitle);
         searchTextLayout->addWidget(sSub);
 
         QComboBox *engineCombo = new QComboBox(searchCard);
-        engineCombo->addItems({"BraveLite Engine", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
+        engineCombo->addItems({"BraveLite Engine", "Startpage", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
         engineCombo->setCurrentText(defaultSearchEngine);
         if (engineCombo->currentIndex() < 0) {
             engineCombo->setCurrentIndex(0);
@@ -5461,6 +5898,7 @@ private:
     QSet<QString> m_pendingFaviconHosts;
     AdBlocker *m_adBlocker;
     QWidget *headerContainer;
+    QList<ClosedTabRecord> m_closedTabsHistory;
     CustomTabBar *tabBar;
     QStackedWidget *tabStack;
     DroppableUrlBar *urlBar;
@@ -5966,6 +6404,17 @@ private:
 
         bindKey(keybindsMap.value("NewTab"), [this]() { addNewTab(); });
         bindKey(keybindsMap.value("CloseTab"), [this]() { closeTab(tabBar->currentIndex()); });
+        bindKey("Ctrl+Tab", [this]() { if (tabBar->count() > 1) tabBar->setCurrentIndex((tabBar->currentIndex() + 1) % tabBar->count()); });
+        bindKey("Ctrl+Shift+Tab", [this]() { if (tabBar->count() > 1) tabBar->setCurrentIndex((tabBar->currentIndex() - 1 + tabBar->count()) % tabBar->count()); });
+        bindKey("Ctrl+Shift+T", [this]() { reopenLastClosedTab(); });
+        for (int t = 1; t <= 8; ++t) {
+            bindKey(QString("Ctrl+%1").arg(t), [this, t]() {
+                if (t - 1 < tabBar->count()) tabBar->setCurrentIndex(t - 1);
+            });
+        }
+        bindKey("Ctrl+9", [this]() {
+            if (tabBar->count() > 0) tabBar->setCurrentIndex(tabBar->count() - 1);
+        });
         bindKey(keybindsMap.value("NewWindow"), [this]() { (new BrowserWindow(false, true, QList<QUrl>(), false))->show(); });
         bindKey(keybindsMap.value("Incognito"), [this]() { openIncognito(); });
         bindKey(keybindsMap.value("History"), [this]() { openHistoryTab(); });
@@ -6624,12 +7073,12 @@ private:
             QTabBar::tab {
                 background: %4;
                 color: #9aa0a6;
-                padding: 6px 14px 6px 10px;
-                margin-right: 3px;
+                padding: 4px 6px 4px 6px;
+                margin-right: 2px;
                 border-top-left-radius: 8px;
                 border-top-right-radius: 8px;
-                min-width: 36px;
-                max-width: 200px;
+                min-width: 16px;
+                max-width: 185px;
                 font-size: 12px;
             }
             QTabBar::tab:selected {
@@ -7299,7 +7748,9 @@ private:
 
     QUrl getSearchEngineUrl(const QString &engine, const QString &query) const {
         QString encoded = QString::fromUtf8(QUrl::toPercentEncoding(query));
-        if (engine.compare("Google", Qt::CaseInsensitive) == 0) {
+        if (engine.compare("Startpage", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.startpage.com/do/dsearch?query=" + encoded);
+        } else if (engine.compare("Google", Qt::CaseInsensitive) == 0) {
             return QUrl("https://www.google.com/search?q=" + encoded);
         } else if (engine.compare("Bing", Qt::CaseInsensitive) == 0) {
             return QUrl("https://www.bing.com/search?q=" + encoded);
@@ -7821,7 +8272,7 @@ private:
             int i = tabStack->indexOf(view);
             if (i != -1) {
                 QString cleanTitle = t.trimmed();
-                tabBar->setTabText(i, (cleanTitle.isEmpty() || cleanTitle == "about:blank") ? "New Tab" : cleanTitle.left(18));
+                tabBar->setTabText(i, (cleanTitle.isEmpty() || cleanTitle == "about:blank" || cleanTitle == "New Tab") ? L10n::tr("New Tab") : cleanTitle.left(18));
                 tabBar->setTabToolTip(i, t);
             }
         });
@@ -8074,10 +8525,14 @@ private:
 QList<BrowserWindow*> BrowserWindow::s_openWindows;
 
 void CustomTabBar::mouseMoveEvent(QMouseEvent *event) {
+    int oldHover = m_hoveredIndex;
+    m_hoveredIndex = tabAt(event->pos());
+    if (oldHover != m_hoveredIndex) {
+        updateTabButtonsVisibility();
+    }
     if (m_dragIndex >= 0 && (event->buttons() & Qt::LeftButton)) {
-        int dy = qAbs(event->pos().y() - m_dragStartPos.y());
-        int dx = qAbs(event->pos().x() - m_dragStartPos.x());
-        if (!m_isTearOffDragging && (event->pos().y() > height() + 10 || event->pos().y() < -10 || (dy > 18 && dy > dx))) {
+        int dy = event->pos().y() - m_dragStartPos.y();
+        if (!m_isTearOffDragging && (event->pos().y() > height() + 35 || dy > height() + 30)) {
             m_isTearOffDragging = true;
             int idx = m_dragIndex;
             m_dragIndex = -1;
@@ -8217,12 +8672,16 @@ QWebEngineView* CustomWebView::createWindow(QWebEnginePage::WebWindowType type) 
 }
 
 CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
+    bool wasMax = isMaximized();
     CustomWebView *view = new CustomWebView(this);
     CustomWebEnginePage *p = new CustomWebEnginePage(m_profile, m_adBlocker, view);
     view->setPage(p);
 
     int index = tabStack->addWidget(view);
-    int tabIdx = tabBar->addTab("New Tab");
+    int tabIdx = tabBar->addTab(loadBraveLiteAppIcon(), L10n::tr("New Tab"));
+    if (tabRowContainer && tabRowContainer->layout()) {
+        tabRowContainer->layout()->activate();
+    }
     tabBar->setCurrentIndex(tabIdx);
     tabStack->setCurrentIndex(index);
 
@@ -8232,6 +8691,9 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
     else view->load(url);
 
     updateSplitButtonState();
+    if (wasMax && !isMaximized()) {
+        showMaximized();
+    }
     return view;
 }
 
@@ -8254,18 +8716,14 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("BraveLite");
-    app.setApplicationVersion("1.68");
+    app.setApplicationVersion("1.70");
     app.setOrganizationName("BraveLite");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
         app.setStyle(fusion);
     }
 
-    QIcon appIcon = QIcon::fromTheme("bravelite");
-    if (appIcon.isNull()) appIcon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
-    if (appIcon.isNull()) appIcon = QIcon("assets/bravelite.ico");
-    if (appIcon.isNull()) appIcon = QIcon("assets/icon.ico");
-    app.setWindowIcon(appIcon);
+    app.setWindowIcon(loadBraveLiteAppIcon());
 
     QList<QUrl> startupUrls;
     bool requestedNewWindow = false;
@@ -8289,7 +8747,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v168";
+    const QString ipcServerName = "BraveLiteSingleInstanceServer_v170";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);
