@@ -1,8 +1,12 @@
-1)MAKE TABS WORK JUST LIKE ANY OTHER BROWSER, I DONT EVEN KNOW WHAT IS THIS THAT I OPEN A NEW TAB AND THE OTHER DISAPEARS, FIX THE TABS JUST LIKE THEY FUNCTION IN ANY OTHER BROWSER
+1) remove all starting page branding from my bravelite browser and the redirection, i just want the cosmetic change, also the search does not actualy work or it takes an extreme amount of time, I want it to be bravelite engine just with the theme of startingpage not actualy startingpage.
 
-2) rework the bravelite engine to be based on and fuction like startpage (https://www.startpage.com/) and also add startpage to the search engine list
+2) make sure the ui is corectly and perfectly scaled in all resolutions and not need sliders to view the whole page
 
-change to version v1.70
+3) make more space in the top by removing all text from the translation button just keep the emoji and remove the zoom in/out buttons and keep them in the 3bar menu
+
+4) make the buttons smaller next to the url bar to make space for more in the future
+
+change to version v1.71
 
 update the changelog and the README
 

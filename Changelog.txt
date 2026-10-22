@@ -23,7 +23,26 @@ Author: GrGeorge
    - Added Startpage as an official search engine in Settings -> "Get Started" alongside Google, Bing, DuckDuckGo, Yahoo, and Yandex.
    - Direct Startpage omnibox queries (`https://www.startpage.com/do/dsearch?query=%s`) and autocomplete support (`startpage.com`).
 
-4. Full Windows & Linux Parity & Version Bump to v1.70:
+4. Comprehensive Multi-Language UI Support (5 Most Popular Languages + Greek):
+   - Full browser UI localization across 6 languages:
+     * English (default)
+     * Greek (Ελληνικά)
+     * Spanish (Español)
+     * French (Français)
+     * German (Deutsch)
+     * Chinese (中文)
+   - Complete localized coverage across all browser components:
+     * Settings Dashboard: all 15 categories, detail headings, cards, descriptions, and action buttons.
+     * Starting Page (New Tab): welcome headline ("Welcome!"), search placeholder, tagline ("because privacy matters"), date formatting, and live JS clock adapting to the selected locale (`el-GR`, `es-ES`, `fr-FR`, `de-DE`, `zh-CN`, `en-US`).
+     * URL Box (Omnibox): localized placeholder ("Search privately with BraveLite Engine or enter address", "Search with %1 or enter address"), autocomplete search hints ("- Search with %1"), and full context menu (Cut, Copy, Paste, Paste and Search, Delete, Select All, Undo, Redo).
+     * Navigation Toolbar: tooltips for Back, Forward, Reload, Bookmarks, Zoom Out, Zoom In, Downloads, Passwords, Split View, and Menu, plus the Translate button.
+     * App Menu: localized actions, confirmation dialogs, and a dedicated "🌐 Language" submenu with checkmark indicators.
+     * Tab Bar & Internal Tabs: localized "New Tab", "Settings", "Downloads", "History", and "Permissions" tab titles.
+   - Dynamic Live Language Switching: switch languages on-the-fly via Settings -> Display Language or the ☰ App Menu without restarting the browser.
+   - Synchronized HTTP Accept-Language: automatically configures browser profile headers (`el-GR`, `es-ES`, `fr-FR`, `de-DE`, `zh-CN`, `en-US`) so visited websites serve content in the chosen language.
+   - Persistent Configuration: active language preference is persisted in `data.json` across sessions.
+
+5. Full Windows & Linux Parity & Version Bump to v1.70:
    - Complete cross-platform feature parity across Windows 10/11 and Linux.
    - Native Windows border drag resizing with `WM_NCHITTEST` and Aero Snap.
    - Updated Inno Setup Windows installer (`installer.iss`), IPC socket (`BraveLiteSingleInstanceServer_v170`), and diagnostic crash logger to v1.70.

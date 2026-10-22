@@ -137,21 +137,55 @@ inline QIcon loadBraveLiteAppIcon() {
 namespace L10n {
     inline QString currentLang = "English";
 
+    inline QString normalizeLanguage(const QString &lang) {
+        QString lower = lang.toLower();
+        if (lower.contains("greek") || lower.contains("ελληνικ")) return "Greek";
+        if (lower.contains("spanish") || lower.contains("español") || lower.contains("espanol")) return "Spanish";
+        if (lower.contains("french") || lower.contains("français") || lower.contains("francais")) return "French";
+        if (lower.contains("german") || lower.contains("deutsch")) return "German";
+        if (lower.contains("chinese") || lower.contains("中文") || lower.contains("zh")) return "Chinese";
+        return "English";
+    }
+
     inline void setLanguage(const QString &lang) {
-        currentLang = lang;
+        currentLang = normalizeLanguage(lang);
     }
 
     inline QString getLanguage() {
         return currentLang;
     }
 
+    inline QString getLanguageDisplayName() {
+        if (currentLang == "Greek") return "Ελληνικά (Greek)";
+        if (currentLang == "Spanish") return "Español (Spanish)";
+        if (currentLang == "French") return "Français (French)";
+        if (currentLang == "German") return "Deutsch (German)";
+        if (currentLang == "Chinese") return "中文 (Chinese)";
+        return "English";
+    }
+
+    struct LangInfo {
+        QString code;
+        QString nativeName;
+    };
+
+    inline QVector<LangInfo> getSupportedLanguages() {
+        return {
+            {"English", "English"},
+            {"Greek", "Ελληνικά (Greek)"},
+            {"Spanish", "Español (Spanish)"},
+            {"French", "Français (French)"},
+            {"German", "Deutsch (German)"},
+            {"Chinese", "中文 (Chinese)"}
+        };
+    }
+
     inline QString getLocaleCode() {
-        QString l = currentLang;
-        if (l == "Greek" || l == "Ελληνικά") return "el-GR";
-        if (l == "Spanish" || l == "Español") return "es-ES";
-        if (l == "French" || l == "Français") return "fr-FR";
-        if (l == "German" || l == "Deutsch") return "de-DE";
-        if (l == "Chinese" || l == "中文") return "zh-CN";
+        if (currentLang == "Greek") return "el-GR";
+        if (currentLang == "Spanish") return "es-ES";
+        if (currentLang == "French") return "fr-FR";
+        if (currentLang == "German") return "de-DE";
+        if (currentLang == "Chinese") return "zh-CN";
         return "en-US";
     }
 
@@ -168,6 +202,8 @@ namespace L10n {
                 {"New Incognito Window", "Νέα ανώνυμη περιήγηση"},
                 {"New tab to the right", "Νέα καρτέλα δεξιά"},
                 {"Duplicate", "Δημιουργία αντιγράφου"},
+                {"Mute site", "Σίγαση ιστότοπου"},
+                {"Unmute site", "Κατάργηση σίγασης ιστότοπου"},
                 {"Close tab", "Κλείσιμο καρτέλας"},
                 {"Close Tab", "Κλείσιμο καρτέλας"},
                 {"Close other tabs", "Κλείσιμο άλλων καρτελών"},
@@ -178,24 +214,141 @@ namespace L10n {
                 {"Bookmarks", "Σελιδοδείκτες"},
                 {"Bookmarks Manager", "Διαχειριστής σελιδοδεικτών"},
                 {"Passwords", "Κωδικοί πρόσβασης"},
+                {"Passwords && Autofill", "Κωδικοί πρόσβασης && Αυτόματη συμπλήρωση"},
+                {"Passwords & Autofill Vault", "Κωδικοί πρόσβασης & Αυτόματη συμπλήρωση"},
                 {"Settings", "Ρυθμίσεις"},
-                {"Search or enter address", "Αναζήτηση ή εισαγωγή διεύθυνσης..."},
-                {"Find in page", "Εύρεση στη σελίδα..."},
                 {"Language", "Γλώσσα"},
+                {"Display Language", "Γλώσσα εμφάνισης"},
+                {"Choose the display language for the browser interface, start page, and settings.", "Επιλέξτε τη γλώσσα εμφάνισης για τη διεπαφή του περιηγητή, την αρχική σελίδα και τις ρυθμίσεις."},
                 {"Default browser", "Προεπιλεγμένος περιηγητής"},
+                {"BraveLite is currently your default web browser.", "Το BraveLite είναι ο προεπιλεγμένος σας περιηγητής διαδικτύου."},
+                {"Make BraveLite your default web browser for opening web links.", "Ορίστε το BraveLite ως προεπιλεγμένο περιηγητή διαδικτύου για το άνοιγμα συνδέσμων."},
+                {"Default Browser", "Προεπιλεγμένος περιηγητής"},
+                {"Make default", "Ορισμός ως προεπιλογή"},
+                {"On startup", "Κατά την εκκίνηση"},
+                {"Open the New Tab page", "Άνοιγμα της σελίδας Νέα καρτέλα"},
+                {"Continue where you left off", "Συνέχεια από εκεί που μείνατε"},
                 {"Search engine", "Μηχανή αναζήτησης"},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Επιλέξτε την προεπιλεγμένη μηχανή αναζήτησης: BraveLite Engine (Ιδιωτική Αναζήτηση & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, ή Yandex."},
+                {"Search or enter address", "Αναζήτηση ή εισαγωγή διεύθυνσης..."},
+                {"Search with %1 or enter address", "Αναζήτηση με %1 ή πληκτρολογήστε διεύθυνση"},
+                {"Search privately with BraveLite Engine or enter address", "Ιδιωτική αναζήτηση με BraveLite Engine ή εισαγωγή διεύθυνσης"},
+                {"Search with %1 or enter address...", "Αναζήτηση με %1 ή πληκτρολογήστε διεύθυνση..."},
+                {"Search privately with BraveLite Engine or enter address...", "Ιδιωτική αναζήτηση με BraveLite Engine ή πληκτρολογήστε διεύθυνση..."},
+                {"- Search with %1", "- Αναζήτηση με %1"},
+                {"Welcome!", "Καλώς ήρθατε!"},
+                {"because privacy matters", "επειδή η ιδιωτικότητα έχει σημασία"},
+                {"Startpage Privacy Search", "Ιδιωτική αναζήτηση Startpage"},
+                {"Search privately with BraveLite Engine (Startpage)...", "Ιδιωτική αναζήτηση με το BraveLite Engine (Startpage)..."},
+                {"Startpage Protected", "Προστασία Startpage"},
+                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Μηδενική καταγραφή προσωπικών δεδομένων • Χωρίς προφίλ αναζήτησης • Ανώνυμη προβολή σε κάθε αποτέλεσμα"},
+                {"🛡️ Anonymous View", "🛡️ Ανώνυμη προβολή"},
+                {"View page anonymously via Startpage Proxy", "Προβολή σελίδας ανώνυμα μέσω του Startpage Proxy"},
+                {"Open in Startpage.com", "Άνοιγμα στο Startpage.com"},
+                {"🔍 All", "🔍 Όλα"},
+                {"🖼 Images", "🖼 Εικόνες"},
+                {"🎬 Videos", "🎬 Βίντεο"},
+                {"📰 News", "📰 Ειδήσεις"},
+                {"Search", "Αναζήτηση"},
+                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Αναζήτηση στο Startpage & BraveLite Engine (%1) για %2..."},
+                {"No instant results found.", "Δεν βρέθηκαν άμεσα αποτελέσματα."},
+                {"No images found for this query.", "Δεν βρέθηκαν εικόνες για αυτό το ερώτημα."},
+                {"BraveLite Engine • AI Overview", "BraveLite Engine • Επισκόπηση AI"},
+                {"BraveLite Engine", "BraveLite Engine"},
+                {"AI Overview", "Επισκόπηση AI"},
+                {"Ask a follow-up or request code examples...", "Κάντε μια ερώτηση παρακολούθησης ή ζητήστε παραδείγματα κώδικα..."},
+                {"Ask AI ➔", "Ερώτηση AI ➔"},
+                {"More ▾", "Περισσότερα ▾"},
+                {"Less ▴", "Λιγότερα ▴"},
+                {"Grounded on verified search results", "Βασισμένο σε επαληθευμένα αποτελέσματα αναζήτησης"},
+                {"Grounded on verified search results • Local Ollama (%1)", "Βασισμένο σε επαληθευμένα αποτελέσματα • Τοπικό Ollama (%1)"},
+                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"GPU Accelerated", "Επιτάχυνση GPU"},
+                {"Back", "Πίσω"},
+                {"Forward", "Μπροστά"},
+                {"Reload", "Επαναφόρτωση"},
+                {"Home", "Αρχική"},
+                {"Bookmark this page", "Προσθήκη σελιδοδείκτη"},
+                {"Shields", "Ασπίδες"},
+                {"Zoom", "Μεγέθυνση"},
+                {"Zoom In", "Μεγέθυνση"},
+                {"Zoom Out", "Σμίκρυνση"},
+                {"Reset Zoom (100%)", "Επαναφορά μεγέθυνσης (100%)"},
+                {"BraveLite Menu", "Μενού BraveLite"},
                 {"Extensions", "Επεκτάσεις"},
-                {"AI Assistant", "Βοηθός AI"},
-                {"Translate", "Μετάφραση"},
-                {"Shields", "Ασπίδες προστασίας"},
+                {"Extensions & Userscripts", "Επεκτάσεις & Userscripts"},
+                {"Extensions (Userscripts)", "Επεκτάσεις (Userscripts)"},
+                {"BraveLite AI Assistant", "Βοηθός AI BraveLite"},
+                {"BraveLite AI Assistant (Side Chat)", "Βοηθός AI BraveLite (Πλευρική συνομιλία)"},
+                {"Find in page...", "Εύρεση στη σελίδα..."},
+                {"Find in page", "Εύρεση στη σελίδα"},
+                {"Site Permissions", "Δικαιώματα ιστότοπου"},
                 {"Inspect Element", "Έλεγχος στοιχείου"},
-                {"Back", "Πίσω (Alt+Left)"},
-                {"Forward", "Μπροστά (Alt+Right)"},
-                {"Reload", "Επαναφόρτωση (Ctrl+R)"},
+                {"Delete browsing data...", "Διαγραφή δεδομένων περιήγησης..."},
+                {"Exit", "Έξοδος"},
+                {"Translate", "Μετάφραση"},
+                {"Translate entire page with local AI (translategemma:4b)", "Μετάφραση ολόκληρης της σελίδας με τοπικό AI (translategemma:4b)"},
+                {"Split View", "Διαίρεση προβολής"},
+                {"Split View Options", "Επιλογές διαίρεσης προβολής"},
                 {"Minimize", "Ελαχιστοποίηση"},
                 {"Maximize", "Μεγιστοποίηση"},
+                {"Maximize / Restore", "Μεγιστοποίηση / Επαναφορά"},
                 {"Restore", "Επαναφορά"},
-                {"Close", "Κλείσιμο"}
+                {"Close", "Κλείσιμο"},
+                {"Cut", "Αποκοπή"},
+                {"Copy", "Αντιγραφή"},
+                {"Paste", "Επικόλληση"},
+                {"Paste and search", "Επικόλληση και αναζήτηση"},
+                {"Delete", "Διαγραφή"},
+                {"Select All", "Επιλογή όλων"},
+                {"Select all", "Επιλογή όλων"},
+                {"Undo", "Αναίρεση"},
+                {"Redo", "Επανάληψη"},
+                {"Open link in new tab", "Άνοιγμα συνδέσμου σε νέα καρτέλα"},
+                {"Open link in new window", "Άνοιγμα συνδέσμου σε νέο παράθυρο"},
+                {"Open link in incognito window", "Άνοιγμα συνδέσμου σε ανώνυμη περιήγηση"},
+                {"Open link in split view", "Άνοιγμα συνδέσμου σε διαίρεση προβολής"},
+                {"Save link as", "Αποθήκευση συνδέσμου ως..."},
+                {"Copy link address", "Αντιγραφή διεύθυνσης συνδέσμου"},
+                {"Copy clean link", "Αντιγραφή καθαρού συνδέσμου"},
+                {"Save page as...", "Αποθήκευση σελίδας ως..."},
+                {"Print...", "Εκτύπωση..."},
+                {"View page source", "Προβολή κώδικα σελίδας"},
+                {"New Bookmark", "Νέος σελιδοδείκτης"},
+                {"Delete Selected", "Διαγραφή επιλεγμένου"},
+                {"Import Bookmarks", "Εισαγωγή σελιδοδεικτών"},
+                {"Export Bookmarks", "Εξαγωγή σελιδοδεικτών"},
+                {"Import Passwords / Bookmarks", "Εισαγωγή κωδικών / σελιδοδεικτών"},
+                {"Export Passwords (CSV)", "Εξαγωγή κωδικών (CSV)"},
+                {"Clear Data", "Εκκαθάριση δεδομένων"},
+                {"Delete all cookies and history?", "Διαγραφή όλων των cookies και του ιστορικού;"},
+                {"Cookies and history cleared.", "Τα cookies και το ιστορικό εκκαθαρίστηκαν."},
+                {"Clear All History", "Εκκαθάριση όλου του ιστορικού"},
+                {"Search browsing & BraveLite Engine history", "Αναζήτηση ιστορικού περιήγησης & BraveLite Engine"},
+                {"Get started", "Ξεκινήστε"},
+                {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
+                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama & Ρύθμιση GPU)"},
+                {"uBlock Origin & Shields", "uBlock Origin & Ασπίδες"},
+                {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin & Ασπίδες (Προστασία από διαφημίσεις & ιχνηλάτες)"},
+                {"Theme Profiles", "Προφίλ εμφάνισης"},
+                {"Keybinds & Shortcuts", "Συντομεύσεις πληκτρολογίου"},
+                {"Autofill and passwords", "Αυτόματη συμπλήρωση και κωδικοί"},
+                {"Media & DRM (Widevine / Spotify)", "Πολυμέσα & DRM (Widevine / Spotify)"},
+                {"DNS over Oblivious HTTP", "DNS μέσω Oblivious HTTP"},
+                {"DNS over Oblivious HTTP (ODoH)", "DNS μέσω Oblivious HTTP (ODoH)"},
+                {"SponsorBlock Configuration", "Ρύθμιση SponsorBlock"},
+                {"Permissions Dashboard", "Πίνακας δικαιωμάτων"},
+                {"Downloads & Crash Logs", "Λήψεις & Καταγραφές σφαλμάτων"},
+                {"Downloads & Extensive Crash Logs", "Λήψεις & Εκτεταμένες καταγραφές σφαλμάτων"},
+                {"Delete browsing data", "Διαγραφή δεδομένων περιήγησης"},
+                {"Reset settings", "Επαναφορά ρυθμίσεων"},
+                {"Reset all settings to default", "Επαναφορά όλων των ρυθμίσεων στις προεπιλογές"},
+                {"BraveLite AI Settings", "Ρυθμίσεις BraveLite AI"},
+                {"Cleared", "Εκκαθαρίστηκε"},
+                {"Permissions", "Δικαιώματα"},
+                {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Gaming Mode: ΕΝΕΡΓΟ (Κλικ για επανενεργοποίηση AI)"},
+                {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Gaming Mode: ΑΝΕΝΕΡΓΟ (Κλικ για βελτιστοποίηση παιχνιδιών)"},
+                {"Open in new tab", "Άνοιγμα σε νέα καρτέλα"}
             }},
             {"Spanish", {
                 {"New tab", "Nueva pestaña"},
@@ -203,15 +356,156 @@ namespace L10n {
                 {"New window", "Nueva ventana"},
                 {"New Window", "Nueva ventana"},
                 {"New private window", "Nueva ventana privada"},
+                {"New Incognito Window", "Nueva ventana privada"},
+                {"New tab to the right", "Nueva pestaña a la derecha"},
+                {"Duplicate", "Duplicar"},
+                {"Mute site", "Silenciar sitio"},
+                {"Unmute site", "Activar sonido del sitio"},
                 {"Close tab", "Cerrar pestaña"},
                 {"Close Tab", "Cerrar pestaña"},
+                {"Close other tabs", "Cerrar otras pestañas"},
+                {"Close tabs to the right", "Cerrar pestañas a la derecha"},
+                {"Reopen closed tab", "Volver a abrir pestaña cerrada"},
                 {"History", "Historial"},
                 {"Downloads", "Descargas"},
                 {"Bookmarks", "Marcadores"},
+                {"Bookmarks Manager", "Administrador de marcadores"},
                 {"Passwords", "Contraseñas"},
+                {"Passwords && Autofill", "Contraseñas y autocompletado"},
+                {"Passwords & Autofill Vault", "Bóveda de contraseñas y autocompletado"},
                 {"Settings", "Configuración"},
                 {"Language", "Idioma"},
-                {"Search engine", "Motor de búsqueda"}
+                {"Display Language", "Idioma de visualización"},
+                {"Choose the display language for the browser interface, start page, and settings.", "Elija el idioma de visualización para la interfaz del navegador, la página de inicio y la configuración."},
+                {"Default browser", "Navegador predeterminado"},
+                {"BraveLite is currently your default web browser.", "BraveLite es actualmente su navegador web predeterminado."},
+                {"Make BraveLite your default web browser for opening web links.", "Haga de BraveLite su navegador web predeterminado para abrir enlaces."},
+                {"Default Browser", "Navegador predeterminado"},
+                {"Make default", "Establecer como predeterminado"},
+                {"On startup", "Al inicio"},
+                {"Open the New Tab page", "Abrir la página Nueva pestaña"},
+                {"Continue where you left off", "Continuar donde lo dejaste"},
+                {"Search engine", "Motor de búsqueda"},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Elija su motor de búsqueda predeterminado: BraveLite Engine (Búsqueda privada y AI), Startpage, Google, Bing, DuckDuckGo, Yahoo o Yandex."},
+                {"Search or enter address", "Buscar o ingresar dirección..."},
+                {"Search with %1 or enter address", "Buscar con %1 o ingresar dirección"},
+                {"Search privately with BraveLite Engine or enter address", "Buscar privadamente con BraveLite Engine o ingresar dirección"},
+                {"Search with %1 or enter address...", "Buscar con %1 o ingresar dirección..."},
+                {"Search privately with BraveLite Engine or enter address...", "Buscar privadamente con BraveLite Engine o ingresar dirección..."},
+                {"- Search with %1", "- Buscar con %1"},
+                {"Welcome!", "¡Bienvenido!"},
+                {"because privacy matters", "porque la privacidad importa"},
+                {"Startpage Privacy Search", "Búsqueda privada de Startpage"},
+                {"Search privately with BraveLite Engine (Startpage)...", "Buscar privadamente con BraveLite Engine (Startpage)..."},
+                {"Startpage Protected", "Protegido por Startpage"},
+                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Cero datos personales registrados • Sin perfiles • Vista anónima habilitada en cada resultado"},
+                {"🛡️ Anonymous View", "🛡️ Vista anónima"},
+                {"View page anonymously via Startpage Proxy", "Ver página de forma anónima mediante el proxy de Startpage"},
+                {"Open in Startpage.com", "Abrir en Startpage.com"},
+                {"🔍 All", "🔍 Todo"},
+                {"🖼 Images", "🖼 Imágenes"},
+                {"🎬 Videos", "🎬 Vídeos"},
+                {"📰 News", "📰 Noticias"},
+                {"Search", "Buscar"},
+                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Buscando en Startpage y BraveLite Engine (%1) para %2..."},
+                {"No instant results found.", "No se encontraron resultados instantáneos."},
+                {"No images found for this query.", "No se encontraron imágenes para esta consulta."},
+                {"BraveLite Engine • AI Overview", "BraveLite Engine • Resumen AI"},
+                {"BraveLite Engine", "BraveLite Engine"},
+                {"AI Overview", "Resumen AI"},
+                {"Ask a follow-up or request code examples...", "Haga una pregunta de seguimiento o solicite código..."},
+                {"Ask AI ➔", "Preguntar a la IA ➔"},
+                {"More ▾", "Más ▾"},
+                {"Less ▴", "Menos ▴"},
+                {"Grounded on verified search results", "Basado en resultados de búsqueda verificados"},
+                {"Grounded on verified search results • Local Ollama (%1)", "Basado en resultados verificados • Ollama local (%1)"},
+                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"GPU Accelerated", "Acelerado por GPU"},
+                {"Back", "Atrás"},
+                {"Forward", "Adelante"},
+                {"Reload", "Recargar"},
+                {"Home", "Inicio"},
+                {"Bookmark this page", "Añadir a marcadores"},
+                {"Shields", "Escudos"},
+                {"Zoom", "Zoom"},
+                {"Zoom In", "Acercar"},
+                {"Zoom Out", "Alejar"},
+                {"Reset Zoom (100%)", "Restablecer zoom (100%)"},
+                {"BraveLite Menu", "Menú BraveLite"},
+                {"Extensions", "Extensiones"},
+                {"Extensions & Userscripts", "Extensiones y scripts de usuario"},
+                {"Extensions (Userscripts)", "Extensiones (Scripts de usuario)"},
+                {"BraveLite AI Assistant", "Asistente AI BraveLite"},
+                {"BraveLite AI Assistant (Side Chat)", "Asistente AI BraveLite (Panel lateral)"},
+                {"Find in page...", "Buscar en la página..."},
+                {"Find in page", "Buscar en la página"},
+                {"Site Permissions", "Permisos del sitio"},
+                {"Inspect Element", "Inspeccionar elemento"},
+                {"Delete browsing data...", "Eliminar datos de navegación..."},
+                {"Exit", "Salir"},
+                {"Translate", "Traducir"},
+                {"Translate entire page with local AI (translategemma:4b)", "Traducir página completa con IA local (translategemma:4b)"},
+                {"Split View", "Vista dividida"},
+                {"Split View Options", "Opciones de vista dividida"},
+                {"Minimize", "Minimizar"},
+                {"Maximize", "Maximizar"},
+                {"Maximize / Restore", "Maximizar / Restaurar"},
+                {"Restore", "Restaurar"},
+                {"Close", "Cerrar"},
+                {"Cut", "Cortar"},
+                {"Copy", "Copiar"},
+                {"Paste", "Pegar"},
+                {"Paste and search", "Pegar y buscar"},
+                {"Delete", "Eliminar"},
+                {"Select All", "Seleccionar todo"},
+                {"Select all", "Seleccionar todo"},
+                {"Undo", "Deshacer"},
+                {"Redo", "Rehacer"},
+                {"Open link in new tab", "Abrir enlace en nueva pestaña"},
+                {"Open link in new window", "Abrir enlace en nueva ventana"},
+                {"Open link in incognito window", "Abrir enlace en ventana privada"},
+                {"Open link in split view", "Abrir enlace en vista dividida"},
+                {"Save link as", "Guardar enlace como..."},
+                {"Copy link address", "Copiar dirección de enlace"},
+                {"Copy clean link", "Copiar enlace limpio"},
+                {"Save page as...", "Guardar página como..."},
+                {"Print...", "Imprimir..."},
+                {"View page source", "Ver código fuente de la página"},
+                {"New Bookmark", "Nuevo marcador"},
+                {"Delete Selected", "Eliminar seleccionado"},
+                {"Import Bookmarks", "Importar marcadores"},
+                {"Export Bookmarks", "Exportar marcadores"},
+                {"Import Passwords / Bookmarks", "Importar contraseñas / marcadores"},
+                {"Export Passwords (CSV)", "Exportar contraseñas (CSV)"},
+                {"Clear Data", "Borrar datos"},
+                {"Delete all cookies and history?", "¿Eliminar todas las cookies y el historial?"},
+                {"Cookies and history cleared.", "Cookies e historial borrados."},
+                {"Clear All History", "Borrar todo el historial"},
+                {"Search browsing & BraveLite Engine history", "Buscar en historial de navegación y BraveLite Engine"},
+                {"Get started", "Primeros pasos"},
+                {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
+                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama y configuración de GPU)"},
+                {"uBlock Origin & Shields", "uBlock Origin y escudos"},
+                {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin y escudos (Protección contra anuncios y rastreadores)"},
+                {"Theme Profiles", "Perfiles de tema"},
+                {"Keybinds & Shortcuts", "Atajos de teclado"},
+                {"Autofill and passwords", "Autocompletar y contraseñas"},
+                {"Media & DRM (Widevine / Spotify)", "Multimedia y DRM (Widevine / Spotify)"},
+                {"DNS over Oblivious HTTP", "DNS sobre Oblivious HTTP"},
+                {"DNS over Oblivious HTTP (ODoH)", "DNS sobre Oblivious HTTP (ODoH)"},
+                {"SponsorBlock Configuration", "Configuración de SponsorBlock"},
+                {"Permissions Dashboard", "Panel de permisos"},
+                {"Downloads & Crash Logs", "Descargas y registros de fallos"},
+                {"Downloads & Extensive Crash Logs", "Descargas y registros exhaustivos de fallos"},
+                {"Delete browsing data", "Eliminar datos de navegación"},
+                {"Reset settings", "Restablecer configuración"},
+                {"Reset all settings to default", "Restablecer todas las configuraciones por defecto"},
+                {"BraveLite AI Settings", "Configuración de BraveLite AI"},
+                {"Cleared", "Borrado"},
+                {"Permissions", "Permisos"},
+                {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Modo Juego: ACTIVO (Clic para reactivar IA)"},
+                {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Modo Juego: INACTIVO (Clic para optimizar juegos)"},
+                {"Open in new tab", "Abrir en nueva pestaña"}
             }},
             {"French", {
                 {"New tab", "Nouvel onglet"},
@@ -219,15 +513,156 @@ namespace L10n {
                 {"New window", "Nouvelle fenêtre"},
                 {"New Window", "Nouvelle fenêtre"},
                 {"New private window", "Nouvelle fenêtre privée"},
+                {"New Incognito Window", "Nouvelle fenêtre privée"},
+                {"New tab to the right", "Nouvel onglet à droite"},
+                {"Duplicate", "Dupliquer"},
+                {"Mute site", "Couper le son du site"},
+                {"Unmute site", "Réactiver le son du site"},
                 {"Close tab", "Fermer l'onglet"},
                 {"Close Tab", "Fermer l'onglet"},
+                {"Close other tabs", "Fermer les autres onglets"},
+                {"Close tabs to the right", "Fermer les onglets à droite"},
+                {"Reopen closed tab", "Rouvrir l'onglet fermé"},
                 {"History", "Historique"},
                 {"Downloads", "Téléchargements"},
                 {"Bookmarks", "Favoris"},
+                {"Bookmarks Manager", "Gestionnaire de favoris"},
                 {"Passwords", "Mots de passe"},
+                {"Passwords && Autofill", "Mots de passe et saisie auto"},
+                {"Passwords & Autofill Vault", "Coffre-fort mots de passe et saisie auto"},
                 {"Settings", "Paramètres"},
                 {"Language", "Langue"},
-                {"Search engine", "Moteur de recherche"}
+                {"Display Language", "Langue d'affichage"},
+                {"Choose the display language for the browser interface, start page, and settings.", "Choisissez la langue d'affichage de l'interface, de la page d'accueil et des paramètres."},
+                {"Default browser", "Navigateur par défaut"},
+                {"BraveLite is currently your default web browser.", "BraveLite est actuellement votre navigateur Web par défaut."},
+                {"Make BraveLite your default web browser for opening web links.", "Définissez BraveLite comme navigateur par défaut pour ouvrir les liens Web."},
+                {"Default Browser", "Navigateur par défaut"},
+                {"Make default", "Définir par défaut"},
+                {"On startup", "Au démarrage"},
+                {"Open the New Tab page", "Ouvrir la page Nouvel onglet"},
+                {"Continue where you left off", "Reprendre là où vous vous étiez arrêté"},
+                {"Search engine", "Moteur de recherche"},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Choisissez votre moteur de recherche par défaut : BraveLite Engine (Recherche privée & IA), Startpage, Google, Bing, DuckDuckGo, Yahoo ou Yandex."},
+                {"Search or enter address", "Rechercher ou saisir une adresse..."},
+                {"Search with %1 or enter address", "Rechercher avec %1 ou saisir une adresse"},
+                {"Search privately with BraveLite Engine or enter address", "Rechercher en toute confidentialité avec BraveLite Engine ou saisir une adresse"},
+                {"Search with %1 or enter address...", "Rechercher avec %1 ou saisir une adresse..."},
+                {"Search privately with BraveLite Engine or enter address...", "Rechercher en toute confidentialité avec BraveLite Engine ou saisir une adresse..."},
+                {"- Search with %1", "- Rechercher avec %1"},
+                {"Welcome!", "Bienvenue !"},
+                {"because privacy matters", "parce que la confidentialité compte"},
+                {"Startpage Privacy Search", "Recherche privée Startpage"},
+                {"Search privately with BraveLite Engine (Startpage)...", "Rechercher en toute confidentialité avec BraveLite Engine (Startpage)..."},
+                {"Startpage Protected", "Protégé par Startpage"},
+                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Zéro donnée personnelle enregistrée • Aucun profilage • Vue anonyme activée sur chaque résultat"},
+                {"🛡️ Anonymous View", "🛡️ Vue anonyme"},
+                {"View page anonymously via Startpage Proxy", "Afficher la page anonymement via le proxy Startpage"},
+                {"Open in Startpage.com", "Ouvrir sur Startpage.com"},
+                {"🔍 All", "🔍 Tous"},
+                {"🖼 Images", "🖼 Images"},
+                {"🎬 Videos", "🎬 Vidéos"},
+                {"📰 News", "📰 Actualités"},
+                {"Search", "Rechercher"},
+                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Recherche sur Startpage et BraveLite Engine (%1) pour %2..."},
+                {"No instant results found.", "Aucun résultat instantané trouvé."},
+                {"No images found for this query.", "Aucune image trouvée pour cette requête."},
+                {"BraveLite Engine • AI Overview", "BraveLite Engine • Aperçu IA"},
+                {"BraveLite Engine", "BraveLite Engine"},
+                {"AI Overview", "Aperçu IA"},
+                {"Ask a follow-up or request code examples...", "Posez une question de suivi ou demandez du code..."},
+                {"Ask AI ➔", "Demander à l'IA ➔"},
+                {"More ▾", "Plus ▾"},
+                {"Less ▴", "Moins ▴"},
+                {"Grounded on verified search results", "Fondé sur des résultats de recherche vérifiés"},
+                {"Grounded on verified search results • Local Ollama (%1)", "Fondé sur des résultats vérifiés • Ollama local (%1)"},
+                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"GPU Accelerated", "Accélération GPU"},
+                {"Back", "Précédent"},
+                {"Forward", "Suivant"},
+                {"Reload", "Actualiser"},
+                {"Home", "Accueil"},
+                {"Bookmark this page", "Ajouter aux favoris"},
+                {"Shields", "Boucliers"},
+                {"Zoom", "Zoom"},
+                {"Zoom In", "Zoom avant"},
+                {"Zoom Out", "Zoom arrière"},
+                {"Reset Zoom (100%)", "Réinitialiser le zoom (100%)"},
+                {"BraveLite Menu", "Menu BraveLite"},
+                {"Extensions", "Extensions"},
+                {"Extensions & Userscripts", "Extensions et scripts"},
+                {"Extensions (Userscripts)", "Extensions (Scripts utilisateur)"},
+                {"BraveLite AI Assistant", "Assistant IA BraveLite"},
+                {"BraveLite AI Assistant (Side Chat)", "Assistant IA BraveLite (Panneau latéral)"},
+                {"Find in page...", "Rechercher dans la page..."},
+                {"Find in page", "Rechercher dans la page"},
+                {"Site Permissions", "Autorisations du site"},
+                {"Inspect Element", "Inspecter l'élément"},
+                {"Delete browsing data...", "Supprimer les données de navigation..."},
+                {"Exit", "Quitter"},
+                {"Translate", "Traduire"},
+                {"Translate entire page with local AI (translategemma:4b)", "Traduire toute la page avec l'IA locale (translategemma:4b)"},
+                {"Split View", "Vue fractionnée"},
+                {"Split View Options", "Options de vue fractionnée"},
+                {"Minimize", "Réduire"},
+                {"Maximize", "Agrandir"},
+                {"Maximize / Restore", "Agrandir / Restaurer"},
+                {"Restore", "Restaurer"},
+                {"Close", "Fermer"},
+                {"Cut", "Couper"},
+                {"Copy", "Copier"},
+                {"Paste", "Coller"},
+                {"Paste and search", "Coller et rechercher"},
+                {"Delete", "Supprimer"},
+                {"Select All", "Tout sélectionner"},
+                {"Select all", "Tout sélectionner"},
+                {"Undo", "Annuler"},
+                {"Redo", "Rétablir"},
+                {"Open link in new tab", "Ouvrir le lien dans un nouvel onglet"},
+                {"Open link in new window", "Ouvrir le lien dans une nouvelle fenêtre"},
+                {"Open link in incognito window", "Ouvrir le lien dans une fenêtre privée"},
+                {"Open link in split view", "Ouvrir le lien en vue fractionnée"},
+                {"Save link as", "Enregistrer la cible du lien sous..."},
+                {"Copy link address", "Copier l'adresse du lien"},
+                {"Copy clean link", "Copier le lien nettoyé"},
+                {"Save page as...", "Enregistrer la page sous..."},
+                {"Print...", "Imprimer..."},
+                {"View page source", "Afficher le code source de la page"},
+                {"New Bookmark", "Nouveau favori"},
+                {"Delete Selected", "Supprimer la sélection"},
+                {"Import Bookmarks", "Importer des favoris"},
+                {"Export Bookmarks", "Exporter des favoris"},
+                {"Import Passwords / Bookmarks", "Importer mots de passe / favoris"},
+                {"Export Passwords (CSV)", "Exporter mots de passe (CSV)"},
+                {"Clear Data", "Effacer les données"},
+                {"Delete all cookies and history?", "Supprimer tous les cookies et l'historique ?"},
+                {"Cookies and history cleared.", "Cookies et historique effacés."},
+                {"Clear All History", "Effacer tout l'historique"},
+                {"Search browsing & BraveLite Engine history", "Rechercher dans l'historique et BraveLite Engine"},
+                {"Get started", "Pour commencer"},
+                {"BraveLite AI (Ollama)", "BraveLite IA (Ollama)"},
+                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite IA (Ollama et configuration GPU)"},
+                {"uBlock Origin & Shields", "uBlock Origin et boucliers"},
+                {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin et boucliers (Protection publicités & traceurs)"},
+                {"Theme Profiles", "Profils de thème"},
+                {"Keybinds & Shortcuts", "Raccourcis clavier"},
+                {"Autofill and passwords", "Saisie automatique et mots de passe"},
+                {"Media & DRM (Widevine / Spotify)", "Médias et DRM (Widevine / Spotify)"},
+                {"DNS over Oblivious HTTP", "DNS sur Oblivious HTTP"},
+                {"DNS over Oblivious HTTP (ODoH)", "DNS sur Oblivious HTTP (ODoH)"},
+                {"SponsorBlock Configuration", "Configuration de SponsorBlock"},
+                {"Permissions Dashboard", "Tableau des autorisations"},
+                {"Downloads & Crash Logs", "Téléchargements et rapports de crash"},
+                {"Downloads & Extensive Crash Logs", "Téléchargements et journaux de crash détaillés"},
+                {"Delete browsing data", "Supprimer les données de navigation"},
+                {"Reset settings", "Réinitialiser les paramètres"},
+                {"Reset all settings to default", "Rétablir tous les paramètres par défaut"},
+                {"BraveLite AI Settings", "Paramètres BraveLite IA"},
+                {"Cleared", "Effacé"},
+                {"Permissions", "Autorisations"},
+                {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Mode Jeu : ACTIF (Cliquer pour réactiver l'IA)"},
+                {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Mode Jeu : INACTIF (Cliquer pour optimiser les jeux)"},
+                {"Open in new tab", "Ouvrir dans un nouvel onglet"}
             }},
             {"German", {
                 {"New tab", "Neuer Tab"},
@@ -235,15 +670,156 @@ namespace L10n {
                 {"New window", "Neues Fenster"},
                 {"New Window", "Neues Fenster"},
                 {"New private window", "Neues privates Fenster"},
+                {"New Incognito Window", "Neues privates Fenster"},
+                {"New tab to the right", "Neuer Tab rechts"},
+                {"Duplicate", "Duplizieren"},
+                {"Mute site", "Website stummschalten"},
+                {"Unmute site", "Stummschaltung aufheben"},
                 {"Close tab", "Tab schließen"},
                 {"Close Tab", "Tab schließen"},
+                {"Close other tabs", "Andere Tabs schließen"},
+                {"Close tabs to the right", "Tabs rechts schließen"},
+                {"Reopen closed tab", "Geschlossenen Tab wieder öffnen"},
                 {"History", "Verlauf"},
                 {"Downloads", "Downloads"},
                 {"Bookmarks", "Lesezeichen"},
+                {"Bookmarks Manager", "Lesezeichen-Manager"},
                 {"Passwords", "Passwörter"},
+                {"Passwords && Autofill", "Passwörter & Autovervollständigung"},
+                {"Passwords & Autofill Vault", "Tresor für Passwörter & Autovervollständigung"},
                 {"Settings", "Einstellungen"},
                 {"Language", "Sprache"},
-                {"Search engine", "Suchmaschine"}
+                {"Display Language", "Anzeigesprache"},
+                {"Choose the display language for the browser interface, start page, and settings.", "Wählen Sie die Anzeigesprache für die Benutzeroberfläche, Startseite und Einstellungen."},
+                {"Default browser", "Standard-Browser"},
+                {"BraveLite is currently your default web browser.", "BraveLite ist derzeit Ihr Standard-Webbrowser."},
+                {"Make BraveLite your default web browser for opening web links.", "Machen Sie BraveLite zu Ihrem Standard-Webbrowser zum Öffnen von Weblinks."},
+                {"Default Browser", "Standard-Browser"},
+                {"Make default", "Als Standard festlegen"},
+                {"On startup", "Beim Start"},
+                {"Open the New Tab page", "Neuer-Tab-Seite öffnen"},
+                {"Continue where you left off", "Dort fortfahren, wo Sie aufgehört haben"},
+                {"Search engine", "Suchmaschine"},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Wählen Sie Ihre Standard-Suchmaschine: BraveLite Engine (Private Suche & KI), Startpage, Google, Bing, DuckDuckGo, Yahoo oder Yandex."},
+                {"Search or enter address", "Suchen oder Adresse eingeben..."},
+                {"Search with %1 or enter address", "Mit %1 suchen oder Adresse eingeben"},
+                {"Search privately with BraveLite Engine or enter address", "Privat mit BraveLite Engine suchen oder Adresse eingeben"},
+                {"Search with %1 or enter address...", "Mit %1 suchen oder Adresse eingeben..."},
+                {"Search privately with BraveLite Engine or enter address...", "Privat mit BraveLite Engine suchen oder Adresse eingeben..."},
+                {"- Search with %1", "- Mit %1 suchen"},
+                {"Welcome!", "Willkommen!"},
+                {"because privacy matters", "weil Datenschutz zählt"},
+                {"Startpage Privacy Search", "Startpage Privatsphäre-Suche"},
+                {"Search privately with BraveLite Engine (Startpage)...", "Privat mit BraveLite Engine (Startpage) suchen..."},
+                {"Startpage Protected", "Startpage-geschützt"},
+                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "Keine Datenspeicherung • Kein Profiling • Anonyme Ansicht bei jedem Ergebnis"},
+                {"🛡️ Anonymous View", "🛡️ Anonyme Ansicht"},
+                {"View page anonymously via Startpage Proxy", "Seite anonym über den Startpage-Proxy anzeigen"},
+                {"Open in Startpage.com", "Auf Startpage.com öffnen"},
+                {"🔍 All", "🔍 Alle"},
+                {"🖼 Images", "🖼 Bilder"},
+                {"🎬 Videos", "🎬 Videos"},
+                {"📰 News", "📰 Nachrichten"},
+                {"Search", "Suchen"},
+                {"Searching Startpage & BraveLite Engine (%1) for %2...", "Suche in Startpage & BraveLite Engine (%1) nach %2..."},
+                {"No instant results found.", "Keine Sofortergebnisse gefunden."},
+                {"No images found for this query.", "Keine Bilder für diese Suchanfrage gefunden."},
+                {"BraveLite Engine • AI Overview", "BraveLite Engine • KI-Übersicht"},
+                {"BraveLite Engine", "BraveLite Engine"},
+                {"AI Overview", "KI-Übersicht"},
+                {"Ask a follow-up or request code examples...", "Folgefrage stellen oder Code-Beispiele anfordern..."},
+                {"Ask AI ➔", "KI fragen ➔"},
+                {"More ▾", "Mehr ▾"},
+                {"Less ▴", "Weniger ▴"},
+                {"Grounded on verified search results", "Fundiert auf verifizierten Suchergebnissen"},
+                {"Grounded on verified search results • Local Ollama (%1)", "Fundiert auf verifizierten Suchergebnissen • Lokales Ollama (%1)"},
+                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"GPU Accelerated", "GPU-beschleunigt"},
+                {"Back", "Zurück"},
+                {"Forward", "Vorwärts"},
+                {"Reload", "Neu laden"},
+                {"Home", "Startseite"},
+                {"Bookmark this page", "Lesezeichen hinzufügen"},
+                {"Shields", "Schutzschilde"},
+                {"Zoom", "Zoom"},
+                {"Zoom In", "Vergrößern"},
+                {"Zoom Out", "Verkleinern"},
+                {"Reset Zoom (100%)", "Zoom zurücksetzen (100%)"},
+                {"BraveLite Menu", "BraveLite-Menü"},
+                {"Extensions", "Erweiterungen"},
+                {"Extensions & Userscripts", "Erweiterungen & Benutzerskripte"},
+                {"Extensions (Userscripts)", "Erweiterungen (Benutzerskripte)"},
+                {"BraveLite AI Assistant", "BraveLite KI-Assistent"},
+                {"BraveLite AI Assistant (Side Chat)", "BraveLite KI-Assistent (Seitenleiste)"},
+                {"Find in page...", "Auf der Seite suchen..."},
+                {"Find in page", "Auf der Seite suchen"},
+                {"Site Permissions", "Website-Berechtigungen"},
+                {"Inspect Element", "Element untersuchen"},
+                {"Delete browsing data...", "Browserdaten löschen..."},
+                {"Exit", "Beenden"},
+                {"Translate", "Übersetzen"},
+                {"Translate entire page with local AI (translategemma:4b)", "Ganze Seite mit lokaler KI übersetzen (translategemma:4b)"},
+                {"Split View", "Geteilte Ansicht"},
+                {"Split View Options", "Optionen für geteilte Ansicht"},
+                {"Minimize", "Minimieren"},
+                {"Maximize", "Maximieren"},
+                {"Maximize / Restore", "Maximieren / Wiederherstellen"},
+                {"Restore", "Wiederherstellen"},
+                {"Close", "Schließen"},
+                {"Cut", "Ausschneiden"},
+                {"Copy", "Kopieren"},
+                {"Paste", "Einfügen"},
+                {"Paste and search", "Einfügen und suchen"},
+                {"Delete", "Löschen"},
+                {"Select All", "Alles auswählen"},
+                {"Select all", "Alles auswählen"},
+                {"Undo", "Rückgängig"},
+                {"Redo", "Wiederholen"},
+                {"Open link in new tab", "Link in neuem Tab öffnen"},
+                {"Open link in new window", "Link in neuem Fenster öffnen"},
+                {"Open link in incognito window", "Link in privatem Fenster öffnen"},
+                {"Open link in split view", "Link in geteilter Ansicht öffnen"},
+                {"Save link as", "Link speichern unter..."},
+                {"Copy link address", "Link-Adresse kopieren"},
+                {"Copy clean link", "Sauberen Link kopieren"},
+                {"Save page as...", "Seite speichern unter..."},
+                {"Print...", "Drucken..."},
+                {"View page source", "Seitenquelltext anzeigen"},
+                {"New Bookmark", "Neues Lesezeichen"},
+                {"Delete Selected", "Auswahl löschen"},
+                {"Import Bookmarks", "Lesezeichen importieren"},
+                {"Export Bookmarks", "Lesezeichen exportieren"},
+                {"Import Passwords / Bookmarks", "Passwörter / Lesezeichen importieren"},
+                {"Export Passwords (CSV)", "Passwörter exportieren (CSV)"},
+                {"Clear Data", "Daten löschen"},
+                {"Delete all cookies and history?", "Alle Cookies und den Verlauf löschen?"},
+                {"Cookies and history cleared.", "Cookies und Verlauf gelöscht."},
+                {"Clear All History", "Gesamten Verlauf löschen"},
+                {"Search browsing & BraveLite Engine history", "Verlauf & BraveLite Engine durchsuchen"},
+                {"Get started", "Erste Schritte"},
+                {"BraveLite AI (Ollama)", "BraveLite KI (Ollama)"},
+                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite KI (Ollama & GPU-Konfiguration)"},
+                {"uBlock Origin & Shields", "uBlock Origin & Schutzschilde"},
+                {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin & Schutzschilde (Werbe- & Trackerschutz)"},
+                {"Theme Profiles", "Design-Profile"},
+                {"Keybinds & Shortcuts", "Tastenkombinationen"},
+                {"Autofill and passwords", "Autovervollständigung und Passwörter"},
+                {"Media & DRM (Widevine / Spotify)", "Medien & DRM (Widevine / Spotify)"},
+                {"DNS over Oblivious HTTP", "DNS über Oblivious HTTP"},
+                {"DNS over Oblivious HTTP (ODoH)", "DNS über Oblivious HTTP (ODoH)"},
+                {"SponsorBlock Configuration", "SponsorBlock-Konfiguration"},
+                {"Permissions Dashboard", "Berechtigungs-Dashboard"},
+                {"Downloads & Crash Logs", "Downloads & Absturzberichte"},
+                {"Downloads & Extensive Crash Logs", "Downloads & Detaillierte Absturzberichte"},
+                {"Delete browsing data", "Browserdaten löschen"},
+                {"Reset settings", "Einstellungen zurücksetzen"},
+                {"Reset all settings to default", "Alle Einstellungen auf Standard zurücksetzen"},
+                {"BraveLite AI Settings", "BraveLite KI-Einstellungen"},
+                {"Cleared", "Gelöscht"},
+                {"Permissions", "Berechtigungen"},
+                {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Gaming-Modus: EIN (Klicken zum Reaktivieren der KI)"},
+                {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Gaming-Modus: AUS (Klicken für Gaming-Optimierung)"},
+                {"Open in new tab", "In neuem Tab öffnen"}
             }},
             {"Chinese", {
                 {"New tab", "新建标签页"},
@@ -251,15 +827,156 @@ namespace L10n {
                 {"New window", "新建窗口"},
                 {"New Window", "新建窗口"},
                 {"New private window", "新建无痕窗口"},
+                {"New Incognito Window", "新建无痕窗口"},
+                {"New tab to the right", "向右新建标签页"},
+                {"Duplicate", "复制标签页"},
+                {"Mute site", "将网站静音"},
+                {"Unmute site", "取消网站静音"},
                 {"Close tab", "关闭标签页"},
                 {"Close Tab", "关闭标签页"},
+                {"Close other tabs", "关闭其他标签页"},
+                {"Close tabs to the right", "关闭右侧标签页"},
+                {"Reopen closed tab", "重新打开已关闭的标签页"},
                 {"History", "历史记录"},
                 {"Downloads", "下载"},
                 {"Bookmarks", "书签"},
+                {"Bookmarks Manager", "书签管理器"},
                 {"Passwords", "密码"},
+                {"Passwords && Autofill", "密码与自动填充"},
+                {"Passwords & Autofill Vault", "密码与自动填充保管库"},
                 {"Settings", "设置"},
                 {"Language", "语言"},
-                {"Search engine", "搜索引擎"}
+                {"Display Language", "显示语言"},
+                {"Choose the display language for the browser interface, start page, and settings.", "选择浏览器界面、起始页和设置的显示语言。"},
+                {"Default browser", "默认浏览器"},
+                {"BraveLite is currently your default web browser.", "BraveLite 当前是您的默认网络浏览器。"},
+                {"Make BraveLite your default web browser for opening web links.", "将 BraveLite 设置为打开网页链接的默认浏览器。"},
+                {"Default Browser", "默认浏览器"},
+                {"Make default", "设为默认"},
+                {"On startup", "启动时"},
+                {"Open the New Tab page", "打开新标签页"},
+                {"Continue where you left off", "继续浏览上次打开的网页"},
+                {"Search engine", "搜索引擎"},
+                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "选择您的默认搜索引擎：BraveLite Engine（隐私搜索与AI）、Startpage、Google、Bing、DuckDuckGo、Yahoo 或 Yandex。"},
+                {"Search or enter address", "搜索或输入网址..."},
+                {"Search with %1 or enter address", "使用 %1 搜索或输入网址"},
+                {"Search privately with BraveLite Engine or enter address", "使用 BraveLite Engine 隐私搜索或输入网址"},
+                {"Search with %1 or enter address...", "使用 %1 搜索或输入网址..."},
+                {"Search privately with BraveLite Engine or enter address...", "使用 BraveLite Engine 隐私搜索或输入网址..."},
+                {"- Search with %1", "- 使用 %1 搜索"},
+                {"Welcome!", "欢迎！"},
+                {"because privacy matters", "因为隐私至关重要"},
+                {"Startpage Privacy Search", "Startpage 隐私搜索"},
+                {"Search privately with BraveLite Engine (Startpage)...", "使用 BraveLite Engine (Startpage) 隐私搜索..."},
+                {"Startpage Protected", "Startpage 隐私保护"},
+                {"Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result", "零个人数据记录 • 无搜索用户画像 • 每个结果均启用匿名视图代理"},
+                {"🛡️ Anonymous View", "🛡️ 匿名视图"},
+                {"View page anonymously via Startpage Proxy", "通过 Startpage 代理匿名访问网页"},
+                {"Open in Startpage.com", "在 Startpage.com 中打开"},
+                {"🔍 All", "🔍 全部"},
+                {"🖼 Images", "🖼 图片"},
+                {"🎬 Videos", "🎬 视频"},
+                {"📰 News", "📰 新闻"},
+                {"Search", "搜索"},
+                {"Searching Startpage & BraveLite Engine (%1) for %2...", "正在 Startpage 和 BraveLite Engine (%1) 中搜索 %2..."},
+                {"No instant results found.", "未找到即时结果。"},
+                {"No images found for this query.", "未找到与此查询匹配的图片。"},
+                {"BraveLite Engine • AI Overview", "BraveLite Engine • AI 概述"},
+                {"BraveLite Engine", "BraveLite Engine"},
+                {"AI Overview", "AI 概述"},
+                {"Ask a follow-up or request code examples...", "进行追问或请求代码示例..."},
+                {"Ask AI ➔", "询问 AI ➔"},
+                {"More ▾", "更多 ▾"},
+                {"Less ▴", "收起 ▴"},
+                {"Grounded on verified search results", "基于已验证的搜索结果"},
+                {"Grounded on verified search results • Local Ollama (%1)", "基于已验证结果 • 本地 Ollama (%1)"},
+                {"BraveLite Engine v1.70", "BraveLite Engine v1.70"},
+                {"GPU Accelerated", "GPU 硬件加速"},
+                {"Back", "后退"},
+                {"Forward", "前进"},
+                {"Reload", "重新加载"},
+                {"Home", "主页"},
+                {"Bookmark this page", "收藏此页"},
+                {"Shields", "防护盾"},
+                {"Zoom", "缩放"},
+                {"Zoom In", "放大"},
+                {"Zoom Out", "缩小"},
+                {"Reset Zoom (100%)", "重置缩放 (100%)"},
+                {"BraveLite Menu", "BraveLite 菜单"},
+                {"Extensions", "扩展程序"},
+                {"Extensions & Userscripts", "扩展程序与用户脚本"},
+                {"Extensions (Userscripts)", "扩展程序 (用户脚本)"},
+                {"BraveLite AI Assistant", "BraveLite AI 助手"},
+                {"BraveLite AI Assistant (Side Chat)", "BraveLite AI 助手 (侧边栏聊天)"},
+                {"Find in page...", "在页面中查找..."},
+                {"Find in page", "在页面中查找"},
+                {"Site Permissions", "网站权限"},
+                {"Inspect Element", "检查元素"},
+                {"Delete browsing data...", "清除浏览数据..."},
+                {"Exit", "退出"},
+                {"Translate", "翻译"},
+                {"Translate entire page with local AI (translategemma:4b)", "使用本地 AI 翻译整个页面 (translategemma:4b)"},
+                {"Split View", "分屏视图"},
+                {"Split View Options", "分屏视图选项"},
+                {"Minimize", "最小化"},
+                {"Maximize", "最大化"},
+                {"Maximize / Restore", "最大化 / 还原"},
+                {"Restore", "还原"},
+                {"Close", "关闭"},
+                {"Cut", "剪切"},
+                {"Copy", "复制"},
+                {"Paste", "粘贴"},
+                {"Paste and search", "粘贴并搜索"},
+                {"Delete", "删除"},
+                {"Select All", "全选"},
+                {"Select all", "全选"},
+                {"Undo", "撤消"},
+                {"Redo", "重做"},
+                {"Open link in new tab", "在新标签页中打开链接"},
+                {"Open link in new window", "在新窗口中打开链接"},
+                {"Open link in incognito window", "在无痕窗口中打开链接"},
+                {"Open link in split view", "在分屏视图中打开链接"},
+                {"Save link as", "链接另存为..."},
+                {"Copy link address", "复制链接地址"},
+                {"Copy clean link", "复制纯净链接"},
+                {"Save page as...", "网页另存为..."},
+                {"Print...", "打印..."},
+                {"View page source", "查看网页源代码"},
+                {"New Bookmark", "新建书签"},
+                {"Delete Selected", "删除所选"},
+                {"Import Bookmarks", "导入书签"},
+                {"Export Bookmarks", "导出书签"},
+                {"Import Passwords / Bookmarks", "导入密码 / 书签"},
+                {"Export Passwords (CSV)", "导出密码 (CSV)"},
+                {"Clear Data", "清除数据"},
+                {"Delete all cookies and history?", "确定删除所有 Cookie 和历史记录吗？"},
+                {"Cookies and history cleared.", "Cookie 和历史记录已清除。"},
+                {"Clear All History", "清除全部历史记录"},
+                {"Search browsing & BraveLite Engine history", "搜索浏览历史与 BraveLite Engine"},
+                {"Get started", "新手入门"},
+                {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
+                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama 与 GPU 配置)"},
+                {"uBlock Origin & Shields", "uBlock Origin 与防护盾"},
+                {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin 与防护盾 (广告与追踪拦截)"},
+                {"Theme Profiles", "主题配置"},
+                {"Keybinds & Shortcuts", "快捷键与按键绑定"},
+                {"Autofill and passwords", "自动填充与密码"},
+                {"Media & DRM (Widevine / Spotify)", "媒体与 DRM (Widevine / Spotify)"},
+                {"DNS over Oblivious HTTP", "DNS over Oblivious HTTP"},
+                {"DNS over Oblivious HTTP (ODoH)", "DNS over Oblivious HTTP (ODoH)"},
+                {"SponsorBlock Configuration", "SponsorBlock 配置"},
+                {"Permissions Dashboard", "权限仪表板"},
+                {"Downloads & Crash Logs", "下载与崩溃日志"},
+                {"Downloads & Extensive Crash Logs", "下载与崩溃诊断日志"},
+                {"Delete browsing data", "清除浏览数据"},
+                {"Reset settings", "重置设置"},
+                {"Reset all settings to default", "重置所有设置至默认状态"},
+                {"BraveLite AI Settings", "BraveLite AI 设置"},
+                {"Cleared", "已清除"},
+                {"Permissions", "权限"},
+                {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 游戏模式：开启 (点击恢复 AI)"},
+                {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 游戏模式：关闭 (点击优化游戏性能)"},
+                {"Open in new tab", "在新标签页中打开"}
             }}
         };
 
@@ -274,6 +991,20 @@ namespace L10n {
             return translations[langKey][key];
         }
         return key;
+    }
+
+    inline QString getUrlBarPlaceholder(const QString &engine = "BraveLite Engine") {
+        if (engine == "BraveLite Engine") {
+            return tr("Search privately with BraveLite Engine or enter address");
+        }
+        return QString(tr("Search with %1 or enter address")).arg(engine);
+    }
+
+    inline QString getStartPagePlaceholder(const QString &engine = "BraveLite Engine") {
+        if (engine == "BraveLite Engine") {
+            return tr("Search privately with BraveLite Engine or enter address...");
+        }
+        return QString(tr("Search with %1 or enter address...")).arg(engine);
     }
 }
 
@@ -1086,46 +1817,46 @@ protected:
         );
 
         if (linkUrl.isValid() && !linkUrl.isEmpty()) {
-            QAction *actNewTab = menu->addAction("Open link in new tab");
+            QAction *actNewTab = menu->addAction(L10n::tr("Open link in new tab"));
             connect(actNewTab, &QAction::triggered, this, [this, linkUrl]() {
                 emit openLinkInNewTabRequested(linkUrl);
             });
 
-            QAction *actNewWin = menu->addAction("Open link in new window");
+            QAction *actNewWin = menu->addAction(L10n::tr("Open link in new window"));
             connect(actNewWin, &QAction::triggered, this, [this, linkUrl]() {
                 emit openLinkInNewWindowRequested(linkUrl);
             });
 
-            QAction *actIncog = menu->addAction("Open link in incognito window");
+            QAction *actIncog = menu->addAction(L10n::tr("Open link in incognito window"));
             connect(actIncog, &QAction::triggered, this, [this, linkUrl]() {
                 emit openLinkInIncognitoRequested(linkUrl);
             });
 
-            QAction *actSplit = menu->addAction("Open link in split view");
+            QAction *actSplit = menu->addAction(L10n::tr("Open link in split view"));
             connect(actSplit, &QAction::triggered, this, [this, linkUrl]() {
                 emit openLinkInSplitViewRequested(linkUrl);
             });
 
             menu->addSeparator();
 
-            QAction *actSaveLink = menu->addAction("Save link as");
+            QAction *actSaveLink = menu->addAction(L10n::tr("Save link as"));
             connect(actSaveLink, &QAction::triggered, this, [this]() {
                 page()->triggerAction(QWebEnginePage::DownloadLinkToDisk);
             });
 
-            QAction *actCopyLink = menu->addAction("Copy link address");
+            QAction *actCopyLink = menu->addAction(L10n::tr("Copy link address"));
             connect(actCopyLink, &QAction::triggered, this, [linkUrl]() {
                 QApplication::clipboard()->setText(linkUrl.toString());
             });
 
-            QAction *actCopyClean = menu->addAction("Copy clean link");
+            QAction *actCopyClean = menu->addAction(L10n::tr("Copy clean link"));
             connect(actCopyClean, &QAction::triggered, this, [linkUrl]() {
                 QApplication::clipboard()->setText(stripTrackingParams(linkUrl).toString());
             });
 
             menu->addSeparator();
         } else {
-            QAction *actBack = menu->addAction("Back");
+            QAction *actBack = menu->addAction(L10n::tr("Back"));
             actBack->setEnabled(history()->canGoBack() || !lastSearchQuery.isEmpty());
             connect(actBack, &QAction::triggered, this, [this]() {
                 if (!lastSearchQuery.isEmpty() && url().host() != "search.bravelite.local" && history()->currentItemIndex() <= 1) {
@@ -1137,11 +1868,11 @@ protected:
                 }
             });
 
-            QAction *actForward = menu->addAction("Forward");
+            QAction *actForward = menu->addAction(L10n::tr("Forward"));
             actForward->setEnabled(history()->canGoForward());
             connect(actForward, &QAction::triggered, this, &QWebEngineView::forward);
 
-            QAction *actReload = menu->addAction("Reload");
+            QAction *actReload = menu->addAction(L10n::tr("Reload"));
             connect(actReload, &QAction::triggered, this, [this]() {
                 if (url().host() == "search.bravelite.local" && !lastSearchQuery.isEmpty()) {
                     emit searchBackFallbackRequested(lastSearchQuery, lastSearchTab);
@@ -1151,25 +1882,25 @@ protected:
             });
             menu->addSeparator();
 
-            QAction *actSave = menu->addAction("Save page as...");
+            QAction *actSave = menu->addAction(L10n::tr("Save page as..."));
             connect(actSave, &QAction::triggered, this, [this]() {
                 page()->triggerAction(QWebEnginePage::SavePage);
             });
 
-            QAction *actSource = menu->addAction("View page source");
+            QAction *actSource = menu->addAction(L10n::tr("View page source"));
             connect(actSource, &QAction::triggered, this, [this]() {
                 page()->triggerAction(QWebEnginePage::ViewSource);
             });
             menu->addSeparator();
 
-            QAction *actNewWin = menu->addAction("Open new window");
+            QAction *actNewWin = menu->addAction(L10n::tr("New window"));
             connect(actNewWin, &QAction::triggered, this, [this]() {
                 emit openNewCleanWindowRequested();
             });
             menu->addSeparator();
         }
 
-        QAction *actFind = menu->addAction("Find in page...\tCtrl+F");
+        QAction *actFind = menu->addAction(L10n::tr("Find in page...") + "\tCtrl+F");
         connect(actFind, &QAction::triggered, this, &CustomWebView::findRequested);
         menu->addSeparator();
 
@@ -1186,7 +1917,7 @@ protected:
             page()->runJavaScript(js);
         });
 
-        QAction *actInspect = menu->addAction("Inspect elements");
+        QAction *actInspect = menu->addAction(L10n::tr("Inspect Element"));
         connect(actInspect, &QAction::triggered, this, [this]() {
             emit inspectElementRequested(this);
         });
@@ -1359,6 +2090,53 @@ protected:
             return;
         }
         QLineEdit::dropEvent(event);
+    }
+
+    void contextMenuEvent(QContextMenuEvent *event) override {
+        QMenu *menu = createStandardContextMenu();
+        if (menu) {
+            menu->setStyleSheet(
+                "QMenu { background: #202124; color: #e8eaed; border: 1px solid #3c4043; border-radius: 6px; padding: 5px; font-size: 13px; } "
+                "QMenu::item { padding: 6px 22px; border-radius: 4px; } "
+                "QMenu::item:selected { background: #ff5500; color: #ffffff; } "
+                "QMenu::separator { height: 1px; background: #3c4043; margin: 4px 0; }"
+            );
+
+            QClipboard *clipboard = QApplication::clipboard();
+            if (clipboard && !clipboard->text().trimmed().isEmpty()) {
+                QAction *actPasteAndSearch = new QAction(L10n::tr("Paste and search"), menu);
+                connect(actPasteAndSearch, &QAction::triggered, this, [this, clipboard]() {
+                    setText(clipboard->text().trimmed());
+                    emit returnPressed();
+                });
+                if (!menu->actions().isEmpty()) {
+                    menu->insertAction(menu->actions().first(), actPasteAndSearch);
+                    menu->insertSeparator(menu->actions().at(1));
+                } else {
+                    menu->addAction(actPasteAndSearch);
+                }
+            }
+
+            for (QAction *act : menu->actions()) {
+                QString orig = act->text();
+                QString clean = orig;
+                clean.remove('&');
+                QString shortcut;
+                int tabPos = clean.indexOf('\t');
+                if (tabPos != -1) {
+                    shortcut = clean.mid(tabPos);
+                    clean = clean.left(tabPos).trimmed();
+                }
+                QString translated = L10n::tr(clean);
+                if (translated != clean) {
+                    act->setText(translated + shortcut);
+                }
+            }
+            menu->exec(event->globalPos());
+            delete menu;
+            return;
+        }
+        QLineEdit::contextMenuEvent(event);
     }
 };
 
@@ -1802,7 +2580,7 @@ static QString buildBraveLiteSearchHtml(const QString &query, const QString &cle
     html += R"HTML(<!DOCTYPE html><html><head><meta charset='utf-8'>
 <title>)HTML";
     html += escapedQuery;
-    html += R"HTML( at BraveLite Engine</title>
+    html += R"HTML( - __ENGINE_TITLE__</title>
 <style>
 * { box-sizing: border-box; }
 body { margin: 0; background: #141724; color: #e2e8f0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
@@ -1812,7 +2590,7 @@ a { text-decoration: none; }
 ::-webkit-scrollbar-thumb { background: #2a3148; border-radius: 5px; border: 2px solid #0e111a; }
 ::-webkit-scrollbar-thumb:hover { background: #6580ff; }
 .sp-header { background: #141724; border-bottom: 1px solid #23293d; padding: 14px 24px 0 24px; position: sticky; top: 0; z-index: 100; }
-.sp-top-row { display: flex; align-items: center; gap: 20px; max-width: 1140px; margin-bottom: 12px; }
+.sp-top-row { display: flex; align-items: center; gap: 16px; max-width: 1180px; margin-bottom: 12px; }
 .sp-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
 .sp-logo-badge { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(101,128,255,0.3); }
 .sp-logo-text { display: flex; flex-direction: column; }
@@ -1825,6 +2603,8 @@ a { text-decoration: none; }
 .sp-clear-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
 .sp-submit-btn { background: #6580ff; border: none; color: #fff; font-size: 14px; cursor: pointer; padding: 6px 14px; font-weight: 600; border-radius: 6px; margin-left: 6px; transition: background 0.15s; }
 .sp-submit-btn:hover { background: #526fe8; }
+.sp-ext-link { background: #1c2236; border: 1px solid #2e3752; color: #8298ff; border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.15s; }
+.sp-ext-link:hover { background: #6580ff; color: #ffffff; border-color: #6580ff; }
 .sp-nav-tabs { display: flex; gap: 24px; padding-left: 196px; font-size: 13.5px; }
 .sp-tab { color: #94a3b8; padding-bottom: 10px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; user-select: none; transition: color 0.15s; }
 .sp-tab:hover { color: #ffffff; }
@@ -1886,29 +2666,30 @@ a { text-decoration: none; }
 <div class='sp-top-row'>
 <div class='sp-logo' onclick="console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);">
 <div class='sp-logo-badge'>🛡️</div>
-<div class='sp-logo-text'><span class='sp-logo-title'>BraveLite Engine</span><span class='sp-logo-sub'>Startpage Privacy Search</span></div>
+<div class='sp-logo-text'><span class='sp-logo-title'>BraveLite Engine</span><span class='sp-logo-sub'>__STARTPAGE_SUB__</span></div>
 </div>
 <form class='sp-search-form' onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: '__TAB_TYPE__'}));">
-<input id='qInput' type='text' value="__QUERY_ESC__" placeholder='Search privately with BraveLite Engine (Startpage)...' autocomplete='off' />
+<input id='qInput' type='text' value="__QUERY_ESC__" placeholder='__SEARCH_PLACEHOLDER__' autocomplete='off' />
 <button type='button' class='sp-clear-btn' onclick="var i=document.getElementById('qInput'); i.value=''; i.focus();">✕</button>
-<button type='submit' class='sp-submit-btn'>Search</button>
+<button type='submit' class='sp-submit-btn'>__SEARCH_BTN__</button>
 </form>
+<a class='sp-ext-link' href='https://www.startpage.com/do/dsearch?query=__QUERY_ESC__' target='_blank' title='__OPEN_SP_TITLE__'>🌐 Startpage ↗</a>
 </div>
 <div class='sp-nav-tabs'>
-<a class='sp-tab __TAB_ALL_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'all'}));">🔍 All</a>
-<a class='sp-tab __TAB_IMAGES_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'images'}));">🖼 Images</a>
-<a class='sp-tab __TAB_VIDEOS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'videos'}));">🎬 Videos</a>
-<a class='sp-tab __TAB_NEWS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'news'}));">📰 News</a>
+<a class='sp-tab __TAB_ALL_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'all'}));">__TAB_ALL_LABEL__</a>
+<a class='sp-tab __TAB_IMAGES_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'images'}));">__TAB_IMAGES_LABEL__</a>
+<a class='sp-tab __TAB_VIDEOS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'videos'}));">__TAB_VIDEOS_LABEL__</a>
+<a class='sp-tab __TAB_NEWS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'news'}));">__TAB_NEWS_LABEL__</a>
 </div>
 </div>
 <div class='sp-main'>
 <div class='sp-privacy-banner'>
-<span class='sp-privacy-badge'>Startpage Protected</span>
-<span>Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result</span>
+<span class='sp-privacy-badge'>__PRIVACY_BADGE__</span>
+<span>__PRIVACY_TEXT__</span>
 </div>
 __AI_OVERVIEW_HTML__
 <div class='sp-results' id='webResults'>
-<div class='sp-result'><div class='sp-snippet'>Searching Startpage & BraveLite Engine (__TAB_TYPE__) for <b>__QUERY_ESC__</b>...</div></div>
+<div class='sp-result'><div class='sp-snippet'>__SEARCHING_STATUS__</div></div>
 </div>
 </div>
 <script>
@@ -1942,11 +2723,11 @@ window.__toggleAiExpand = function() {
     if (window.__aiExpanded) {
         t.classList.remove('collapsed');
         if (c) c.style.display = 'block';
-        b.textContent = 'Less ▴';
+        b.textContent = '__LESS_BTN__';
     } else {
         t.classList.add('collapsed');
         if (c) c.style.display = 'none';
-        b.textContent = 'More ▾';
+        b.textContent = '__MORE_BTN__';
     }
 };
 window.__submitAiFollowup = function(e) {
@@ -1979,7 +2760,7 @@ window.__setImageResults = function(items) {
     container.className = 'sp-image-grid';
     container.innerHTML = '';
     if (!items || items.length === 0) {
-        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">No images found for this query.</div></div>';
+        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">__NO_IMAGES__</div></div>';
         return;
     }
     items.forEach(function(it) {
@@ -1998,7 +2779,7 @@ window.__setWebResults = function(items) {
     container.innerHTML = '';
     if (rail) rail.innerHTML = '';
     if (!items || items.length === 0) {
-        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">No instant results found.</div></div>';
+        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">__NO_RESULTS__</div></div>';
         return;
     }
     items.forEach(function(it, idx) {
@@ -2009,7 +2790,7 @@ window.__setWebResults = function(items) {
         var card = document.createElement('div');
         card.className = 'sp-result';
         card.innerHTML = '<div class="sp-site-row"><img class="sp-fav" src="' + fav + '" /><span>' + host + '</span>' +
-        '<a class="sp-anon-pill" href="' + anonUrl + '" target="_blank" title="View page anonymously via Startpage Proxy">🛡️ Anonymous View</a></div>' +
+        '<a class="sp-anon-pill" href="' + anonUrl + '" target="_blank" title="__ANON_TITLE__">__ANON_LABEL__</a></div>' +
         '<a class="sp-title" href="' + it.url + '">' + it.title + '</a>' +
         '<div class="sp-snippet">' + it.snippet + '</div>';
         container.appendChild(card);
@@ -2024,6 +2805,25 @@ window.__setWebResults = function(items) {
 };
 </script></body></html>
 )HTML";
+
+    html.replace("__ENGINE_TITLE__", L10n::tr("BraveLite Engine"));
+    html.replace("__STARTPAGE_SUB__", L10n::tr("Startpage Privacy Search"));
+    html.replace("__SEARCH_PLACEHOLDER__", L10n::tr("Search privately with BraveLite Engine (Startpage)..."));
+    html.replace("__SEARCH_BTN__", L10n::tr("Search"));
+    html.replace("__OPEN_SP_TITLE__", L10n::tr("Open in Startpage.com"));
+    html.replace("__TAB_ALL_LABEL__", L10n::tr("🔍 All"));
+    html.replace("__TAB_IMAGES_LABEL__", L10n::tr("🖼 Images"));
+    html.replace("__TAB_VIDEOS_LABEL__", L10n::tr("🎬 Videos"));
+    html.replace("__TAB_NEWS_LABEL__", L10n::tr("📰 News"));
+    html.replace("__PRIVACY_BADGE__", L10n::tr("Startpage Protected"));
+    html.replace("__PRIVACY_TEXT__", L10n::tr("Zero personal data logged • No search profiling • Anonymous View proxy enabled on every result"));
+    html.replace("__SEARCHING_STATUS__", QString(L10n::tr("Searching Startpage & BraveLite Engine (%1) for %2...")).arg(cleanTab, escapedQuery));
+    html.replace("__ANON_TITLE__", L10n::tr("View page anonymously via Startpage Proxy"));
+    html.replace("__ANON_LABEL__", L10n::tr("🛡️ Anonymous View"));
+    html.replace("__NO_RESULTS__", L10n::tr("No instant results found."));
+    html.replace("__NO_IMAGES__", L10n::tr("No images found for this query."));
+    html.replace("__MORE_BTN__", L10n::tr("More ▾"));
+    html.replace("__LESS_BTN__", L10n::tr("Less ▴"));
 
     html.replace("__QUERY_ESC__", escapedQuery);
     html.replace("__AI_OVERVIEW_HTML__", googleAiOverviewHtml);
@@ -3246,7 +4046,7 @@ public slots:
             "  <div class='g-ai-header'>"
             "    <div class='g-ai-title-row'>"
             "      <div class='bl-ai-logo'>🦁</div>"
-            "      <span class='g-ai-label'>BraveLite Engine • AI Overview</span>"
+            "      <span class='g-ai-label'>%3 • %4</span>"
             "      <span class='g-ai-meta'>%1 (%2)</span>"
             "    </div>"
             "  </div>"
@@ -3260,20 +4060,27 @@ public slots:
             "      <div id='aiChatBox' class='g-ai-chat-box' style='display:none;'>"
             "        <div id='aiChatHistory' class='g-ai-chat-history'></div>"
             "        <form class='g-ai-chat-form' onsubmit='window.__submitAiFollowup(event)'>"
-            "          <input id='aiChatInput' type='text' placeholder='Ask a follow-up or request code examples...' autocomplete='off' />"
-            "          <button type='submit'>Ask AI ➔</button>"
+            "          <input id='aiChatInput' type='text' placeholder='%5' autocomplete='off' />"
+            "          <button type='submit'>%6</button>"
             "        </form>"
             "      </div>"
-            "      <button id='aiShowMoreBtn' class='g-ai-more-btn' style='display:none;' onclick='window.__toggleAiExpand()'>More ▾</button>"
+            "      <button id='aiShowMoreBtn' class='g-ai-more-btn' style='display:none;' onclick='window.__toggleAiExpand()'>%7</button>"
             "    </div>"
             "    <div class='g-ai-sources' id='aiSourcesRail'></div>"
             "  </div>"
             "  <div class='g-ai-footer'>"
-            "    <span>Grounded on verified search results • Local Ollama (%1)</span>"
-            "    <span>BraveLite Engine v1.68</span>"
+            "    <span>%8 • Local Ollama (%1)</span>"
+            "    <span>BraveLite Engine v1.70</span>"
             "  </div>"
             "</div>"
-        ).arg(ollamaModel.toHtmlEscaped(), aiUseGpu ? "GPU Accelerated" : "CPU") : QString();
+        ).arg(ollamaModel.toHtmlEscaped(),
+             aiUseGpu ? L10n::tr("GPU Accelerated") : "CPU",
+             L10n::tr("BraveLite Engine"),
+             L10n::tr("AI Overview"),
+             L10n::tr("Ask a follow-up or request code examples..."),
+             L10n::tr("Ask AI ➔"),
+             L10n::tr("More ▾"),
+             L10n::tr("Grounded on verified search results")) : QString();
 
         QString ddgSearchPageHtml = buildBraveLiteSearchHtml(query, cleanTab, escapedQuery, googleAiOverviewHtml);
 
@@ -3328,59 +4135,7 @@ public slots:
         if (cleanTab == "videos") searchQueryMod += " site:youtube.com";
         else if (cleanTab == "news") searchQueryMod += " news";
 
-        QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(searchQueryMod));
-        QNetworkRequest req(ddgUrl);
-        req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36");
-        QNetworkReply *reply = m_netManager->get(req);
-
-        connect(reply, &QNetworkReply::finished, this, [this, reply, safeView, query, showAiCard, currentSearchId]() {
-            if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
-                reply->deleteLater();
-                return;
-            }
-            QJsonArray resultsArr;
-            QStringList groundingContext;
-            if (reply->error() == QNetworkReply::NoError) {
-                QString html = QString::fromUtf8(reply->readAll());
-                QRegularExpression re(
-                    "<a[^>]*result__a[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
-                    "<a[^>]*result__snippet[^>]*>([\\s\\S]*?)</a>",
-                                      QRegularExpression::CaseInsensitiveOption
-                );
-                auto it = re.globalMatch(html);
-                int count = 0;
-                while (it.hasNext() && count < 10) {
-                    auto match = it.next();
-                    QString rawHref = match.captured(1);
-                    if (rawHref.contains("uddg=")) {
-                        QUrl parsed("https://duckduckgo.com" + rawHref);
-                        QUrlQuery q(parsed);
-                        QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
-                        if (!uddg.isEmpty()) rawHref = uddg;
-                    }
-                    QString title = match.captured(2);
-                    title.remove(QRegularExpression("<[^>]+>"));
-                    title = title.simplified();
-
-                    QString snippet = match.captured(3);
-                    snippet.remove(QRegularExpression("<[^>]+>"));
-                    snippet = snippet.simplified();
-
-                    if (rawHref.startsWith("http")) {
-                        QJsonObject item;
-                        item["url"] = rawHref;
-                        item["title"] = title;
-                        item["snippet"] = snippet;
-                        resultsArr.append(item);
-                        if (count < 5) {
-                            groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
-                        }
-                        count++;
-                    }
-                }
-            }
-            reply->deleteLater();
-
+        auto dispatchSearchResults = [this, safeView, query, showAiCard, currentSearchId](const QJsonArray &resultsArr, const QStringList &groundingContext) {
             QString jsonStr = QString::fromUtf8(QJsonDocument(resultsArr).toJson(QJsonDocument::Compact));
             safeView->pendingWebResultsJson = jsonStr;
             for (int delayMs : {80, 260, 550}) {
@@ -3440,6 +4195,114 @@ public slots:
                         });
                     }
                 });
+            }
+        };
+
+        auto runDdgFallback = [this, safeView, currentSearchId, searchQueryMod, dispatchSearchResults]() {
+            QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(searchQueryMod));
+            QNetworkRequest req(ddgUrl);
+            req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+            QNetworkReply *reply = m_netManager->get(req);
+            connect(reply, &QNetworkReply::finished, this, [reply, safeView, currentSearchId, dispatchSearchResults]() {
+                if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
+                    reply->deleteLater();
+                    return;
+                }
+                QJsonArray resultsArr;
+                QStringList groundingContext;
+                if (reply->error() == QNetworkReply::NoError) {
+                    QString html = QString::fromUtf8(reply->readAll());
+                    QRegularExpression re(
+                        "<a[^>]*result__a[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
+                        "<a[^>]*result__snippet[^>]*>([\\s\\S]*?)</a>",
+                        QRegularExpression::CaseInsensitiveOption
+                    );
+                    auto it = re.globalMatch(html);
+                    int count = 0;
+                    while (it.hasNext() && count < 10) {
+                        auto match = it.next();
+                        QString rawHref = match.captured(1);
+                        if (rawHref.contains("uddg=")) {
+                            QUrl parsed("https://duckduckgo.com" + rawHref);
+                            QUrlQuery q(parsed);
+                            QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
+                            if (!uddg.isEmpty()) rawHref = uddg;
+                        }
+                        QString title = match.captured(2);
+                        title.remove(QRegularExpression("<[^>]+>"));
+                        title = title.simplified();
+
+                        QString snippet = match.captured(3);
+                        snippet.remove(QRegularExpression("<[^>]+>"));
+                        snippet = snippet.simplified();
+
+                        if (rawHref.startsWith("http") && !title.isEmpty()) {
+                            QJsonObject item;
+                            item["url"] = rawHref;
+                            item["title"] = title;
+                            item["snippet"] = snippet;
+                            resultsArr.append(item);
+                            if (count < 5) {
+                                groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
+                            }
+                            count++;
+                        }
+                    }
+                }
+                reply->deleteLater();
+                dispatchSearchResults(resultsArr, groundingContext);
+            });
+        };
+
+        // Send query to Startpage search endpoint
+        QUrl spUrl("https://www.startpage.com/sp/search?query=" + QUrl::toPercentEncoding(searchQueryMod));
+        QNetworkRequest spReq(spUrl);
+        spReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+        spReq.setRawHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+        spReq.setRawHeader("Accept-Language", "en-US,en;q=0.9");
+        QNetworkReply *spReply = m_netManager->get(spReq);
+
+        connect(spReply, &QNetworkReply::finished, this, [spReply, safeView, currentSearchId, dispatchSearchResults, runDdgFallback]() {
+            if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
+                spReply->deleteLater();
+                return;
+            }
+            bool parsedOk = false;
+            QJsonArray resultsArr;
+            QStringList groundingContext;
+            if (spReply->error() == QNetworkReply::NoError) {
+                QString html = QString::fromUtf8(spReply->readAll());
+                QRegularExpression reSp(
+                    "<a[^>]*class=\"[^\"]*(?:result-link|w-gl__result-title|result-title)[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
+                    "<(?:p|span|div)[^>]*class=\"[^\"]*(?:result-snippet|w-gl__description)[^\"]*\"[^>]*>([\\s\\S]*?)</(?:p|span|div)>",
+                    QRegularExpression::CaseInsensitiveOption
+                );
+                auto it = reSp.globalMatch(html);
+                int count = 0;
+                while (it.hasNext() && count < 10) {
+                    auto match = it.next();
+                    QString rawHref = match.captured(1);
+                    QString title = match.captured(2).remove(QRegularExpression("<[^>]+>")).simplified();
+                    QString snippet = match.captured(3).remove(QRegularExpression("<[^>]+>")).simplified();
+                    if (rawHref.startsWith("http") && !title.isEmpty()) {
+                        QJsonObject item;
+                        item["url"] = rawHref;
+                        item["title"] = title;
+                        item["snippet"] = snippet;
+                        resultsArr.append(item);
+                        if (count < 5) groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
+                        count++;
+                    }
+                }
+                if (!resultsArr.isEmpty()) {
+                    parsedOk = true;
+                }
+            }
+            spReply->deleteLater();
+            if (parsedOk) {
+                dispatchSearchResults(resultsArr, groundingContext);
+            } else {
+                runDdgFallback();
             }
         });
     }
@@ -3808,7 +4671,7 @@ public:
         layout->addWidget(scroll, 1);
 
         int idx = tabStack->addWidget(page);
-        tabBar->addTab("Downloads");
+        tabBar->addTab(L10n::tr("Downloads"));
         tabBar->setCurrentIndex(idx);
     }
 
@@ -3873,7 +4736,7 @@ public:
         });
 
         int idx = tabStack->addWidget(page);
-        tabBar->addTab("History");
+        tabBar->addTab(L10n::tr("History"));
         tabBar->setCurrentIndex(idx);
     }
 
@@ -3911,7 +4774,7 @@ public:
         layout->addWidget(btnRevoke);
 
         int idx = tabStack->addWidget(page);
-        tabBar->addTab("Permissions");
+        tabBar->addTab(L10n::tr("Permissions"));
         tabBar->setCurrentIndex(idx);
     }
 
@@ -3949,18 +4812,18 @@ public:
         defLayout->setContentsMargins(20, 18, 20, 18);
 
         QVBoxLayout *defTextLayout = new QVBoxLayout();
-        QLabel *defTitle = new QLabel("Default browser", defaultCard);
+        QLabel *defTitle = new QLabel(L10n::tr("Default browser"), defaultCard);
         defTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
 
         bool alreadyDefault = isCurrentlyDefaultBrowser();
         QLabel *defSub = new QLabel(alreadyDefault
-        ? "BraveLite is currently your default web browser."
-        : "Make BraveLite your default web browser for opening web links.", defaultCard);
+        ? L10n::tr("BraveLite is currently your default web browser.")
+        : L10n::tr("Make BraveLite your default web browser for opening web links."), defaultCard);
         defSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         defTextLayout->addWidget(defTitle);
         defTextLayout->addWidget(defSub);
 
-        QPushButton *btnMakeDefault = new QPushButton(alreadyDefault ? "Default Browser" : "Make default", defaultCard);
+        QPushButton *btnMakeDefault = new QPushButton(alreadyDefault ? L10n::tr("Default Browser") : L10n::tr("Make default"), defaultCard);
         btnMakeDefault->setCursor(Qt::PointingHandCursor);
         if (alreadyDefault) {
             btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
@@ -3977,8 +4840,8 @@ public:
             #endif
             m_isDefaultBrowserSaved = true;
             savePersistentData();
-            defSub->setText("BraveLite is currently your default web browser.");
-            btnMakeDefault->setText("Default Browser");
+            defSub->setText(L10n::tr("BraveLite is currently your default web browser."));
+            btnMakeDefault->setText(L10n::tr("Default Browser"));
             btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
             btnMakeDefault->setEnabled(false);
         });
@@ -3994,12 +4857,12 @@ public:
         startLayout->setContentsMargins(20, 18, 20, 18);
         startLayout->setSpacing(12);
 
-        QLabel *startTitle = new QLabel("On startup", startupCard);
+        QLabel *startTitle = new QLabel(L10n::tr("On startup"), startupCard);
         startTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
         startLayout->addWidget(startTitle);
 
-        QRadioButton *rbNewTab = new QRadioButton("Open the New Tab page", startupCard);
-        QRadioButton *rbContinue = new QRadioButton("Continue where you left off", startupCard);
+        QRadioButton *rbNewTab = new QRadioButton(L10n::tr("Open the New Tab page"), startupCard);
+        QRadioButton *rbContinue = new QRadioButton(L10n::tr("Continue where you left off"), startupCard);
         rbNewTab->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none; padding: 4px;");
         rbContinue->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none; padding: 4px;");
 
@@ -4023,6 +4886,32 @@ public:
         startLayout->addWidget(rbContinue);
         layout->addWidget(startupCard);
 
+        QWidget *langCard = new QWidget(container);
+        langCard->setObjectName("settingsCard");
+        langCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
+        QHBoxLayout *langLayout = new QHBoxLayout(langCard);
+        langLayout->setContentsMargins(20, 18, 20, 18);
+
+        QVBoxLayout *langTextLayout = new QVBoxLayout();
+        QLabel *langTitle = new QLabel(L10n::tr("Display Language"), langCard);
+        langTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
+        QLabel *langSub = new QLabel(L10n::tr("Choose the display language for the browser interface, start page, and settings."), langCard);
+        langSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
+        langTextLayout->addWidget(langTitle);
+        langTextLayout->addWidget(langSub);
+
+        QComboBox *langUiCombo = new QComboBox(langCard);
+        langUiCombo->addItems({"English", "Ελληνικά (Greek)", "Español (Spanish)", "Français (French)", "Deutsch (German)", "中文 (Chinese)"});
+        langUiCombo->setCurrentText(L10n::getLanguageDisplayName());
+        langUiCombo->setStyleSheet("QComboBox { background: #1e1f22; border: 1px solid #3c4043; border-radius: 6px; padding: 6px 14px; color: #fff; font-size: 13px; }");
+        connect(langUiCombo, &QComboBox::currentTextChanged, this, [this](const QString &val) {
+            setUiLanguage(val);
+        });
+
+        langLayout->addLayout(langTextLayout, 1);
+        langLayout->addWidget(langUiCombo);
+        layout->addWidget(langCard);
+
         QWidget *searchCard = new QWidget(container);
         searchCard->setObjectName("settingsCard");
         searchCard->setStyleSheet("background: #242529; border: 1px solid #32353b; border-radius: 8px;");
@@ -4030,9 +4919,9 @@ public:
         searchLayout->setContentsMargins(20, 18, 20, 18);
 
         QVBoxLayout *searchTextLayout = new QVBoxLayout();
-        QLabel *sTitle = new QLabel("Search engine", searchCard);
+        QLabel *sTitle = new QLabel(L10n::tr("Search engine"), searchCard);
         sTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *sSub = new QLabel("Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", searchCard);
+        QLabel *sSub = new QLabel(L10n::tr("Choose your default search engine: BraveLite Engine (Private Search & AI), Startpage, Google, Bing, DuckDuckGo, Yahoo, or Yandex."), searchCard);
         sSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         searchTextLayout->addWidget(sTitle);
         searchTextLayout->addWidget(sSub);
@@ -5193,21 +6082,21 @@ public:
             QListWidget::item:selected { background-color: %3; color: #ffffff; font-weight: bold; }
         )").arg(pal.bgCard, pal.borderCol, pal.accent));
 
-        sidebar->addItem("Get started");
-        sidebar->addItem("BraveLite AI (Ollama)");
-        sidebar->addItem("uBlock Origin & Shields");
-        sidebar->addItem("Extensions");
-        sidebar->addItem("Theme Profiles");
-        sidebar->addItem("Keybinds & Shortcuts");
-        sidebar->addItem("Autofill and passwords");
-        sidebar->addItem("Bookmarks Manager");
-        sidebar->addItem("Media & DRM (Widevine / Spotify)");
-        sidebar->addItem("DNS over Oblivious HTTP");
-        sidebar->addItem("SponsorBlock Configuration");
-        sidebar->addItem("Permissions Dashboard");
-        sidebar->addItem("Downloads & Crash Logs");
-        sidebar->addItem("Delete browsing data");
-        sidebar->addItem("Reset settings");
+        sidebar->addItem(L10n::tr("Get started"));
+        sidebar->addItem(L10n::tr("BraveLite AI (Ollama)"));
+        sidebar->addItem(L10n::tr("uBlock Origin & Shields"));
+        sidebar->addItem(L10n::tr("Extensions"));
+        sidebar->addItem(L10n::tr("Theme Profiles"));
+        sidebar->addItem(L10n::tr("Keybinds & Shortcuts"));
+        sidebar->addItem(L10n::tr("Autofill and passwords"));
+        sidebar->addItem(L10n::tr("Bookmarks Manager"));
+        sidebar->addItem(L10n::tr("Media & DRM (Widevine / Spotify)"));
+        sidebar->addItem(L10n::tr("DNS over Oblivious HTTP"));
+        sidebar->addItem(L10n::tr("SponsorBlock Configuration"));
+        sidebar->addItem(L10n::tr("Permissions Dashboard"));
+        sidebar->addItem(L10n::tr("Downloads & Crash Logs"));
+        sidebar->addItem(L10n::tr("Delete browsing data"));
+        sidebar->addItem(L10n::tr("Reset settings"));
 
         QWidget *content = new QWidget(page);
         QVBoxLayout *cLayout = new QVBoxLayout(content);
@@ -5230,8 +6119,8 @@ public:
         passLayout->setContentsMargins(0, 0, 0, 0);
         passLayout->addWidget(createPasswordManagerWidget(passPage), 1);
         QHBoxLayout *passIoRow = new QHBoxLayout();
-        QPushButton *btnImportPass = new QPushButton("Import Passwords / Bookmarks", passPage);
-        QPushButton *btnExportPass = new QPushButton("Export Passwords (CSV)", passPage);
+        QPushButton *btnImportPass = new QPushButton(L10n::tr("Import Passwords / Bookmarks"), passPage);
+        QPushButton *btnExportPass = new QPushButton(L10n::tr("Export Passwords (CSV)"), passPage);
         btnImportPass->setStyleSheet(QString("QPushButton { background: %1; font-weight: bold; padding: 8px 16px; border-radius: 6px; color: #fff; border: none; }").arg(pal.accent));
         btnExportPass->setStyleSheet(QString("QPushButton { background: %1; font-weight: bold; padding: 8px 16px; border-radius: 6px; color: #fff; border: 1px solid %2; }").arg(pal.bgInput, pal.borderCol));
         connect(btnImportPass, &QPushButton::clicked, this, &BrowserWindow::importTop5Browsers);
@@ -5295,37 +6184,37 @@ public:
             actionBtn4->hide();
 
             if (row == 0) {
-                detailTitle->setText("Get started");
+                detailTitle->setText(L10n::tr("Get started"));
                 detailStack->setCurrentIndex(0);
                 return;
             }
             if (row == 1) {
-                detailTitle->setText("BraveLite AI (Ollama & GPU Configuration)");
+                detailTitle->setText(L10n::tr("BraveLite AI (Ollama & GPU Configuration)"));
                 detailStack->setCurrentIndex(1);
                 return;
             }
             if (row == 2) {
-                detailTitle->setText("uBlock Origin & Shields (Ad & Tracker Protection)");
+                detailTitle->setText(L10n::tr("uBlock Origin & Shields (Ad & Tracker Protection)"));
                 detailStack->setCurrentIndex(2);
                 return;
             }
             if (row == 3) {
-                detailTitle->setText("Extensions (Userscripts)");
+                detailTitle->setText(L10n::tr("Extensions (Userscripts)"));
                 detailStack->setCurrentIndex(3);
                 return;
             }
             if (row == 4) {
-                detailTitle->setText("Theme Profiles");
+                detailTitle->setText(L10n::tr("Theme Profiles"));
                 detailStack->setCurrentIndex(4);
                 return;
             }
             if (row == 5) {
-                detailTitle->setText("Keybinds & Shortcuts");
+                detailTitle->setText(L10n::tr("Keybinds & Shortcuts"));
                 detailStack->setCurrentIndex(5);
                 return;
             }
             if (row == 6) {
-                detailTitle->setText("Autofill and passwords");
+                detailTitle->setText(L10n::tr("Autofill and passwords"));
                 detailStack->setCurrentIndex(6);
                 return;
             }
@@ -5333,14 +6222,14 @@ public:
             detailStack->setCurrentIndex(7);
 
             if (row == 7) {
-                detailTitle->setText("Bookmarks Manager");
+                detailTitle->setText(L10n::tr("Bookmarks Manager"));
                 for (const auto &b : bookmarksList) {
                     itemsList->addItem(b.title + " (" + b.url + ")");
                 }
-                actionBtn1->setText("New Bookmark");
-                actionBtn2->setText("Delete Selected");
-                actionBtn3->setText("Import Bookmarks");
-                actionBtn4->setText("Export Bookmarks");
+                actionBtn1->setText(L10n::tr("New Bookmark"));
+                actionBtn2->setText(L10n::tr("Delete Selected"));
+                actionBtn3->setText(L10n::tr("Import Bookmarks"));
+                actionBtn4->setText(L10n::tr("Export Bookmarks"));
                 actionBtn1->show();
                 actionBtn2->show();
                 actionBtn3->show();
@@ -5381,7 +6270,7 @@ public:
                 connect(actionBtn3, &QPushButton::clicked, this, &BrowserWindow::importTop5Browsers);
                 connect(actionBtn4, &QPushButton::clicked, this, &BrowserWindow::exportBookmarks);
             } else if (row == 8) {
-                detailTitle->setText("Media & DRM (Widevine / Spotify)");
+                detailTitle->setText(L10n::tr("Media & DRM (Widevine / Spotify)"));
                 QString wv = getWidevineCdmPath();
                 if (!wv.isEmpty()) {
                     itemsList->addItem("Widevine CDM Status: Installed & Active");
@@ -5410,7 +6299,7 @@ public:
                     addNewTab(QUrl("https://open.spotify.com"));
                 });
             } else if (row == 9) {
-                detailTitle->setText("DNS over Oblivious HTTP (ODoH)");
+                detailTitle->setText(L10n::tr("DNS over Oblivious HTTP (ODoH)"));
                 itemsList->addItem(QString("OHTTP Status: %1").arg(odohEnabled ? "Enabled (Relay + Resolver active)" : "Disabled"));
                 itemsList->addItem("Relay: https://odoh-relay.cloudflare.com");
                 itemsList->addItem("Resolver: https://odoh.cloudflare-dns.com/dns-query");
@@ -5422,7 +6311,7 @@ public:
                     (*showCategoryPtr)(row);
                 });
             } else if (row == 10) {
-                detailTitle->setText("SponsorBlock Configuration");
+                detailTitle->setText(L10n::tr("SponsorBlock Configuration"));
                 itemsList->addItem("Status: Active (Auto-skips sponsors & ads on YouTube)");
                 itemsList->addItem("Server: " + sponsorBlockServer);
                 actionBtn1->setText("Change Server URL (Self-Hosted)");
@@ -5436,13 +6325,13 @@ public:
                     }
                 });
             } else if (row == 11) {
-                detailTitle->setText("Permissions Dashboard");
+                detailTitle->setText(L10n::tr("Permissions Dashboard"));
                 itemsList->addItem("Inspect and revoke camera, mic, and location permissions.");
                 actionBtn1->setText("Open Dashboard Tab");
                 actionBtn1->show();
                 connect(actionBtn1, &QPushButton::clicked, this, &BrowserWindow::openPermissionsTab);
             } else if (row == 12) {
-                detailTitle->setText("Downloads & Extensive Crash Logs");
+                detailTitle->setText(L10n::tr("Downloads & Extensive Crash Logs"));
                 itemsList->addItem("Downloads folder: " + QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
                 itemsList->addItem("Crash Logs folder: " + CrashLogger::crashLogDir());
                 actionBtn1->setText("Open Crash Logs Folder");
@@ -5457,7 +6346,7 @@ public:
                     QMessageBox::information(this, "Diagnostic Log Saved", "Detailed diagnostic report written to:\n" + CrashLogger::crashLogDir());
                 });
             } else if (row == 13) {
-                detailTitle->setText("Delete browsing data");
+                detailTitle->setText(L10n::tr("Delete browsing data"));
                 itemsList->addItem("Clear Cookies and Web Cache");
                 actionBtn1->setText("Delete All Cookies");
                 actionBtn1->show();
@@ -5466,9 +6355,9 @@ public:
                     QMessageBox::information(this, "Cleared", "Cookies and storage cleared.");
                 });
             } else if (row == 14) {
-                detailTitle->setText("Reset settings");
+                detailTitle->setText(L10n::tr("Reset settings"));
                 itemsList->addItem("Restore BraveLite defaults to pristine condition");
-                actionBtn1->setText("Reset All Browser Data");
+                actionBtn1->setText(L10n::tr("Reset all settings to default"));
                 actionBtn1->show();
                 connect(actionBtn1, &QPushButton::clicked, [this]() {
                     QFile::remove(getStorageFile());
@@ -5495,8 +6384,63 @@ public:
         hLayout->addWidget(content, 1);
 
         int idx = tabStack->addWidget(page);
-        tabBar->addTab("Settings");
+        tabBar->addTab(L10n::tr("Settings"));
         tabBar->setCurrentIndex(idx);
+    }
+
+    void updateUiLanguage() {
+        if (urlBar) {
+            urlBar->setPlaceholderText(L10n::getUrlBarPlaceholder(defaultSearchEngine));
+        }
+        if (btnBack) btnBack->setToolTip(L10n::tr("Back") + " (Alt+Left)");
+        if (btnForward) btnForward->setToolTip(L10n::tr("Forward") + " (Alt+Right)");
+        if (btnReload) btnReload->setToolTip(L10n::tr("Reload") + " (Ctrl+R)");
+        if (btnBookmark) btnBookmark->setToolTip(L10n::tr("Bookmark this page"));
+        if (btnZoomOut) btnZoomOut->setToolTip(L10n::tr("Zoom Out"));
+        if (btnZoomIn) btnZoomIn->setToolTip(L10n::tr("Zoom In"));
+        if (btnDownload) btnDownload->setToolTip(L10n::tr("Downloads") + " (Ctrl+J)");
+        if (btnMenu) btnMenu->setToolTip(L10n::tr("BraveLite Menu"));
+        if (btnPasswords) btnPasswords->setToolTip(L10n::tr("Passwords & Autofill Vault"));
+        if (btnSplitView) btnSplitView->setToolTip(L10n::tr("Split View Options"));
+        if (btnTranslate) btnTranslate->setText("🌐 " + L10n::tr("Translate"));
+        if (newTabBtn) newTabBtn->setToolTip(L10n::tr("New tab") + " (Ctrl+T)");
+
+        if (m_profile) {
+            m_profile->setHttpAcceptLanguage(L10n::getLocaleCode() + ",en;q=0.9");
+        }
+
+        if (tabStack && tabBar) {
+            for (int i = 0; i < tabStack->count(); ++i) {
+                QWidget *w = tabStack->widget(i);
+                if (auto *v = CustomWebViewFromWidget(w)) {
+                    QString urlStr = v->url().toString();
+                    if (urlStr.isEmpty() || urlStr == "about:blank" || v->title() == "New Tab" || v->title() == L10n::tr("New Tab") || v->title() == "Νέα καρτέλα") {
+                        v->setHtml(getNewTabHtml());
+                        tabBar->setTabText(i, L10n::tr("New Tab"));
+                    }
+                }
+            }
+        }
+    }
+
+    void setUiLanguage(const QString &langName) {
+        L10n::setLanguage(langName);
+        savePersistentData();
+        for (BrowserWindow *w : s_openWindows) {
+            if (w) {
+                w->updateUiLanguage();
+                if (w->tabBar && w->tabStack) {
+                    int cur = w->tabBar->currentIndex();
+                    if (cur >= 0 && cur < w->tabBar->count()) {
+                        QString tabT = w->tabBar->tabText(cur);
+                        if (tabT == "Settings" || tabT == "Ρυθμίσεις" || tabT == "Configuración" || tabT == "Paramètres" || tabT == "Einstellungen" || tabT == "设置") {
+                            w->closeTab(cur);
+                            w->openSettingsTab(0);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void openAppMenu() {
@@ -5508,49 +6452,66 @@ public:
             QMenu::separator { height: 1px; background-color: #3c4043; margin: 4px 0px; }
         )");
 
-        menu.addAction("New tab\t" + keybindsMap.value("NewTab"), this, [this]() { addNewTab(); });
-        menu.addAction("New window\t" + keybindsMap.value("NewWindow"), this, [this]() { (new BrowserWindow(false))->show(); });
-        menu.addAction("New private window\t" + keybindsMap.value("Incognito"), this, &BrowserWindow::openIncognito);
+        menu.addAction(L10n::tr("New tab") + "\t" + keybindsMap.value("NewTab"), this, [this]() { addNewTab(); });
+        menu.addAction(L10n::tr("New window") + "\t" + keybindsMap.value("NewWindow"), this, [this]() { (new BrowserWindow(false))->show(); });
+        menu.addAction(L10n::tr("New private window") + "\t" + keybindsMap.value("Incognito"), this, &BrowserWindow::openIncognito);
         menu.addSeparator();
 
-        QAction *actGaming = menu.addAction(gamingModeActive
+        QAction *actGaming = menu.addAction(L10n::tr(gamingModeActive
         ? "🎮 Gaming Mode: ON (Click to Re-enable AI)"
-        : "🎮 Gaming Mode: OFF (Click to Optimize for Gaming)");
+        : "🎮 Gaming Mode: OFF (Click to Optimize for Gaming)"));
         connect(actGaming, &QAction::triggered, this, &BrowserWindow::toggleGamingMode);
 
         menu.addSeparator();
 
-        QMenu *zoomMenu = menu.addMenu("Zoom");
-        zoomMenu->addAction("Zoom In\t" + keybindsMap.value("ZoomIn"), this, &BrowserWindow::zoomIn);
-        zoomMenu->addAction("Zoom Out\t" + keybindsMap.value("ZoomOut"), this, &BrowserWindow::zoomOut);
-        zoomMenu->addAction("Reset Zoom (100%)\t" + keybindsMap.value("ZoomReset"), this, &BrowserWindow::zoomReset);
+        QMenu *zoomMenu = menu.addMenu(L10n::tr("Zoom"));
+        zoomMenu->setStyleSheet(menu.styleSheet());
+        zoomMenu->addAction(L10n::tr("Zoom In") + "\t" + keybindsMap.value("ZoomIn"), this, &BrowserWindow::zoomIn);
+        zoomMenu->addAction(L10n::tr("Zoom Out") + "\t" + keybindsMap.value("ZoomOut"), this, &BrowserWindow::zoomOut);
+        zoomMenu->addAction(L10n::tr("Reset Zoom (100%)") + "\t" + keybindsMap.value("ZoomReset"), this, &BrowserWindow::zoomReset);
 
-        menu.addAction("✨ BraveLite AI Settings", this, [this]() { openSettingsTab(1); });
-        menu.addAction("🛡 uBlock Origin & Shields", this, [this]() { openSettingsTab(2); });
-        menu.addAction("Extensions (Userscripts)", this, [this]() { openSettingsTab(3); });
-        menu.addAction("Passwords && Autofill", this, &BrowserWindow::openPasswordManagerDialog);
-        menu.addAction("History\t" + keybindsMap.value("History"), this, &BrowserWindow::openHistoryTab);
-        menu.addAction("Bookmarks Manager", this, [this]() { openSettingsTab(7); });
-        menu.addAction("Downloads\t" + keybindsMap.value("Downloads"), this, &BrowserWindow::openDownloadsTab);
-        menu.addAction("Find in page...\t" + keybindsMap.value("Find", "Ctrl+F"), this, &BrowserWindow::openFindDialog);
-        menu.addAction("Site Permissions", this, &BrowserWindow::openPermissionsTab);
+        menu.addAction("✨ " + L10n::tr("BraveLite AI Settings"), this, [this]() { openSettingsTab(1); });
+        menu.addAction("🛡 " + L10n::tr("uBlock Origin & Shields"), this, [this]() { openSettingsTab(2); });
+        menu.addAction(L10n::tr("Extensions (Userscripts)"), this, [this]() { openSettingsTab(3); });
+        menu.addAction(L10n::tr("Passwords && Autofill"), this, &BrowserWindow::openPasswordManagerDialog);
+        menu.addAction(L10n::tr("History") + "\t" + keybindsMap.value("History"), this, &BrowserWindow::openHistoryTab);
+        menu.addAction(L10n::tr("Bookmarks Manager"), this, [this]() { openSettingsTab(7); });
+        menu.addAction(L10n::tr("Downloads") + "\t" + keybindsMap.value("Downloads"), this, &BrowserWindow::openDownloadsTab);
+        menu.addAction(L10n::tr("Find in page...") + "\t" + keybindsMap.value("Find", "Ctrl+F"), this, &BrowserWindow::openFindDialog);
+        menu.addAction(L10n::tr("Site Permissions"), this, &BrowserWindow::openPermissionsTab);
 
-        menu.addAction("Inspect Element", this, [this]() {
+        menu.addAction(L10n::tr("Inspect Element"), this, [this]() {
             openInspectElementWindow(activeWebView());
         });
 
-        menu.addAction("Delete browsing data...\tCtrl+Shift+Del", this, [this]() {
-            if (QMessageBox::question(this, "Clear Data", "Delete all cookies and history?") == QMessageBox::Yes) {
+        menu.addAction(L10n::tr("Delete browsing data...") + "\tCtrl+Shift+Del", this, [this]() {
+            if (QMessageBox::question(this, L10n::tr("Clear Data"), L10n::tr("Delete all cookies and history?")) == QMessageBox::Yes) {
                 if (m_profile) m_profile->cookieStore()->deleteAllCookies();
                 historyList.clear();
                 savePersistentData();
-                QMessageBox::information(this, "Cleared", "Cookies and history cleared.");
+                QMessageBox::information(this, L10n::tr("Cleared"), L10n::tr("Cookies and history cleared."));
             }
         });
 
         menu.addSeparator();
-        menu.addAction("Settings", this, [this]() { openSettingsTab(0); });
-        menu.addAction("Exit", this, &BrowserWindow::close);
+
+        QMenu *langMenu = menu.addMenu("🌐 " + L10n::tr("Language"));
+        langMenu->setStyleSheet(menu.styleSheet());
+        const auto &supported = L10n::getSupportedLanguages();
+        for (const auto &item : supported) {
+            QAction *act = langMenu->addAction(item.nativeName);
+            act->setCheckable(true);
+            if (item.code == L10n::currentLang) {
+                act->setChecked(true);
+            }
+            connect(act, &QAction::triggered, this, [this, code = item.code]() {
+                setUiLanguage(code);
+            });
+        }
+
+        menu.addSeparator();
+        menu.addAction(L10n::tr("Settings"), this, [this]() { openSettingsTab(0); });
+        menu.addAction(L10n::tr("Exit"), this, &BrowserWindow::close);
 
         menu.exec(btnMenu->mapToGlobal(QPoint(0, btnMenu->height() + 4)));
     }
@@ -5901,15 +6862,22 @@ private:
     QList<ClosedTabRecord> m_closedTabsHistory;
     CustomTabBar *tabBar;
     QStackedWidget *tabStack;
-    DroppableUrlBar *urlBar;
-    QPushButton *btnSplitView;
-    QPushButton *btnTranslate;
-    QComboBox *langCombo;
-    QPushButton *btnPrivacyGrade;
-    QPushButton *btnShield;
-    QPushButton *btnPasswords;
-    QPushButton *btnDownload;
-    QPushButton *btnMenu;
+    DroppableUrlBar *urlBar = nullptr;
+    QPushButton *btnBack = nullptr;
+    QPushButton *btnForward = nullptr;
+    QPushButton *btnReload = nullptr;
+    QPushButton *btnBookmark = nullptr;
+    QPushButton *btnZoomOut = nullptr;
+    QPushButton *btnZoomIn = nullptr;
+    NewTabDropButton *newTabBtn = nullptr;
+    QPushButton *btnSplitView = nullptr;
+    QPushButton *btnTranslate = nullptr;
+    QComboBox *langCombo = nullptr;
+    QPushButton *btnPrivacyGrade = nullptr;
+    QPushButton *btnShield = nullptr;
+    QPushButton *btnPasswords = nullptr;
+    QPushButton *btnDownload = nullptr;
+    QPushButton *btnMenu = nullptr;
     QToolBar *bookmarksBar;
     QProgressBar *progressBar;
     QStringList historyList;
@@ -6264,7 +7232,7 @@ private:
         QStandardItem *searchItem = new QStandardItem();
         searchItem->setIcon(BrowserIcons::drawIcon("search", QColor("#9aa0a6")));
         searchItem->setData(q, Qt::UserRole + 1);
-        searchItem->setData(QString("- Search with %1").arg(defaultSearchEngine), Qt::UserRole + 2);
+        searchItem->setData(QString(L10n::tr("- Search with %1")).arg(defaultSearchEngine), Qt::UserRole + 2);
         searchItem->setData(true, Qt::UserRole + 3);
         searchItem->setData("", Qt::UserRole + 4);
         searchItem->setText(q);
@@ -6278,6 +7246,7 @@ private:
             QString url;
         };
         static const QVector<PopSite> popSites = {
+            {"Startpage", "startpage.com", "globe", "https://www.startpage.com"},
             {"YouTube", "youtube.com", "youtube", "https://www.youtube.com"},
             {"YouTube Music", "music.youtube.com", "youtube_music", "https://music.youtube.com"},
             {"Reddit", "reddit.com", "reddit", "https://www.reddit.com"},
@@ -6545,6 +7514,7 @@ private:
         QString ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
         #endif
         m_profile->setHttpUserAgent(ua);
+        m_profile->setHttpAcceptLanguage(L10n::getLocaleCode() + ",en;q=0.9");
 
         QWebEngineSettings *settings = m_profile->settings();
         settings->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, true);
@@ -7251,10 +8221,10 @@ private:
         connect(tabBar, &CustomTabBar::tabDetachRequested, this, &BrowserWindow::handleTabDetach);
         connect(tabBar, &CustomTabBar::urlDroppedOnTabBar, this, [this](const QUrl &u) { addNewTab(u); });
 
-        NewTabDropButton *newTabBtn = new NewTabDropButton("+", this);
+        newTabBtn = new NewTabDropButton("+", this);
         newTabBtn->setFixedSize(28, 28);
         newTabBtn->setCursor(Qt::PointingHandCursor);
-        newTabBtn->setToolTip("New tab (Ctrl+T) — Drag & drop any link or bookmark here to open!");
+        newTabBtn->setToolTip(L10n::tr("New tab") + " (Ctrl+T)");
         newTabBtn->setStyleSheet("QPushButton { font-size: 16px; font-weight: bold; color: #c8ccd0; background: #242629; border: 1px solid #34373d; border-radius: 6px; padding: 0; } QPushButton:hover { background-color: #35373c; color: #fff; }");
         connect(newTabBtn, &QPushButton::clicked, this, [this]() { addNewTab(); });
         connect(newTabBtn, &NewTabDropButton::urlDropped, this, [this](const QUrl &u) { addNewTab(u); });
@@ -7315,10 +8285,10 @@ private:
 
         QString navBtnStyle = "QPushButton { background-color: #25272b; border: 1px solid #34373d; border-radius: 6px; padding: 4px 10px; color: #e4e6eb; font-size: 14px; font-weight: bold; } QPushButton:hover { background-color: #35373c; border-color: #4b4f57; color: #fff; }";
 
-        QPushButton *btnBack = new QPushButton(this);
+        btnBack = new QPushButton(this);
         btnBack->setIcon(BrowserIcons::drawIcon("back"));
         btnBack->setIconSize(QSize(20, 20));
-        btnBack->setToolTip("Back (Alt+Left)");
+        btnBack->setToolTip(L10n::tr("Back") + " (Alt+Left)");
         btnBack->setCursor(Qt::PointingHandCursor);
         btnBack->setStyleSheet(navBtnStyle);
         connect(btnBack, &QPushButton::clicked, this, [this]() {
@@ -7333,20 +8303,20 @@ private:
             }
         });
 
-        QPushButton *btnForward = new QPushButton(this);
+        btnForward = new QPushButton(this);
         btnForward->setIcon(BrowserIcons::drawIcon("forward"));
         btnForward->setIconSize(QSize(20, 20));
-        btnForward->setToolTip("Forward (Alt+Right)");
+        btnForward->setToolTip(L10n::tr("Forward") + " (Alt+Right)");
         btnForward->setCursor(Qt::PointingHandCursor);
         btnForward->setStyleSheet(navBtnStyle);
         connect(btnForward, &QPushButton::clicked, this, [this]() {
             if (auto *v = activeWebView()) v->forward();
         });
 
-            QPushButton *btnReload = new QPushButton(this);
+            btnReload = new QPushButton(this);
             btnReload->setIcon(BrowserIcons::drawIcon("reload"));
             btnReload->setIconSize(QSize(20, 20));
-            btnReload->setToolTip("Reload (Ctrl+R)");
+            btnReload->setToolTip(L10n::tr("Reload") + " (Ctrl+R)");
             btnReload->setCursor(Qt::PointingHandCursor);
             btnReload->setStyleSheet(navBtnStyle);
             connect(btnReload, &QPushButton::clicked, this, [this]() {
@@ -7362,7 +8332,7 @@ private:
             btnSplitView = new QPushButton(this);
             btnSplitView->setIcon(BrowserIcons::drawIcon("split", QColor("#ff5500")));
             btnSplitView->setIconSize(QSize(20, 20));
-            btnSplitView->setToolTip("Split View Options");
+            btnSplitView->setToolTip(L10n::tr("Split View Options"));
             btnSplitView->setCursor(Qt::PointingHandCursor);
             btnSplitView->setStyleSheet(
                 "QPushButton { background-color: #25272b; border: 1px solid #ff5500; border-radius: 6px; padding: 4px 8px; } "
@@ -7372,7 +8342,7 @@ private:
             connect(btnSplitView, &QPushButton::clicked, this, &BrowserWindow::showSplitViewMenu);
 
             urlBar = new DroppableUrlBar(this);
-            urlBar->setPlaceholderText("Search with BraveLite Engine or enter address");
+            urlBar->setPlaceholderText(L10n::getUrlBarPlaceholder(defaultSearchEngine));
             connect(urlBar, &QLineEdit::returnPressed, this, &BrowserWindow::handleUrlSubmit);
             connect(urlBar, &DroppableUrlBar::urlDropped, this, [this](const QUrl &u) {
                 if (auto *v = activeWebView()) v->load(u);
@@ -7385,16 +8355,16 @@ private:
                 langCombo->setToolTip("Target language for AI Site Translation (translategemma:4b)");
                 langCombo->setStyleSheet("QComboBox { background: #25272b; border: 1px solid #34373d; border-radius: 6px; color: #fff; padding: 4px 8px; font-size: 12px; }");
 
-                btnTranslate = new QPushButton("🌐 Translate", this);
+                btnTranslate = new QPushButton("🌐 " + L10n::tr("Translate"), this);
                 btnTranslate->setToolTip("Translate entire page with local AI (translategemma:4b)");
                 btnTranslate->setCursor(Qt::PointingHandCursor);
                 btnTranslate->setStyleSheet("QPushButton { background-color: #25272b; border: 1px solid #34373d; border-radius: 6px; padding: 4px 10px; color: #8ab4f8; font-size: 12px; font-weight: bold; } QPushButton:hover { background-color: #35373c; border-color: #8ab4f8; }");
                 connect(btnTranslate, &QPushButton::clicked, this, &BrowserWindow::triggerSiteTranslation);
 
-                QPushButton *btnBookmark = new QPushButton(this);
+                btnBookmark = new QPushButton(this);
                 btnBookmark->setIcon(BrowserIcons::drawIcon("star", QColor("#fadb14")));
                 btnBookmark->setIconSize(QSize(20, 20));
-                btnBookmark->setToolTip("Bookmark this page");
+                btnBookmark->setToolTip(L10n::tr("Bookmark this page"));
                 btnBookmark->setCursor(Qt::PointingHandCursor);
                 btnBookmark->setStyleSheet(navBtnStyle);
                 connect(btnBookmark, &QPushButton::clicked, this, &BrowserWindow::promptAddBookmark);
@@ -7402,7 +8372,7 @@ private:
                 btnPasswords = new QPushButton(this);
                 btnPasswords->setIcon(BrowserIcons::drawIcon("key", QColor("#ff9c6e")));
                 btnPasswords->setIconSize(QSize(20, 20));
-                btnPasswords->setToolTip("Passwords & Autofill Vault");
+                btnPasswords->setToolTip(L10n::tr("Passwords & Autofill Vault"));
                 btnPasswords->setCursor(Qt::PointingHandCursor);
                 btnPasswords->setStyleSheet(navBtnStyle);
                 connect(btnPasswords, &QPushButton::clicked, this, &BrowserWindow::openPasswordManagerDialog);
@@ -7419,18 +8389,18 @@ private:
                 btnPrivacyGrade->hide();
                 connect(btnPrivacyGrade, &QPushButton::clicked, this, &BrowserWindow::showPrivacyDetails);
 
-                QPushButton *btnZoomOut = new QPushButton(this);
+                btnZoomOut = new QPushButton(this);
                 btnZoomOut->setIcon(BrowserIcons::drawIcon("zoom_out"));
                 btnZoomOut->setIconSize(QSize(18, 18));
-                btnZoomOut->setToolTip("Zoom Out");
+                btnZoomOut->setToolTip(L10n::tr("Zoom Out"));
                 btnZoomOut->setCursor(Qt::PointingHandCursor);
                 btnZoomOut->setStyleSheet(navBtnStyle);
                 connect(btnZoomOut, &QPushButton::clicked, this, &BrowserWindow::zoomOut);
 
-                QPushButton *btnZoomIn = new QPushButton(this);
+                btnZoomIn = new QPushButton(this);
                 btnZoomIn->setIcon(BrowserIcons::drawIcon("zoom_in"));
                 btnZoomIn->setIconSize(QSize(18, 18));
-                btnZoomIn->setToolTip("Zoom In");
+                btnZoomIn->setToolTip(L10n::tr("Zoom In"));
                 btnZoomIn->setCursor(Qt::PointingHandCursor);
                 btnZoomIn->setStyleSheet(navBtnStyle);
                 connect(btnZoomIn, &QPushButton::clicked, this, &BrowserWindow::zoomIn);
@@ -7438,7 +8408,7 @@ private:
                 btnDownload = new QPushButton(this);
                 btnDownload->setIcon(BrowserIcons::drawIcon("download", QColor("#52c41a")));
                 btnDownload->setIconSize(QSize(20, 20));
-                btnDownload->setToolTip("Downloads (Ctrl+J)");
+                btnDownload->setToolTip(L10n::tr("Downloads") + " (Ctrl+J)");
                 btnDownload->setCursor(Qt::PointingHandCursor);
                 btnDownload->setStyleSheet(navBtnStyle);
                 connect(btnDownload, &QPushButton::clicked, this, &BrowserWindow::openDownloadsPopup);
@@ -7446,7 +8416,7 @@ private:
                 btnMenu = new QPushButton(this);
                 btnMenu->setIcon(BrowserIcons::drawIcon("menu"));
                 btnMenu->setIconSize(QSize(20, 20));
-                btnMenu->setToolTip("BraveLite Menu");
+                btnMenu->setToolTip(L10n::tr("BraveLite Menu"));
                 btnMenu->setCursor(Qt::PointingHandCursor);
                 btnMenu->setStyleSheet(navBtnStyle);
                 connect(btnMenu, &QPushButton::clicked, this, &BrowserWindow::openAppMenu);
@@ -7604,7 +8574,8 @@ private:
     }
 
     QString getNewTabHtml() {
-        QString now = QDateTime::currentDateTime().toString("dddd, MMMM d, yyyy • hh:mm AP");
+        QLocale loc(L10n::getLocaleCode());
+        QString now = loc.toString(QDateTime::currentDateTime(), "dddd, d MMMM yyyy • hh:mm");
         QString bgMain = "#191b1f";
         QString bgCard = "#242529";
         QString borderCol = "#32353b";
@@ -7642,16 +8613,18 @@ private:
             taglineCol = "#cba6f7";
         }
 
-        QString searchPlaceholder = (defaultSearchEngine == "BraveLite Engine")
-            ? "Search privately with BraveLite Engine or enter address..."
-            : QString("Search with %1 or enter address...").arg(defaultSearchEngine.toHtmlEscaped());
+        QString searchPlaceholder = L10n::getStartPagePlaceholder(defaultSearchEngine);
+        QString newTabTitle = L10n::tr("New Tab");
+        QString welcomeText = L10n::tr("Welcome!");
+        QString taglineText = L10n::tr("because privacy matters");
+        QString localeCode = L10n::getLocaleCode();
 
-        return QString(R"(
+        QString html = QString(R"(
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="utf-8">
-                <title>New Tab</title>
+                <title>%1</title>
                 <style>
                     * { box-sizing: border-box; }
                     body {
@@ -7694,12 +8667,12 @@ private:
                     </head>
                     <body>
                     <div class="hero-wrapper">
-                    <h1>Welcome!</h1>
+                    <h1>%8</h1>
                     <form onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('startSearch').value);" class="search-container">
-                    <input id="startSearch" type="text" name="q" placeholder="%8" autofocus autocomplete="off" />
+                    <input id="startSearch" type="text" name="q" placeholder="%9" autofocus autocomplete="off" />
                     </form>
-                    <div class="datetime" id="liveClock">%1</div>
-                    <div class="tagline">because privacy matters</div>
+                    <div class="datetime" id="liveClock">%10</div>
+                    <div class="tagline">%11</div>
                     </div>
                     <script>
                     function updateClock() {
@@ -7707,15 +8680,25 @@ private:
                         const now = new Date();
                         const dateOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
                         const timeOpts = { hour: '2-digit', minute: '2-digit' };
-                        document.getElementById('liveClock').textContent =
-                        now.toLocaleDateString('en-US', dateOpts) + ' • ' + now.toLocaleTimeString('en-US', timeOpts);
+                        try {
+                            document.getElementById('liveClock').textContent =
+                            now.toLocaleDateString('%12', dateOpts) + ' • ' + now.toLocaleTimeString('%12', timeOpts);
+                        } catch(e) {
+                            document.getElementById('liveClock').textContent =
+                            now.toLocaleDateString('en-US', dateOpts) + ' • ' + now.toLocaleTimeString('en-US', timeOpts);
+                        }
                     }
                     updateClock();
                     setInterval(updateClock, 30000);
                     </script>
                     </body>
                     </html>
-        )").arg(now, bgMain, textCol, bgCard, borderCol, accent, taglineCol, searchPlaceholder);
+        )");
+
+        return html.arg(newTabTitle.toHtmlEscaped(), bgMain, textCol, bgCard, borderCol, accent, taglineCol, welcomeText.toHtmlEscaped(), searchPlaceholder.toHtmlEscaped())
+                   .arg(now.toHtmlEscaped())
+                   .arg(taglineText.toHtmlEscaped())
+                   .arg(localeCode);
     }
 
     void tabSwitched(int idx) {
@@ -7976,6 +8959,9 @@ private:
         if (!file.open(QIODevice::ReadOnly)) return;
 
         QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+        if (root.contains("language")) {
+            L10n::setLanguage(root["language"].toString());
+        }
         autofillEnabled = root.value("autofillEnabled").toBool(true);
         startupContinueWhereLeftOff = root.value("startupContinueWhereLeftOff").toBool(false);
         m_isDefaultBrowserSaved = root.value("isDefaultBrowser").toBool(false);
@@ -8053,6 +9039,7 @@ private:
         if (!file.open(QIODevice::WriteOnly)) return;
 
         QJsonObject root;
+        root["language"] = L10n::currentLang;
         root["autofillEnabled"] = autofillEnabled;
         root["startupContinueWhereLeftOff"] = startupContinueWhereLeftOff;
         root["isDefaultBrowser"] = m_isDefaultBrowserSaved;
@@ -8698,6 +9685,14 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 }
 
 int main(int argc, char *argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        QString a = QString::fromLocal8Bit(argv[i]);
+        if (a == "--version" || a == "-v") {
+            printf("BraveLite v1.70 (Beta)\n");
+            return 0;
+        }
+    }
+
     QString wvFile = getWidevineCdmFilePath();
     QString chromiumFlags = "--enable-smooth-scrolling --enable-LowPriorityIframes "
                            "--disable-renderer-backgrounding=false --autoplay-policy=no-user-gesture-required "
