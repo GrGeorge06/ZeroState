@@ -11,6 +11,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebEngine
 
 set(APP_SOURCES
     src/main.cpp
+    src/qrcodegen.cpp
 )
 
 # On Windows, attach Windows Resource file for .exe icon

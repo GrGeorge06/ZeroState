@@ -105,6 +105,7 @@
 #include <QtWebEngineCore/QWebEngineExtensionManager>
 #include <QtWebEngineCore/QWebEngineExtensionInfo>
 #endif
+#include "qrcodegen.hpp"
 #include <csignal>
 #include <cstdlib>
 #include <exception>
@@ -371,7 +372,14 @@ namespace L10n {
                 {"Permissions", "Δικαιώματα"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Gaming Mode: ΕΝΕΡΓΟ (Κλικ για επανενεργοποίηση AI)"},
                 {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Gaming Mode: ΑΝΕΝΕΡΓΟ (Κλικ για βελτιστοποίηση παιχνιδιών)"},
-                {"Open in new tab", "Άνοιγμα σε νέα καρτέλα"}
+                {"Open in new tab", "Άνοιγμα σε νέα καρτέλα"},
+                {"Open image in new tab", "Άνοιγμα εικόνας σε νέα καρτέλα"},
+                {"Save image as...", "Αποθήκευση εικόνας ως..."},
+                {"Copy image", "Αντιγραφή εικόνας"},
+                {"Copy image address", "Αντιγραφή διεύθυνσης εικόνας"},
+                {"Create QR Code for this image", "Δημιουργία κωδικού QR για αυτήν την εικόνα"},
+                {"Inspect", "Έλεγχος"},
+                {"Block elements", "Αποκλεισμός στοιχείων"}
             }},
             {"Spanish", {
                 {"New tab", "Nueva pestaña"},
@@ -525,7 +533,14 @@ namespace L10n {
                 {"Permissions", "Permisos"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Modo Juego: ACTIVO (Clic para reactivar IA)"},
                 {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Modo Juego: INACTIVO (Clic para optimizar juegos)"},
-                {"Open in new tab", "Abrir en nueva pestaña"}
+                {"Open in new tab", "Abrir en nueva pestaña"},
+                {"Open image in new tab", "Abrir imagen en nueva pestaña"},
+                {"Save image as...", "Guardar imagen como..."},
+                {"Copy image", "Copiar imagen"},
+                {"Copy image address", "Copiar dirección de la imagen"},
+                {"Create QR Code for this image", "Crear código QR para esta imagen"},
+                {"Inspect", "Inspeccionar"},
+                {"Block elements", "Bloquear elementos"}
             }},
             {"French", {
                 {"New tab", "Nouvel onglet"},
@@ -679,7 +694,14 @@ namespace L10n {
                 {"Permissions", "Autorisations"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Mode Jeu : ACTIF (Cliquer pour réactiver l'IA)"},
                 {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Mode Jeu : INACTIF (Cliquer pour optimiser les jeux)"},
-                {"Open in new tab", "Ouvrir dans un nouvel onglet"}
+                {"Open in new tab", "Ouvrir dans un nouvel onglet"},
+                {"Open image in new tab", "Ouvrir l'image dans un nouvel onglet"},
+                {"Save image as...", "Enregistrer l'image sous..."},
+                {"Copy image", "Copier l'image"},
+                {"Copy image address", "Copier l'adresse de l'image"},
+                {"Create QR Code for this image", "Créer un code QR pour cette image"},
+                {"Inspect", "Inspecter"},
+                {"Block elements", "Bloquer les éléments"}
             }},
             {"German", {
                 {"New tab", "Neuer Tab"},
@@ -833,7 +855,14 @@ namespace L10n {
                 {"Permissions", "Berechtigungen"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Gaming-Modus: EIN (Klicken zum Reaktivieren der KI)"},
                 {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 Gaming-Modus: AUS (Klicken für Gaming-Optimierung)"},
-                {"Open in new tab", "In neuem Tab öffnen"}
+                {"Open in new tab", "In neuem Tab öffnen"},
+                {"Open image in new tab", "Bild in neuem Tab öffnen"},
+                {"Save image as...", "Bild speichern unter..."},
+                {"Copy image", "Bild kopieren"},
+                {"Copy image address", "Bildadresse kopieren"},
+                {"Create QR Code for this image", "QR-Code für dieses Bild erstellen"},
+                {"Inspect", "Untersuchen"},
+                {"Block elements", "Elemente blockieren"}
             }},
             {"Chinese", {
                 {"New tab", "新建标签页"},
@@ -987,7 +1016,14 @@ namespace L10n {
                 {"Permissions", "权限"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 游戏模式：开启 (点击恢复 AI)"},
                 {"🎮 Gaming Mode: OFF (Click to Optimize for Gaming)", "🎮 游戏模式：关闭 (点击优化游戏性能)"},
-                {"Open in new tab", "在新标签页中打开"}
+                {"Open in new tab", "在新标签页中打开"},
+                {"Open image in new tab", "在新标签页中打开图片"},
+                {"Save image as...", "图片另存为..."},
+                {"Copy image", "复制图片"},
+                {"Copy image address", "复制图片地址"},
+                {"Create QR Code for this image", "为此图片创建二维码"},
+                {"Inspect", "检查"},
+                {"Block elements", "屏蔽元素"}
             }}
         };
 
@@ -1810,10 +1846,141 @@ protected:
         return cleaned;
     }
 
+    void showQrCodeDialog(const QString &text) {
+        if (text.isEmpty()) {
+            QMessageBox::information(this, "QR Code", "No URL available for this image.");
+            return;
+        }
+
+        QDialog dlg(this, Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+        dlg.setWindowTitle("Scan QR Code");
+        dlg.setStyleSheet(
+            "QDialog { background-color: #202124; color: #e8eaed; border: 1px solid #3c4043; border-radius: 8px; } "
+            "QLabel { color: #e8eaed; } "
+            "QLineEdit { background: #2b2d30; color: #ffffff; border: 1px solid #3c4043; border-radius: 4px; padding: 6px; font-size: 13px; } "
+            "QPushButton { background: #2b2d30; color: #ffffff; border: 1px solid #3c4043; border-radius: 4px; padding: 6px 16px; font-size: 13px; font-weight: bold; } "
+            "QPushButton:hover { background: #ff5500; border-color: #ff5500; } "
+            "QPushButton#primaryBtn { background: #ff5500; border-color: #ff5500; color: #ffffff; } "
+            "QPushButton#primaryBtn:hover { background: #ff661a; }"
+        );
+        dlg.setFixedWidth(340);
+
+        QVBoxLayout *layout = new QVBoxLayout(&dlg);
+        layout->setContentsMargins(20, 20, 20, 20);
+        layout->setSpacing(14);
+
+        QLabel *titleLabel = new QLabel("<b>Scan QR Code</b>", &dlg);
+        titleLabel->setStyleSheet("font-size: 15px; color: #ffffff;");
+        titleLabel->setAlignment(Qt::AlignCenter);
+        layout->addWidget(titleLabel);
+
+        QImage qrImage;
+        try {
+            std::string stdStr = text.toUtf8().toStdString();
+            qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(stdStr.c_str(), qrcodegen::QrCode::Ecc::MEDIUM);
+            int qrSize = qr.getSize();
+            int border = 4;
+            int scale = 6;
+            int imgSize = (qrSize + border * 2) * scale;
+            qrImage = QImage(imgSize, imgSize, QImage::Format_RGB32);
+            qrImage.fill(Qt::white);
+
+            QPainter p(&qrImage);
+            p.setBrush(Qt::black);
+            p.setPen(Qt::NoPen);
+
+            for (int y = 0; y < qrSize; y++) {
+                for (int x = 0; x < qrSize; x++) {
+                    if (qr.getModule(x, y)) {
+                        p.drawRect((x + border) * scale, (y + border) * scale, scale, scale);
+                    }
+                }
+            }
+        } catch (const std::exception &) {
+            try {
+                std::string stdStr = text.toUtf8().toStdString();
+                qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(stdStr.c_str(), qrcodegen::QrCode::Ecc::LOW);
+                int qrSize = qr.getSize();
+                int border = 4;
+                int scale = 5;
+                int imgSize = (qrSize + border * 2) * scale;
+                qrImage = QImage(imgSize, imgSize, QImage::Format_RGB32);
+                qrImage.fill(Qt::white);
+
+                QPainter p(&qrImage);
+                p.setBrush(Qt::black);
+                p.setPen(Qt::NoPen);
+
+                for (int y = 0; y < qrSize; y++) {
+                    for (int x = 0; x < qrSize; x++) {
+                        if (qr.getModule(x, y)) {
+                            p.drawRect((x + border) * scale, (y + border) * scale, scale, scale);
+                        }
+                    }
+                }
+            } catch (...) {
+                QMessageBox::warning(this, "QR Code", "Image URL is too long to encode in a QR code.");
+                return;
+            }
+        }
+
+        QLabel *qrLabel = new QLabel(&dlg);
+        qrLabel->setAlignment(Qt::AlignCenter);
+        qrLabel->setPixmap(QPixmap::fromImage(qrImage).scaled(220, 220, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        qrLabel->setStyleSheet("background: #ffffff; border-radius: 8px; padding: 8px;");
+        layout->addWidget(qrLabel, 0, Qt::AlignCenter);
+
+        QLineEdit *urlEdit = new QLineEdit(text, &dlg);
+        urlEdit->setReadOnly(true);
+        layout->addWidget(urlEdit);
+
+        QHBoxLayout *btnLayout = new QHBoxLayout();
+        btnLayout->setSpacing(10);
+
+        QPushButton *copyBtn = new QPushButton("Copy URL", &dlg);
+        connect(copyBtn, &QPushButton::clicked, &dlg, [text, copyBtn]() {
+            QApplication::clipboard()->setText(text);
+            copyBtn->setText("Copied!");
+        });
+        btnLayout->addWidget(copyBtn);
+
+        QPushButton *dlBtn = new QPushButton("Download", &dlg);
+        dlBtn->setObjectName("primaryBtn");
+        connect(dlBtn, &QPushButton::clicked, &dlg, [this, qrImage, &dlg]() {
+            QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/qrcode.png";
+            QString savePath = QFileDialog::getSaveFileName(&dlg, "Save QR Code", defaultPath, "PNG Images (*.png)");
+            if (!savePath.isEmpty()) {
+                qrImage.save(savePath, "PNG");
+            }
+        });
+        btnLayout->addWidget(dlBtn);
+
+        layout->addLayout(btnLayout);
+
+        dlg.exec();
+    }
+
     void contextMenuEvent(QContextMenuEvent *event) override {
         QPoint clickPos = event->pos();
         QWebEngineContextMenuRequest *ctxReq = lastContextMenuRequest();
         QUrl linkUrl = ctxReq ? ctxReq->linkUrl() : QUrl();
+
+        bool isImage = false;
+        QUrl imageUrl;
+        if (ctxReq) {
+            if (ctxReq->mediaType() == QWebEngineContextMenuRequest::MediaTypeImage) {
+                isImage = true;
+                imageUrl = ctxReq->mediaUrl();
+            } else if (ctxReq->mediaUrl().isValid() && !ctxReq->mediaUrl().isEmpty()) {
+                QString path = ctxReq->mediaUrl().path().toLower();
+                if (path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg") ||
+                    path.endsWith(".gif") || path.endsWith(".webp") || path.endsWith(".svg") ||
+                    path.endsWith(".ico") || path.endsWith(".bmp") || path.endsWith(".avif")) {
+                    isImage = true;
+                    imageUrl = ctxReq->mediaUrl();
+                }
+            }
+        }
 
         QMenu *menu = new QMenu(this);
         menu->setStyleSheet(
@@ -1823,7 +1990,58 @@ protected:
             "QMenu::separator { height: 1px; background: #3c4043; margin: 4px 0; }"
         );
 
-        if (linkUrl.isValid() && !linkUrl.isEmpty()) {
+        if (isImage) {
+            QAction *actOpenImg = menu->addAction(L10n::tr("Open image in new tab"));
+            connect(actOpenImg, &QAction::triggered, this, [this, imageUrl]() {
+                if (imageUrl.isValid() && !imageUrl.isEmpty()) {
+                    emit openLinkInNewTabRequested(imageUrl);
+                }
+            });
+
+            QAction *actSaveImg = menu->addAction(L10n::tr("Save image as..."));
+            connect(actSaveImg, &QAction::triggered, this, [this]() {
+                page()->triggerAction(QWebEnginePage::DownloadImageToDisk);
+            });
+
+            QAction *actCopyImg = menu->addAction(L10n::tr("Copy image"));
+            connect(actCopyImg, &QAction::triggered, this, [this]() {
+                page()->triggerAction(QWebEnginePage::CopyImageToClipboard);
+            });
+
+            QAction *actCopyAddr = menu->addAction(L10n::tr("Copy image address"));
+            connect(actCopyAddr, &QAction::triggered, this, [this, imageUrl]() {
+                if (imageUrl.isValid() && !imageUrl.isEmpty()) {
+                    QApplication::clipboard()->setText(imageUrl.toString());
+                } else {
+                    page()->triggerAction(QWebEnginePage::CopyImageUrlToClipboard);
+                }
+            });
+
+            QAction *actQr = menu->addAction(L10n::tr("Create QR Code for this image"));
+            connect(actQr, &QAction::triggered, this, [this, imageUrl]() {
+                showQrCodeDialog(imageUrl.isValid() ? imageUrl.toString() : QString());
+            });
+
+            menu->addSeparator();
+
+            QAction *actBlockEl = menu->addAction(L10n::tr("Block elements"));
+            connect(actBlockEl, &QAction::triggered, this, [this, clickPos]() {
+                QString js = QString(
+                    "(function() {"
+                    "  const el = document.elementFromPoint(%1, %2);"
+                    "  if (el && el !== document.body && el !== document.documentElement) {"
+                    "    el.style.setProperty('display', 'none', 'important');"
+                    "  }"
+                    "})();"
+                ).arg(clickPos.x()).arg(clickPos.y());
+                page()->runJavaScript(js);
+            });
+
+            QAction *actInspect = menu->addAction(L10n::tr("Inspect"));
+            connect(actInspect, &QAction::triggered, this, [this]() {
+                emit inspectElementRequested(this);
+            });
+        } else if (linkUrl.isValid() && !linkUrl.isEmpty()) {
             QAction *actNewTab = menu->addAction(L10n::tr("Open link in new tab"));
             connect(actNewTab, &QAction::triggered, this, [this, linkUrl]() {
                 emit openLinkInNewTabRequested(linkUrl);
@@ -1862,6 +2080,28 @@ protected:
             });
 
             menu->addSeparator();
+
+            QAction *actFind = menu->addAction(L10n::tr("Find in page...") + "\tCtrl+F");
+            connect(actFind, &QAction::triggered, this, &CustomWebView::findRequested);
+            menu->addSeparator();
+
+            QAction *actBlockEl = menu->addAction(L10n::tr("Block elements"));
+            connect(actBlockEl, &QAction::triggered, this, [this, clickPos]() {
+                QString js = QString(
+                    "(function() {"
+                    "  const el = document.elementFromPoint(%1, %2);"
+                    "  if (el && el !== document.body && el !== document.documentElement) {"
+                    "    el.style.setProperty('display', 'none', 'important');"
+                    "  }"
+                    "})();"
+                ).arg(clickPos.x()).arg(clickPos.y());
+                page()->runJavaScript(js);
+            });
+
+            QAction *actInspect = menu->addAction(L10n::tr("Inspect"));
+            connect(actInspect, &QAction::triggered, this, [this]() {
+                emit inspectElementRequested(this);
+            });
         } else {
             QAction *actBack = menu->addAction(L10n::tr("Back"));
             actBack->setEnabled(history()->canGoBack());
@@ -1891,29 +2131,29 @@ protected:
                 emit openNewCleanWindowRequested();
             });
             menu->addSeparator();
+
+            QAction *actFind = menu->addAction(L10n::tr("Find in page...") + "\tCtrl+F");
+            connect(actFind, &QAction::triggered, this, &CustomWebView::findRequested);
+            menu->addSeparator();
+
+            QAction *actBlockEl = menu->addAction(L10n::tr("Block elements"));
+            connect(actBlockEl, &QAction::triggered, this, [this, clickPos]() {
+                QString js = QString(
+                    "(function() {"
+                    "  const el = document.elementFromPoint(%1, %2);"
+                    "  if (el && el !== document.body && el !== document.documentElement) {"
+                    "    el.style.setProperty('display', 'none', 'important');"
+                    "  }"
+                    "})();"
+                ).arg(clickPos.x()).arg(clickPos.y());
+                page()->runJavaScript(js);
+            });
+
+            QAction *actInspect = menu->addAction(L10n::tr("Inspect"));
+            connect(actInspect, &QAction::triggered, this, [this]() {
+                emit inspectElementRequested(this);
+            });
         }
-
-        QAction *actFind = menu->addAction(L10n::tr("Find in page...") + "\tCtrl+F");
-        connect(actFind, &QAction::triggered, this, &CustomWebView::findRequested);
-        menu->addSeparator();
-
-        QAction *actBlockEl = menu->addAction("Block elements");
-        connect(actBlockEl, &QAction::triggered, this, [this, clickPos]() {
-            QString js = QString(
-                "(function() {"
-                "  const el = document.elementFromPoint(%1, %2);"
-                "  if (el && el !== document.body && el !== document.documentElement) {"
-                "    el.style.setProperty('display', 'none', 'important');"
-                "  }"
-                "})();"
-            ).arg(clickPos.x()).arg(clickPos.y());
-            page()->runJavaScript(js);
-        });
-
-        QAction *actInspect = menu->addAction(L10n::tr("Inspect Element"));
-        connect(actInspect, &QAction::triggered, this, [this]() {
-            emit inspectElementRequested(this);
-        });
 
         menu->exec(event->globalPos());
         delete menu;
