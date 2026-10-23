@@ -229,17 +229,17 @@ namespace L10n {
                 {"Open the New Tab page", "Άνοιγμα της σελίδας Νέα καρτέλα"},
                 {"Continue where you left off", "Συνέχεια από εκεί που μείνατε"},
                 {"Search engine", "Μηχανή αναζήτησης"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Επιλέξτε την προεπιλεγμένη μηχανή αναζήτησης: BraveLite Engine (Ιδιωτική Αναζήτηση & AI), Google, Bing, DuckDuckGo, Yahoo, ή Yandex."},
+                {"Choose your default search engine: SearXNG, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Επιλέξτε την προεπιλεγμένη μηχανή αναζήτησης: SearXNG, Google, Bing, DuckDuckGo, Yahoo, ή Yandex."},
                 {"Search or enter address", "Αναζήτηση ή εισαγωγή διεύθυνσης..."},
                 {"Search with %1 or enter address", "Αναζήτηση με %1 ή πληκτρολογήστε διεύθυνση"},
-                {"Search privately with BraveLite Engine or enter address", "Ιδιωτική αναζήτηση με BraveLite Engine ή εισαγωγή διεύθυνσης"},
+                {"Search privately with SearXNG or enter address", "Ιδιωτική αναζήτηση με SearXNG ή εισαγωγή διεύθυνσης"},
                 {"Search with %1 or enter address...", "Αναζήτηση με %1 ή πληκτρολογήστε διεύθυνση..."},
-                {"Search privately with BraveLite Engine or enter address...", "Ιδιωτική αναζήτηση με BraveLite Engine ή πληκτρολογήστε διεύθυνση..."},
+                {"Search privately with SearXNG or enter address...", "Ιδιωτική αναζήτηση με SearXNG ή πληκτρολογήστε διεύθυνση..."},
                 {"- Search with %1", "- Αναζήτηση με %1"},
                 {"Welcome!", "Καλώς ήρθατε!"},
                 {"because privacy matters", "επειδή η ιδιωτικότητα έχει σημασία"},
                 {"Private Search & AI", "Ιδιωτική αναζήτηση & AI"},
-                {"Search privately with BraveLite Engine...", "Ιδιωτική αναζήτηση με το BraveLite Engine..."},
+                {"Search privately with SearXNG...", "Ιδιωτική αναζήτηση με το SearXNG..."},
                 {"BraveLite Protected", "Προστασία BraveLite"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Μηδενική καταγραφή προσωπικών δεδομένων • Χωρίς προφίλ αναζήτησης • Ενεργοποιημένη AI"},
                 {"🔍 All", "🔍 Όλα"},
@@ -247,11 +247,11 @@ namespace L10n {
                 {"🎬 Videos", "🎬 Βίντεο"},
                 {"📰 News", "📰 Ειδήσεις"},
                 {"Search", "Αναζήτηση"},
-                {"Searching BraveLite Engine (%1) for %2...", "Αναζήτηση στο BraveLite Engine (%1) για %2..."},
+                {"Searching SearXNG (%1) for %2...", "Αναζήτηση στο SearXNG (%1) για %2..."},
                 {"No instant results found.", "Δεν βρέθηκαν άμεσα αποτελέσματα."},
                 {"No images found for this query.", "Δεν βρέθηκαν εικόνες για αυτό το ερώτημα."},
-                {"BraveLite Engine • AI Overview", "BraveLite Engine • Επισκόπηση AI"},
-                {"BraveLite Engine", "BraveLite Engine"},
+                {"SearXNG • AI Overview", "SearXNG • Επισκόπηση AI"},
+                {"SearXNG", "SearXNG"},
                 {"AI Overview", "Επισκόπηση AI"},
                 {"Ask a follow-up or request code examples...", "Κάντε μια ερώτηση παρακολούθησης ή ζητήστε παραδείγματα κώδικα..."},
                 {"Ask AI ➔", "Ερώτηση AI ➔"},
@@ -259,7 +259,7 @@ namespace L10n {
                 {"Less ▴", "Λιγότερα ▴"},
                 {"Grounded on verified search results", "Βασισμένο σε επαληθευμένα αποτελέσματα αναζήτησης"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Βασισμένο σε επαληθευμένα αποτελέσματα • Τοπικό Ollama (%1)"},
-                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
+                {"SearXNG v1.71", "SearXNG v1.71"},
                 {"GPU Accelerated", "Επιτάχυνση GPU"},
                 {"Back", "Πίσω"},
                 {"Forward", "Μπροστά"},
@@ -321,7 +321,7 @@ namespace L10n {
                 {"Delete all cookies and history?", "Διαγραφή όλων των cookies και του ιστορικού;"},
                 {"Cookies and history cleared.", "Τα cookies και το ιστορικό εκκαθαρίστηκαν."},
                 {"Clear All History", "Εκκαθάριση όλου του ιστορικού"},
-                {"Search browsing & BraveLite Engine history", "Αναζήτηση ιστορικού περιήγησης & BraveLite Engine"},
+                {"Search browsing & SearXNG history", "Αναζήτηση ιστορικού περιήγησης & SearXNG"},
                 {"Get started", "Ξεκινήστε"},
                 {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
                 {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama & Ρύθμιση GPU)"},
@@ -383,17 +383,17 @@ namespace L10n {
                 {"Open the New Tab page", "Abrir la página Nueva pestaña"},
                 {"Continue where you left off", "Continuar donde lo dejaste"},
                 {"Search engine", "Motor de búsqueda"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Elija su motor de búsqueda predeterminado: BraveLite Engine (Búsqueda privada y AI), Google, Bing, DuckDuckGo, Yahoo o Yandex."},
+                {"Choose your default search engine: SearXNG, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Elija su motor de búsqueda predeterminado: SearXNG, Google, Bing, DuckDuckGo, Yahoo o Yandex."},
                 {"Search or enter address", "Buscar o ingresar dirección..."},
                 {"Search with %1 or enter address", "Buscar con %1 o ingresar dirección"},
-                {"Search privately with BraveLite Engine or enter address", "Buscar privadamente con BraveLite Engine o ingresar dirección"},
+                {"Search privately with SearXNG or enter address", "Buscar privadamente con SearXNG o ingresar dirección"},
                 {"Search with %1 or enter address...", "Buscar con %1 o ingresar dirección..."},
-                {"Search privately with BraveLite Engine or enter address...", "Buscar privadamente con BraveLite Engine o ingresar dirección..."},
+                {"Search privately with SearXNG or enter address...", "Buscar privadamente con SearXNG o ingresar dirección..."},
                 {"- Search with %1", "- Buscar con %1"},
                 {"Welcome!", "¡Bienvenido!"},
                 {"because privacy matters", "porque la privacidad importa"},
                 {"Private Search & AI", "Búsqueda privada y AI"},
-                {"Search privately with BraveLite Engine...", "Buscar privadamente con BraveLite Engine..."},
+                {"Search privately with SearXNG...", "Buscar privadamente con SearXNG..."},
                 {"BraveLite Protected", "Protegido por BraveLite"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Cero datos personales registrados • Sin perfiles • IA habilitada"},
                 {"🔍 All", "🔍 Todo"},
@@ -401,11 +401,11 @@ namespace L10n {
                 {"🎬 Videos", "🎬 Vídeos"},
                 {"📰 News", "📰 Noticias"},
                 {"Search", "Buscar"},
-                {"Searching BraveLite Engine (%1) for %2...", "Buscando en BraveLite Engine (%1) para %2..."},
+                {"Searching SearXNG (%1) for %2...", "Buscando en SearXNG (%1) para %2..."},
                 {"No instant results found.", "No se encontraron resultados instantáneos."},
                 {"No images found for this query.", "No se encontraron imágenes para esta consulta."},
-                {"BraveLite Engine • AI Overview", "BraveLite Engine • Resumen AI"},
-                {"BraveLite Engine", "BraveLite Engine"},
+                {"SearXNG • AI Overview", "SearXNG • Resumen AI"},
+                {"SearXNG", "SearXNG"},
                 {"AI Overview", "Resumen AI"},
                 {"Ask a follow-up or request code examples...", "Haga una pregunta de seguimiento o solicite código..."},
                 {"Ask AI ➔", "Preguntar a la IA ➔"},
@@ -413,7 +413,7 @@ namespace L10n {
                 {"Less ▴", "Menos ▴"},
                 {"Grounded on verified search results", "Basado en resultados de búsqueda verificados"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Basado en resultados verificados • Ollama local (%1)"},
-                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
+                {"SearXNG v1.71", "SearXNG v1.71"},
                 {"GPU Accelerated", "Acelerado por GPU"},
                 {"Back", "Atrás"},
                 {"Forward", "Adelante"},
@@ -475,7 +475,7 @@ namespace L10n {
                 {"Delete all cookies and history?", "¿Eliminar todas las cookies y el historial?"},
                 {"Cookies and history cleared.", "Cookies e historial borrados."},
                 {"Clear All History", "Borrar todo el historial"},
-                {"Search browsing & BraveLite Engine history", "Buscar en historial de navegación y BraveLite Engine"},
+                {"Search browsing & SearXNG history", "Buscar en historial de navegación y SearXNG"},
                 {"Get started", "Primeros pasos"},
                 {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
                 {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama y configuración de GPU)"},
@@ -537,17 +537,17 @@ namespace L10n {
                 {"Open the New Tab page", "Ouvrir la page Nouvel onglet"},
                 {"Continue where you left off", "Reprendre là où vous vous étiez arrêté"},
                 {"Search engine", "Moteur de recherche"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Choisissez votre moteur de recherche par défaut : BraveLite Engine (Recherche privée & IA), Google, Bing, DuckDuckGo, Yahoo ou Yandex."},
+                {"Choose your default search engine: SearXNG, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Choisissez votre moteur de recherche par défaut : SearXNG, Google, Bing, DuckDuckGo, Yahoo ou Yandex."},
                 {"Search or enter address", "Rechercher ou saisir une adresse..."},
                 {"Search with %1 or enter address", "Rechercher avec %1 ou saisir une adresse"},
-                {"Search privately with BraveLite Engine or enter address", "Rechercher en toute confidentialité avec BraveLite Engine ou saisir une adresse"},
+                {"Search privately with SearXNG or enter address", "Rechercher en toute confidentialité avec SearXNG ou saisir une adresse"},
                 {"Search with %1 or enter address...", "Rechercher avec %1 ou saisir une adresse..."},
-                {"Search privately with BraveLite Engine or enter address...", "Rechercher en toute confidentialité avec BraveLite Engine ou saisir une adresse..."},
+                {"Search privately with SearXNG or enter address...", "Rechercher en toute confidentialité avec SearXNG ou saisir une adresse..."},
                 {"- Search with %1", "- Rechercher avec %1"},
                 {"Welcome!", "Bienvenue !"},
                 {"because privacy matters", "parce que la confidentialité compte"},
                 {"Private Search & AI", "Recherche privée & IA"},
-                {"Search privately with BraveLite Engine...", "Rechercher en toute confidentialité avec BraveLite Engine..."},
+                {"Search privately with SearXNG...", "Rechercher en toute confidentialité avec SearXNG..."},
                 {"BraveLite Protected", "Protégé par BraveLite"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Zéro donnée personnelle enregistrée • Aucun profilage • IA activée"},
                 {"🔍 All", "🔍 Tous"},
@@ -555,11 +555,11 @@ namespace L10n {
                 {"🎬 Videos", "🎬 Vidéos"},
                 {"📰 News", "📰 Actualités"},
                 {"Search", "Rechercher"},
-                {"Searching BraveLite Engine (%1) for %2...", "Recherche sur BraveLite Engine (%1) pour %2..."},
+                {"Searching SearXNG (%1) for %2...", "Recherche sur SearXNG (%1) pour %2..."},
                 {"No instant results found.", "Aucun résultat instantané trouvé."},
                 {"No images found for this query.", "Aucune image trouvée pour cette requête."},
-                {"BraveLite Engine • AI Overview", "BraveLite Engine • Aperçu IA"},
-                {"BraveLite Engine", "BraveLite Engine"},
+                {"SearXNG • AI Overview", "SearXNG • Aperçu IA"},
+                {"SearXNG", "SearXNG"},
                 {"AI Overview", "Aperçu IA"},
                 {"Ask a follow-up or request code examples...", "Posez une question de suivi ou demandez du code..."},
                 {"Ask AI ➔", "Demander à l'IA ➔"},
@@ -567,7 +567,7 @@ namespace L10n {
                 {"Less ▴", "Moins ▴"},
                 {"Grounded on verified search results", "Fondé sur des résultats de recherche vérifiés"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Fondé sur des résultats vérifiés • Ollama local (%1)"},
-                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
+                {"SearXNG v1.71", "SearXNG v1.71"},
                 {"GPU Accelerated", "Accélération GPU"},
                 {"Back", "Précédent"},
                 {"Forward", "Suivant"},
@@ -629,7 +629,7 @@ namespace L10n {
                 {"Delete all cookies and history?", "Supprimer tous les cookies et l'historique ?"},
                 {"Cookies and history cleared.", "Cookies et historique effacés."},
                 {"Clear All History", "Effacer tout l'historique"},
-                {"Search browsing & BraveLite Engine history", "Rechercher dans l'historique et BraveLite Engine"},
+                {"Search browsing & SearXNG history", "Rechercher dans l'historique et SearXNG"},
                 {"Get started", "Pour commencer"},
                 {"BraveLite AI (Ollama)", "BraveLite IA (Ollama)"},
                 {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite IA (Ollama et configuration GPU)"},
@@ -691,17 +691,17 @@ namespace L10n {
                 {"Open the New Tab page", "Neuer-Tab-Seite öffnen"},
                 {"Continue where you left off", "Dort fortfahren, wo Sie aufgehört haben"},
                 {"Search engine", "Suchmaschine"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Wählen Sie Ihre Standard-Suchmaschine: BraveLite Engine (Private Suche & KI), Google, Bing, DuckDuckGo, Yahoo oder Yandex."},
+                {"Choose your default search engine: SearXNG, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "Wählen Sie Ihre Standard-Suchmaschine: SearXNG, Google, Bing, DuckDuckGo, Yahoo oder Yandex."},
                 {"Search or enter address", "Suchen oder Adresse eingeben..."},
                 {"Search with %1 or enter address", "Mit %1 suchen oder Adresse eingeben"},
-                {"Search privately with BraveLite Engine or enter address", "Privat mit BraveLite Engine suchen oder Adresse eingeben"},
+                {"Search privately with SearXNG or enter address", "Privat mit SearXNG suchen oder Adresse eingeben"},
                 {"Search with %1 or enter address...", "Mit %1 suchen oder Adresse eingeben..."},
-                {"Search privately with BraveLite Engine or enter address...", "Privat mit BraveLite Engine suchen oder Adresse eingeben..."},
+                {"Search privately with SearXNG or enter address...", "Privat mit SearXNG suchen oder Adresse eingeben..."},
                 {"- Search with %1", "- Mit %1 suchen"},
                 {"Welcome!", "Willkommen!"},
                 {"because privacy matters", "weil Datenschutz zählt"},
                 {"Private Search & AI", "Private Suche & KI"},
-                {"Search privately with BraveLite Engine...", "Privat mit BraveLite Engine suchen..."},
+                {"Search privately with SearXNG...", "Privat mit SearXNG suchen..."},
                 {"BraveLite Protected", "BraveLite-geschützt"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Keine Datenspeicherung • Kein Profiling • KI-Unterstützung"},
                 {"🔍 All", "🔍 Alle"},
@@ -709,11 +709,11 @@ namespace L10n {
                 {"🎬 Videos", "🎬 Videos"},
                 {"📰 News", "📰 Nachrichten"},
                 {"Search", "Suchen"},
-                {"Searching BraveLite Engine (%1) for %2...", "Suche in BraveLite Engine (%1) nach %2..."},
+                {"Searching SearXNG (%1) for %2...", "Suche in SearXNG (%1) nach %2..."},
                 {"No instant results found.", "Keine Sofortergebnisse gefunden."},
                 {"No images found for this query.", "Keine Bilder für diese Suchanfrage gefunden."},
-                {"BraveLite Engine • AI Overview", "BraveLite Engine • KI-Übersicht"},
-                {"BraveLite Engine", "BraveLite Engine"},
+                {"SearXNG • AI Overview", "SearXNG • KI-Übersicht"},
+                {"SearXNG", "SearXNG"},
                 {"AI Overview", "KI-Übersicht"},
                 {"Ask a follow-up or request code examples...", "Folgefrage stellen oder Code-Beispiele anfordern..."},
                 {"Ask AI ➔", "KI fragen ➔"},
@@ -721,7 +721,7 @@ namespace L10n {
                 {"Less ▴", "Weniger ▴"},
                 {"Grounded on verified search results", "Fundiert auf verifizierten Suchergebnissen"},
                 {"Grounded on verified search results • Local Ollama (%1)", "Fundiert auf verifizierten Suchergebnissen • Lokales Ollama (%1)"},
-                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
+                {"SearXNG v1.71", "SearXNG v1.71"},
                 {"GPU Accelerated", "GPU-beschleunigt"},
                 {"Back", "Zurück"},
                 {"Forward", "Vorwärts"},
@@ -783,7 +783,7 @@ namespace L10n {
                 {"Delete all cookies and history?", "Alle Cookies und den Verlauf löschen?"},
                 {"Cookies and history cleared.", "Cookies und Verlauf gelöscht."},
                 {"Clear All History", "Gesamten Verlauf löschen"},
-                {"Search browsing & BraveLite Engine history", "Verlauf & BraveLite Engine durchsuchen"},
+                {"Search browsing & SearXNG history", "Verlauf & SearXNG durchsuchen"},
                 {"Get started", "Erste Schritte"},
                 {"BraveLite AI (Ollama)", "BraveLite KI (Ollama)"},
                 {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite KI (Ollama & GPU-Konfiguration)"},
@@ -845,17 +845,17 @@ namespace L10n {
                 {"Open the New Tab page", "打开新标签页"},
                 {"Continue where you left off", "继续浏览上次打开的网页"},
                 {"Search engine", "搜索引擎"},
-                {"Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "选择您的默认搜索引擎：BraveLite Engine（隐私搜索与AI）、Google、Bing、DuckDuckGo、Yahoo 或 Yandex。"},
+                {"Choose your default search engine: SearXNG, Google, Bing, DuckDuckGo, Yahoo, or Yandex.", "选择您的默认搜索引擎：SearXNG、Google、Bing、DuckDuckGo、Yahoo 或 Yandex。"},
                 {"Search or enter address", "搜索或输入网址..."},
                 {"Search with %1 or enter address", "使用 %1 搜索或输入网址"},
-                {"Search privately with BraveLite Engine or enter address", "使用 BraveLite Engine 隐私搜索或输入网址"},
+                {"Search privately with SearXNG or enter address", "使用 SearXNG 隐私搜索或输入网址"},
                 {"Search with %1 or enter address...", "使用 %1 搜索或输入网址..."},
-                {"Search privately with BraveLite Engine or enter address...", "使用 BraveLite Engine 隐私搜索或输入网址..."},
+                {"Search privately with SearXNG or enter address...", "使用 SearXNG 隐私搜索或输入网址..."},
                 {"- Search with %1", "- 使用 %1 搜索"},
                 {"Welcome!", "欢迎！"},
                 {"because privacy matters", "因为隐私至关重要"},
                 {"Private Search & AI", "隐私搜索与 AI"},
-                {"Search privately with BraveLite Engine...", "使用 BraveLite Engine 隐私搜索..."},
+                {"Search privately with SearXNG...", "使用 SearXNG 隐私搜索..."},
                 {"BraveLite Protected", "BraveLite 隐私保护"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "零个人数据记录 • 无搜索用户画像 • 启用 AI"},
                 {"🔍 All", "🔍 全部"},
@@ -863,11 +863,11 @@ namespace L10n {
                 {"🎬 Videos", "🎬 视频"},
                 {"📰 News", "📰 新闻"},
                 {"Search", "搜索"},
-                {"Searching BraveLite Engine (%1) for %2...", "正在 BraveLite Engine (%1) 中搜索 %2..."},
+                {"Searching SearXNG (%1) for %2...", "正在 SearXNG (%1) 中搜索 %2..."},
                 {"No instant results found.", "未找到即时结果。"},
                 {"No images found for this query.", "未找到与此查询匹配的图片。"},
-                {"BraveLite Engine • AI Overview", "BraveLite Engine • AI 概述"},
-                {"BraveLite Engine", "BraveLite Engine"},
+                {"SearXNG • AI Overview", "SearXNG • AI 概述"},
+                {"SearXNG", "SearXNG"},
                 {"AI Overview", "AI 概述"},
                 {"Ask a follow-up or request code examples...", "进行追问或请求代码示例..."},
                 {"Ask AI ➔", "询问 AI ➔"},
@@ -875,7 +875,7 @@ namespace L10n {
                 {"Less ▴", "收起 ▴"},
                 {"Grounded on verified search results", "基于已验证的搜索结果"},
                 {"Grounded on verified search results • Local Ollama (%1)", "基于已验证结果 • 本地 Ollama (%1)"},
-                {"BraveLite Engine v1.71", "BraveLite Engine v1.71"},
+                {"SearXNG v1.71", "SearXNG v1.71"},
                 {"GPU Accelerated", "GPU 硬件加速"},
                 {"Back", "后退"},
                 {"Forward", "前进"},
@@ -937,7 +937,7 @@ namespace L10n {
                 {"Delete all cookies and history?", "确定删除所有 Cookie 和历史记录吗？"},
                 {"Cookies and history cleared.", "Cookie 和历史记录已清除。"},
                 {"Clear All History", "清除全部历史记录"},
-                {"Search browsing & BraveLite Engine history", "搜索浏览历史与 BraveLite Engine"},
+                {"Search browsing & SearXNG history", "搜索浏览历史与 SearXNG"},
                 {"Get started", "新手入门"},
                 {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
                 {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama 与 GPU 配置)"},
@@ -978,16 +978,16 @@ namespace L10n {
         return key;
     }
 
-    inline QString getUrlBarPlaceholder(const QString &engine = "BraveLite Engine") {
-        if (engine == "BraveLite Engine") {
-            return tr("Search privately with BraveLite Engine or enter address");
+    inline QString getUrlBarPlaceholder(const QString &engine = "SearXNG") {
+        if (engine == "SearXNG" || engine == "BraveLite Engine" || engine == "Startpage") {
+            return tr("Search privately with SearXNG or enter address");
         }
         return QString(tr("Search with %1 or enter address")).arg(engine);
     }
 
-    inline QString getStartPagePlaceholder(const QString &engine = "BraveLite Engine") {
-        if (engine == "BraveLite Engine") {
-            return tr("Search privately with BraveLite Engine or enter address...");
+    inline QString getStartPagePlaceholder(const QString &engine = "SearXNG") {
+        if (engine == "SearXNG" || engine == "BraveLite Engine" || engine == "Startpage") {
+            return tr("Search privately with SearXNG or enter address...");
         }
         return QString(tr("Search with %1 or enter address...")).arg(engine);
     }
@@ -1586,7 +1586,7 @@ private:
     QMap<QString, int> siteBlockedCounts;
 };
 
-// ---------------- 2. CUSTOM WEB ENGINE PAGE (Seamless Back/Forward/Reload for BraveLite Engine) ----------------
+// ---------------- 2. CUSTOM WEB ENGINE PAGE (Ad Blocking & Event Routing) ----------------
 class CustomWebEnginePage : public QWebEnginePage {
     Q_OBJECT
 public:
@@ -1606,23 +1606,19 @@ signals:
 
 protected:
     bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override {
-        if (isRenderingSearchHtml && url.host() == "search.bravelite.local") {
-            return true;
-        }
-
         if ((url.scheme() == "bravelite" && url.host() == "search") ||
             (url.host() == "search.bravelite.local")) {
             QUrlQuery q(url);
-        QString queryVal = q.queryItemValue("q", QUrl::FullyDecoded);
-        QString tab = q.queryItemValue("tab", QUrl::FullyDecoded);
-        if (tab.isEmpty()) tab = "all";
-        if (!queryVal.isEmpty()) {
-            QTimer::singleShot(0, this, [this, queryVal, tab]() {
-                emit braveliteSearchRequested(queryVal, tab);
-            });
-            return false;
-        }
+            QString queryVal = q.queryItemValue("q", QUrl::FullyDecoded);
+            QString tab = q.queryItemValue("tab", QUrl::FullyDecoded);
+            if (tab.isEmpty()) tab = "all";
+            if (!queryVal.isEmpty()) {
+                QTimer::singleShot(0, this, [this, queryVal, tab]() {
+                    emit braveliteSearchRequested(queryVal, tab);
+                });
+                return false;
             }
+        }
 
             if (m_blocker && m_blocker->isEnabled()) {
                 QString targetHost = url.host().toLower();
@@ -1842,29 +1838,15 @@ protected:
             menu->addSeparator();
         } else {
             QAction *actBack = menu->addAction(L10n::tr("Back"));
-            actBack->setEnabled(history()->canGoBack() || !lastSearchQuery.isEmpty());
-            connect(actBack, &QAction::triggered, this, [this]() {
-                if (!lastSearchQuery.isEmpty() && url().host() != "search.bravelite.local" && history()->currentItemIndex() <= 1) {
-                    emit searchBackFallbackRequested(lastSearchQuery, lastSearchTab);
-                } else if (history()->canGoBack()) {
-                    back();
-                } else if (!lastSearchQuery.isEmpty()) {
-                    emit searchBackFallbackRequested(lastSearchQuery, lastSearchTab);
-                }
-            });
+            actBack->setEnabled(history()->canGoBack());
+            connect(actBack, &QAction::triggered, this, &QWebEngineView::back);
 
             QAction *actForward = menu->addAction(L10n::tr("Forward"));
             actForward->setEnabled(history()->canGoForward());
             connect(actForward, &QAction::triggered, this, &QWebEngineView::forward);
 
             QAction *actReload = menu->addAction(L10n::tr("Reload"));
-            connect(actReload, &QAction::triggered, this, [this]() {
-                if (url().host() == "search.bravelite.local" && !lastSearchQuery.isEmpty()) {
-                    emit searchBackFallbackRequested(lastSearchQuery, lastSearchTab);
-                } else {
-                    reload();
-                }
-            });
+            connect(actReload, &QAction::triggered, this, &QWebEngineView::reload);
             menu->addSeparator();
 
             QAction *actSave = menu->addAction(L10n::tr("Save page as..."));
@@ -2558,267 +2540,6 @@ struct SitePermission {
     bool granted;
 };
 
-
-static QString buildBraveLiteSearchHtml(const QString &query, const QString &cleanTab, const QString &escapedQuery, const QString &googleAiOverviewHtml) {
-    QString html;
-    html.reserve(28000);
-    html += R"HTML(<!DOCTYPE html><html><head><meta charset='utf-8'>
-<title>)HTML";
-    html += escapedQuery;
-    html += R"HTML( - __ENGINE_TITLE__</title>
-<style>
-* { box-sizing: border-box; }
-body { margin: 0; background: #141724; color: #e2e8f0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; overflow-x: hidden; }
-a { text-decoration: none; }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #0e111a; }
-::-webkit-scrollbar-thumb { background: #2a3148; border-radius: 5px; border: 2px solid #0e111a; }
-::-webkit-scrollbar-thumb:hover { background: #6580ff; }
-.sp-header { background: #141724; border-bottom: 1px solid #23293d; padding: 12px 20px 0 20px; position: sticky; top: 0; z-index: 100; width: 100%; box-sizing: border-box; }
-.sp-top-row { display: flex; align-items: center; gap: 14px; max-width: 100%; margin-bottom: 10px; flex-wrap: wrap; }
-.sp-logo { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-.sp-logo-badge { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(101,128,255,0.3); }
-.sp-logo-text { display: flex; flex-direction: column; }
-.sp-logo-title { font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
-.sp-logo-sub { font-size: 10px; font-weight: 500; color: #8298ff; text-transform: uppercase; letter-spacing: 0.5px; }
-.sp-search-form { flex: 1; min-width: 220px; max-width: 680px; display: flex; align-items: center; background: #1c2236; border: 1px solid #2e3752; border-radius: 10px; height: 40px; padding: 0 8px 0 14px; transition: border-color 0.2s, box-shadow 0.2s; }
-.sp-search-form:focus-within { border-color: #6580ff; box-shadow: 0 0 0 3px rgba(101,128,255,0.2); background: #181d2e; }
-.sp-search-form input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 14.5px; min-width: 50px; }
-.sp-clear-btn { background: transparent; border: none; color: #64748b; font-size: 14px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
-.sp-clear-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
-.sp-submit-btn { background: #6580ff; border: none; color: #fff; font-size: 13.5px; cursor: pointer; padding: 6px 14px; font-weight: 600; border-radius: 6px; margin-left: 6px; transition: background 0.15s; flex-shrink: 0; }
-.sp-submit-btn:hover { background: #526fe8; }
-.sp-nav-tabs { display: flex; gap: 20px; padding-left: 170px; font-size: 13px; flex-wrap: wrap; }
-.sp-tab { color: #94a3b8; padding-bottom: 8px; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 500; user-select: none; transition: color 0.15s; }
-.sp-tab:hover { color: #ffffff; }
-.sp-tab.active { color: #8298ff; border-bottom-color: #6580ff; font-weight: 600; }
-.sp-main { padding: 16px 20px 50px 170px; max-width: 1100px; width: 100%; box-sizing: border-box; }
-@media (max-width: 860px) {
-  .sp-nav-tabs { padding-left: 0; }
-  .sp-main { padding-left: 14px; padding-right: 14px; }
-  .sp-search-form { max-width: 100%; }
-}
-.sp-privacy-banner { display: flex; align-items: center; gap: 10px; background: rgba(101, 128, 255, 0.08); border: 1px solid rgba(101, 128, 255, 0.22); border-radius: 10px; padding: 9px 14px; margin-bottom: 18px; font-size: 12px; color: #cbd5e1; max-width: 800px; width: 100%; box-sizing: border-box; }
-.sp-privacy-badge { background: #6580ff; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; text-transform: uppercase; white-space: nowrap; }
-.sp-results { max-width: 780px; width: 100%; }
-.sp-result { padding: 13px 15px; margin-bottom: 12px; background: #1c2236; border: 1px solid #28314a; border-radius: 10px; transition: border-color 0.15s; word-break: break-word; }
-.sp-result:hover { border-color: #3f4b70; background: #1f263c; }
-.sp-site-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 12px; color: #94a3b8; }
-.sp-fav { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; }
-.sp-title { font-size: 17px; line-height: 1.35; color: #6580ff; font-weight: 600; display: block; margin-bottom: 5px; }
-.sp-title:hover { text-decoration: underline; color: #8298ff; }
-.sp-snippet { font-size: 13px; line-height: 1.55; color: #cbd5e1; }
-.sp-image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; max-width: 960px; width: 100%; }
-.sp-img-card { background: #1c2236; border: 1px solid #28314a; border-radius: 8px; overflow: hidden; display: block; color: #eee; transition: border-color 0.15s; }
-.sp-img-card:hover { border-color: #6580ff; }
-.sp-img-card img { width: 100%; height: 130px; object-fit: cover; display: block; background: #141724; }
-.sp-img-caption { padding: 7px 9px; font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #cbd5e1; }
-.g-ai-wrapper { background: linear-gradient(180deg, #1b2138 0%, #151a2c 100%); border: 1px solid #2e3858; border-radius: 12px; padding: 16px 18px 12px 18px; margin-bottom: 20px; max-width: 800px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-.g-ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.g-ai-title-row { display: flex; align-items: center; gap: 8px; }
-.bl-ai-logo { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #4f46e5, #6580ff); display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.g-ai-label { font-size: 14.5px; font-weight: 600; color: #e2e8f0; }
-.g-ai-meta { font-size: 11px; color: #8298ff; background: rgba(101,128,255,0.12); padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(101,128,255,0.25); }
-.g-ai-grid { display: flex; gap: 16px; align-items: flex-start; }
-@media (max-width: 760px) {
-  .g-ai-grid { flex-direction: column; }
-  .g-ai-sources { width: 100% !important; flex-direction: row !important; flex-wrap: wrap; }
-  .g-source-chip { flex: 1 1 180px; }
-}
-.g-ai-main { flex: 1; min-width: 0; }
-.g-ai-text { font-size: 13.5px; line-height: 1.6; color: #e2e8f0; overflow: hidden; transition: max-height 0.25s ease; }
-.g-ai-text.collapsed { max-height: 170px; mask-image: linear-gradient(to bottom, black 68%, transparent 100%); }
-.bl-code-wrap { background: #0e111a; border: 1px solid #28314a; border-radius: 8px; margin: 10px 0; overflow: hidden; }
-.bl-code-bar { display: flex; justify-content: space-between; align-items: center; background: #161b2c; padding: 5px 12px; font-size: 11.5px; color: #94a3b8; border-bottom: 1px solid #28314a; }
-.bl-copy-btn { background: #232a42; color: #fff; border: 1px solid #364268; border-radius: 4px; padding: 3px 9px; font-size: 11px; cursor: pointer; font-weight: 600; }
-.bl-copy-btn:hover { background: #6580ff; border-color: #6580ff; }
-.bl-code-pre { margin: 0; padding: 12px; overflow-x: auto; font-family: 'Consolas', 'JetBrains Mono', monospace; font-size: 13px; color: #93c5fd; white-space: pre; }
-.g-ai-chat-box { margin-top: 14px; padding-top: 12px; border-top: 1px solid #262e48; }
-.g-ai-chat-history { max-height: 220px; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-.chat-msg-user { align-self: flex-end; background: #6580ff; color: #fff; padding: 7px 12px; border-radius: 12px 12px 2px 12px; font-size: 13px; max-width: 85%; }
-.chat-msg-ai { align-self: flex-start; background: #1c2236; color: #e2e8f0; border: 1px solid #2e3858; padding: 8px 12px; border-radius: 12px 12px 12px 2px; font-size: 13px; max-width: 92%; line-height: 1.5; }
-.g-ai-chat-form { display: flex; gap: 8px; }
-.g-ai-chat-form input { flex: 1; background: #0e111a; border: 1px solid #2c3652; border-radius: 18px; padding: 7px 14px; color: #fff; font-size: 13px; outline: none; }
-.g-ai-chat-form input:focus { border-color: #6580ff; }
-.g-ai-chat-form button { background: #6580ff; color: #fff; border: none; border-radius: 18px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
-.g-ai-more-btn { margin-top: 10px; display: inline-block; width: auto; background: #232a42; border: 1px solid #364268; color: #8298ff; border-radius: 16px; padding: 5px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
-.g-ai-more-btn:hover { background: #2f3859; color: #fff; }
-.g-ai-sources { width: 200px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-.g-source-chip { display: block; background: #1c2236; border: 1px solid #28314a; border-radius: 8px; padding: 7px 9px; color: #e2e8f0; font-size: 11.5px; }
-.g-source-chip:hover { background: #242c46; border-color: #6580ff; }
-.g-source-title { font-weight: 600; color: #8298ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
-.g-source-domain { color: #94a3b8; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.g-ai-footer { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px solid #242b44; font-size: 11px; color: #8298ff; }
-@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
-.shimmer-line { height: 14px; margin-bottom: 10px; border-radius: 6px; background: linear-gradient(90deg, #1e253b 25%, #2d3859 50%, #1e253b 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite linear; }
-</style></head><body>
-<div class='sp-header'>
-<div class='sp-top-row'>
-<div class='sp-logo' onclick="console.log('BRAVELITE_SEARCH::' + document.getElementById('qInput').value);">
-<div class='sp-logo-badge'>🛡️</div>
-<div class='sp-logo-text'><span class='sp-logo-title'>BraveLite Engine</span><span class='sp-logo-sub'>__STARTPAGE_SUB__</span></div>
-</div>
-<form class='sp-search-form' onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: '__TAB_TYPE__'}));">
-<input id='qInput' type='text' value="__QUERY_ESC__" placeholder='__SEARCH_PLACEHOLDER__' autocomplete='off' />
-<button type='button' class='sp-clear-btn' onclick="var i=document.getElementById('qInput'); i.value=''; i.focus();">✕</button>
-<button type='submit' class='sp-submit-btn'>__SEARCH_BTN__</button>
-</form>
-</div>
-<div class='sp-nav-tabs'>
-<a class='sp-tab __TAB_ALL_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'all'}));">__TAB_ALL_LABEL__</a>
-<a class='sp-tab __TAB_IMAGES_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'images'}));">__TAB_IMAGES_LABEL__</a>
-<a class='sp-tab __TAB_VIDEOS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'videos'}));">__TAB_VIDEOS_LABEL__</a>
-<a class='sp-tab __TAB_NEWS_ACTIVE__' onclick="console.log('BRAVELITE_SEARCH_TAB::' + JSON.stringify({q: document.getElementById('qInput').value, tab: 'news'}));">__TAB_NEWS_LABEL__</a>
-</div>
-</div>
-<div class='sp-main'>
-<div class='sp-privacy-banner'>
-<span class='sp-privacy-badge'>__PRIVACY_BADGE__</span>
-<span>__PRIVACY_TEXT__</span>
-</div>
-__AI_OVERVIEW_HTML__
-<div class='sp-results' id='webResults'>
-<div class='sp-result'><div class='sp-snippet'>__SEARCHING_STATUS__</div></div>
-</div>
-</div>
-<script>
-window.__copyCode = function(btn) {
-    if (btn && btn.parentElement && btn.parentElement.nextElementSibling) {
-        navigator.clipboard.writeText(btn.parentElement.nextElementSibling.innerText);
-        btn.textContent = "✔ Copied";
-    }
-};
-window.__formatAiMarkdown = function(raw) {
-    var safe = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    safe = safe.replace(/```([a-zA-Z0-9_-]*)
-([\s\S]*?)```/g, function(_, lang, code) {
-        var lbl = lang ? lang : 'code';
-        return '<div class="bl-code-wrap"><div class="bl-code-bar"><span>' + lbl + '</span><button type="button" class="bl-copy-btn" onclick="window.__copyCode(this)">📋 Copy code</button></div><pre class="bl-code-pre">' + code + '</pre></div>';
-    });
-    safe = safe.replace(/`([^`
-]+)`/g, '<code style="background:#0e111a;color:#8298ff;padding:2px 6px;border-radius:4px;">$1</code>');
-    safe = safe.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-    safe = safe.replace(/
-/g, '<br>');
-    return safe;
-};
-window.__aiExpanded = false;
-window.__toggleAiExpand = function() {
-    var t = document.getElementById('aiOverviewText');
-    var b = document.getElementById('aiShowMoreBtn');
-    var c = document.getElementById('aiChatBox');
-    if (!t || !b) return;
-    window.__aiExpanded = !window.__aiExpanded;
-    if (window.__aiExpanded) {
-        t.classList.remove('collapsed');
-        if (c) c.style.display = 'block';
-        b.textContent = '__LESS_BTN__';
-    } else {
-        t.classList.add('collapsed');
-        if (c) c.style.display = 'none';
-        b.textContent = '__MORE_BTN__';
-    }
-};
-window.__submitAiFollowup = function(e) {
-    e.preventDefault();
-    var inp = document.getElementById('aiChatInput');
-    var hist = document.getElementById('aiChatHistory');
-    if (!inp || !hist || !inp.value.trim()) return;
-    var q = inp.value.trim();
-    inp.value = '';
-    var uDiv = document.createElement('div'); uDiv.className = 'chat-msg-user'; uDiv.textContent = q; hist.appendChild(uDiv);
-    var aDiv = document.createElement('div'); aDiv.className = 'chat-msg-ai'; aDiv.id = 'pendingAiReply'; aDiv.textContent = '⏳ Thinking...'; hist.appendChild(aDiv);
-    hist.scrollTop = hist.scrollHeight;
-    console.log('BRAVELITE_AI_CHAT::Context: __QUERY_ESC__ | Followup: ' + q);
-};
-window.__appendAiChat = function(obj) {
-    var pending = document.getElementById('pendingAiReply');
-    if (pending) { pending.removeAttribute('id'); pending.innerHTML = window.__formatAiMarkdown(obj.reply); }
-};
-window.__setAiOverview = function(text) {
-    var el = document.getElementById('aiOverviewText');
-    var btn = document.getElementById('aiShowMoreBtn');
-    if (!el) return;
-    el.innerHTML = window.__formatAiMarkdown(text);
-    if (btn) btn.style.display = 'block';
-    if (text && text.length > 340) el.classList.add('collapsed');
-};
-window.__setImageResults = function(items) {
-    var container = document.getElementById('webResults');
-    if (!container) return;
-    container.className = 'sp-image-grid';
-    container.innerHTML = '';
-    if (!items || items.length === 0) {
-        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">__NO_IMAGES__</div></div>';
-        return;
-    }
-    items.forEach(function(it) {
-        var card = document.createElement('a');
-        card.className = 'sp-img-card';
-        card.href = it.url;
-        card.innerHTML = '<img src="' + it.img + '" loading="lazy" /><div class="sp-img-caption">' + it.title + '</div>';
-        container.appendChild(card);
-    });
-};
-window.__setWebResults = function(items) {
-    var container = document.getElementById('webResults');
-    var rail = document.getElementById('aiSourcesRail');
-    if (!container) return;
-    container.className = 'sp-results';
-    container.innerHTML = '';
-    if (rail) rail.innerHTML = '';
-    if (!items || items.length === 0) {
-        container.innerHTML = '<div class="sp-result"><div class="sp-snippet">__NO_RESULTS__</div></div>';
-        return;
-    }
-    items.forEach(function(it, idx) {
-        var host = '';
-        try { host = (new URL(it.url)).hostname; } catch(e) { host = it.url; }
-        var fav = 'https://www.google.com/s2/favicons?sz=32&domain_url=' + encodeURIComponent(it.url);
-        var card = document.createElement('div');
-        card.className = 'sp-result';
-        card.innerHTML = '<div class="sp-site-row"><img class="sp-fav" src="' + fav + '" /><span>' + host + '</span></div>' +
-        '<a class="sp-title" href="' + it.url + '">' + it.title + '</a>' +
-        '<div class="sp-snippet">' + it.snippet + '</div>';
-        container.appendChild(card);
-        if (rail && idx < 3) {
-            var chip = document.createElement('a');
-            chip.className = 'g-source-chip';
-            chip.href = it.url;
-            chip.innerHTML = '<div class="g-source-title">' + it.title + '</div><div class="g-source-domain">🔗 ' + host + '</div>';
-            rail.appendChild(chip);
-        }
-    });
-};
-</script></body></html>
-)HTML";
-
-    html.replace("__ENGINE_TITLE__", L10n::tr("BraveLite Engine"));
-    html.replace("__STARTPAGE_SUB__", L10n::tr("Private Search & AI"));
-    html.replace("__SEARCH_PLACEHOLDER__", L10n::tr("Search privately with BraveLite Engine..."));
-    html.replace("__SEARCH_BTN__", L10n::tr("Search"));
-    html.replace("__TAB_ALL_LABEL__", L10n::tr("🔍 All"));
-    html.replace("__TAB_IMAGES_LABEL__", L10n::tr("🖼 Images"));
-    html.replace("__TAB_VIDEOS_LABEL__", L10n::tr("🎬 Videos"));
-    html.replace("__TAB_NEWS_LABEL__", L10n::tr("📰 News"));
-    html.replace("__PRIVACY_BADGE__", L10n::tr("BraveLite Protected"));
-    html.replace("__PRIVACY_TEXT__", L10n::tr("Zero personal data logged • No search profiling • AI Grounding enabled"));
-    html.replace("__SEARCHING_STATUS__", QString(L10n::tr("Searching BraveLite Engine (%1) for %2...")).arg(cleanTab, escapedQuery));
-    html.replace("__NO_RESULTS__", L10n::tr("No instant results found."));
-    html.replace("__NO_IMAGES__", L10n::tr("No images found for this query."));
-    html.replace("__MORE_BTN__", L10n::tr("More ▾"));
-    html.replace("__LESS_BTN__", L10n::tr("Less ▴"));
-
-    html.replace("__QUERY_ESC__", escapedQuery);
-    html.replace("__AI_OVERVIEW_HTML__", googleAiOverviewHtml);
-    html.replace("__TAB_TYPE__", cleanTab);
-    html.replace("__TAB_ALL_ACTIVE__", cleanTab == "all" ? "active" : "");
-    html.replace("__TAB_IMAGES_ACTIVE__", cleanTab == "images" ? "active" : "");
-    html.replace("__TAB_VIDEOS_ACTIVE__", cleanTab == "videos" ? "active" : "");
-    html.replace("__TAB_NEWS_ACTIVE__", cleanTab == "news" ? "active" : "");
-    return html;
-}
-
 struct ClosedTabRecord {
     QUrl url;
     QString title;
@@ -3030,11 +2751,7 @@ public:
             connect(actReload, &QAction::triggered, this, [this, idx]() {
                 if (QWidget *w = tabStack->widget(idx)) {
                     if (CustomWebView *v = CustomWebViewFromWidget(w)) {
-                        if (v->url().host() == "search.bravelite.local" && !v->lastSearchQuery.isEmpty()) {
-                            runBraveLiteSearch(v->lastSearchQuery, v->lastSearchTab);
-                        } else {
-                            v->reload();
-                        }
+                        v->reload();
                     }
                 }
             });
@@ -3604,7 +3321,7 @@ public slots:
             setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.71 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
-                                     "• BraveLite Engine AI Overview & Hover Link Previews paused.\n"
+                                     "• Local AI Assistant & Hover Link Previews paused.\n"
                                      "• Local Ollama models unloaded from GPU VRAM & RAM.\n"
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
@@ -3988,316 +3705,44 @@ public slots:
         });
     }
 
-    // ---------------- "BraveLite Engine": PERSISTENT MULTI-SEARCH IN SAME TAB + TAB HIGHLIGHTS + BACK/REFRESH ----------------
+    QUrl getSearchEngineUrl(const QString &engine, const QString &query, const QString &tabType = "all") const {
+        QString encoded = QString::fromUtf8(QUrl::toPercentEncoding(query));
+        if (engine.compare("SearXNG", Qt::CaseInsensitive) == 0 ||
+            engine.compare("Startpage", Qt::CaseInsensitive) == 0 ||
+            engine.compare("BraveLite Engine", Qt::CaseInsensitive) == 0) {
+            if (encoded.isEmpty()) return QUrl("http://localhost:8080/");
+            QString cat;
+            if (tabType == "images") cat = "&categories=images";
+            else if (tabType == "videos") cat = "&categories=videos";
+            else if (tabType == "news") cat = "&categories=news";
+            return QUrl("http://localhost:8080/search?q=" + encoded + cat);
+        } else if (engine.compare("Google", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.google.com/search?q=" + encoded);
+        } else if (engine.compare("Bing", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.bing.com/search?q=" + encoded);
+        } else if (engine.compare("DuckDuckGo", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://duckduckgo.com/?q=" + encoded);
+        } else if (engine.startsWith("Yahoo", Qt::CaseInsensitive)) {
+            return QUrl("https://search.yahoo.com/search?p=" + encoded);
+        } else if (engine.compare("Yandex", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://yandex.com/search/?text=" + encoded);
+        } else if (engine.compare("Ecosia", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.ecosia.org/search?q=" + encoded);
+        } else if (engine.compare("Baidu", Qt::CaseInsensitive) == 0) {
+            return QUrl("https://www.baidu.com/s?wd=" + encoded);
+        }
+        return QUrl(encoded.isEmpty() ? "http://localhost:8080/" : ("http://localhost:8080/search?q=" + encoded));
+    }
+
+    // ---------------- Default Search Execution (SearXNG at http://localhost:8080/) ----------------
     void runBraveLiteSearch(const QString &query, const QString &tabType = "all") {
         if (query.trimmed().isEmpty()) return;
-        CustomWebView *view = activeWebView();
-        if (!view) {
-            view = createNewTabWithView();
-        }
-
-        QString cleanTab = tabType.toLower().trimmed();
-        if (cleanTab != "images" && cleanTab != "videos" && cleanTab != "news") {
-            cleanTab = "all";
-        }
-
-        // Increment per-view search ID and clear stale results so searching 2nd/3rd/10th time in the same tab always updates cleanly!
-        quint64 currentSearchId = ++view->activeSearchId;
-        view->lastSearchQuery = query;
-        view->lastSearchTab = cleanTab;
-        view->pendingWebResultsJson.clear();
-        view->pendingImageResultsJson.clear();
-        view->pendingAiOverviewJsArg.clear();
-
-        QString displaySearchUrl = QString("bravelite://search?q=%1&tab=%2")
-        .arg(QString::fromUtf8(QUrl::toPercentEncoding(query)), cleanTab);
-        QUrl internalBaseUrl(QString("https://search.bravelite.local/?q=%1&tab=%2&sid=%3")
-        .arg(QString::fromUtf8(QUrl::toPercentEncoding(query)), cleanTab).arg(currentSearchId));
-        urlBar->setText(displaySearchUrl);
-
-        if (!m_isIncognito) {
-            QString histEntry = QString("BraveLite Engine: %1 (%2)").arg(query, displaySearchUrl);
-            if (historyList.isEmpty() || historyList.last() != histEntry) {
-                historyList.append(histEntry);
-                savePersistentData();
-                updateUrlCompleter();
-            }
-        }
-
-        int i = tabStack->indexOf(view);
-        if (i != -1) tabBar->setTabText(i, (query.left(12) + " at BraveLite Engine"));
-
-        QString escapedQuery = query.toHtmlEscaped();
-        bool showAiCard = (aiEnabled && aiSearchOverviewEnabled && !gamingModeActive && cleanTab == "all");
-
-        QString googleAiOverviewHtml = showAiCard ? QString(
-            "<div class='g-ai-wrapper' id='aiOverviewCard'>"
-            "  <div class='g-ai-header'>"
-            "    <div class='g-ai-title-row'>"
-            "      <div class='bl-ai-logo'>🦁</div>"
-            "      <span class='g-ai-label'>%3 • %4</span>"
-            "      <span class='g-ai-meta'>%1 (%2)</span>"
-            "    </div>"
-            "  </div>"
-            "  <div class='g-ai-grid'>"
-            "    <div class='g-ai-main' id='aiOverviewContainer'>"
-            "      <div id='aiOverviewText' class='g-ai-text'>"
-            "        <div class='shimmer-line' style='width:92%;'></div>"
-            "        <div class='shimmer-line' style='width:84%;'></div>"
-            "        <div class='shimmer-line' style='width:68%;'></div>"
-            "      </div>"
-            "      <div id='aiChatBox' class='g-ai-chat-box' style='display:none;'>"
-            "        <div id='aiChatHistory' class='g-ai-chat-history'></div>"
-            "        <form class='g-ai-chat-form' onsubmit='window.__submitAiFollowup(event)'>"
-            "          <input id='aiChatInput' type='text' placeholder='%5' autocomplete='off' />"
-            "          <button type='submit'>%6</button>"
-            "        </form>"
-            "      </div>"
-            "      <button id='aiShowMoreBtn' class='g-ai-more-btn' style='display:none;' onclick='window.__toggleAiExpand()'>%7</button>"
-            "    </div>"
-            "    <div class='g-ai-sources' id='aiSourcesRail'></div>"
-            "  </div>"
-            "  <div class='g-ai-footer'>"
-            "    <span>%8 • Local Ollama (%1)</span>"
-            "    <span>BraveLite Engine v1.71</span>"
-            "  </div>"
-            "</div>"
-        ).arg(ollamaModel.toHtmlEscaped(),
-             aiUseGpu ? L10n::tr("GPU Accelerated") : "CPU",
-             L10n::tr("BraveLite Engine"),
-             L10n::tr("AI Overview"),
-             L10n::tr("Ask a follow-up or request code examples..."),
-             L10n::tr("Ask AI ➔"),
-             L10n::tr("More ▾"),
-             L10n::tr("Grounded on verified search results")) : QString();
-
-        QString ddgSearchPageHtml = buildBraveLiteSearchHtml(query, cleanTab, escapedQuery, googleAiOverviewHtml);
-
-        if (auto *customPage = qobject_cast<CustomWebEnginePage*>(view->page())) {
-            customPage->isRenderingSearchHtml = true;
-            view->setHtml(ddgSearchPageHtml, internalBaseUrl);
-            customPage->isRenderingSearchHtml = false;
+        QUrl target = getSearchEngineUrl(defaultSearchEngine, query, tabType);
+        if (auto *v = activeWebView()) {
+            v->load(target);
         } else {
-            view->setHtml(ddgSearchPageHtml, internalBaseUrl);
+            addNewTab(target);
         }
-
-        QPointer<CustomWebView> safeView(view);
-
-        if (cleanTab == "images") {
-            QUrl imgApiUrl("https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" +
-            QUrl::toPercentEncoding(query) + "&gsrnamespace=6&prop=imageinfo&iiprop=url&iiurlwidth=420&format=json");
-            QNetworkRequest req(imgApiUrl);
-            req.setHeader(QNetworkRequest::UserAgentHeader, "BraveLiteEngine/1.71");
-            QNetworkReply *rep = m_netManager->get(req);
-            connect(rep, &QNetworkReply::finished, this, [rep, safeView, currentSearchId]() {
-                if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId && rep->error() == QNetworkReply::NoError) {
-                    QJsonObject pages = QJsonDocument::fromJson(rep->readAll()).object()["query"].toObject()["pages"].toObject();
-                    QJsonArray imgArr;
-                    for (auto it = pages.begin(); it != pages.end(); ++it) {
-                        QJsonObject pObj = it.value().toObject();
-                        QJsonArray ii = pObj["imageinfo"].toArray();
-                        if (!ii.isEmpty()) {
-                            QJsonObject info = ii.first().toObject();
-                            QJsonObject item;
-                            item["title"] = pObj["title"].toString().replace("File:", "");
-                            item["img"] = info["thumburl"].toString(info["url"].toString());
-                            item["url"] = info["descriptionurl"].toString(info["url"].toString());
-                            imgArr.append(item);
-                        }
-                    }
-                    QString jsonStr = QString::fromUtf8(QJsonDocument(imgArr).toJson(QJsonDocument::Compact));
-                    safeView->pendingImageResultsJson = jsonStr;
-                    for (int delayMs : {80, 280, 600}) {
-                        QTimer::singleShot(delayMs, safeView, [safeView, jsonStr, currentSearchId]() {
-                            if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId) {
-                                safeView->page()->runJavaScript(QString("if (window.__setImageResults) window.__setImageResults(%1);").arg(jsonStr));
-                            }
-                        });
-                    }
-                }
-                rep->deleteLater();
-            });
-            return;
-        }
-
-        QString searchQueryMod = query;
-        if (cleanTab == "videos") searchQueryMod += " site:youtube.com";
-        else if (cleanTab == "news") searchQueryMod += " news";
-
-        auto dispatchSearchResults = [this, safeView, query, showAiCard, currentSearchId](const QJsonArray &resultsArr, const QStringList &groundingContext) {
-            QString jsonStr = QString::fromUtf8(QJsonDocument(resultsArr).toJson(QJsonDocument::Compact));
-            safeView->pendingWebResultsJson = jsonStr;
-            for (int delayMs : {80, 260, 550}) {
-                QTimer::singleShot(delayMs, safeView, [safeView, jsonStr, currentSearchId]() {
-                    if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId) {
-                        safeView->page()->runJavaScript(QString("if (window.__setWebResults) window.__setWebResults(%1);").arg(jsonStr));
-                    }
-                });
-            }
-
-            if (showAiCard) {
-                bool isCodingPrompt = query.contains("fedora", Qt::CaseInsensitive) ||
-                                      query.contains("ubuntu", Qt::CaseInsensitive) ||
-                                      query.contains("terminal", Qt::CaseInsensitive) ||
-                                      query.contains("command", Qt::CaseInsensitive) ||
-                                      query.contains("update", Qt::CaseInsensitive) ||
-                                      query.contains("install", Qt::CaseInsensitive) ||
-                                      query.contains("code", Qt::CaseInsensitive) ||
-                                      query.contains("python", Qt::CaseInsensitive) ||
-                                      query.contains("c++", Qt::CaseInsensitive) ||
-                                      query.contains("bash", Qt::CaseInsensitive) ||
-                                      query.contains("dnf", Qt::CaseInsensitive) ||
-                                      query.contains("apt", Qt::CaseInsensitive) ||
-                                      query.contains("git", Qt::CaseInsensitive);
-
-                QString aiPrompt;
-                if (isCodingPrompt) {
-                    aiPrompt = QString(
-                        "User Search Query: \"%1\"\n\n"
-                        "Verified Web Search Context:\n%2\n\n"
-                        "Instructions:\n"
-                        "Provide a direct guide. Use ```bash or ```code blocks with exact terminal commands or code snippets."
-                    ).arg(query, groundingContext.join("\n"));
-                } else {
-                    aiPrompt = QString(
-                        "User Search Query: \"%1\"\n\n"
-                        "Verified Web Search Results:\n%2\n\n"
-                        "Instructions:\n"
-                        "1. Base your overview STRICTLY on the Verified Web Search Results. Do NOT invent specs.\n"
-                        "2. Write a natural language overview with regular paragraphs and bold keywords (**keyword**) for key specifications.\n"
-                        "3. Do NOT use code blocks (```) or code formatting. Present everything in standard prose and bullet points (•)."
-                    ).arg(query, groundingContext.isEmpty() ? "(Answer factually and concisely)" : groundingContext.join("\n"));
-                }
-
-                queryOllamaAsync(aiPrompt, [safeView, currentSearchId](const QString &answer, bool ok) {
-                    if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) return;
-                    QString out = ok ? answer.trimmed() : ("BraveLite AI: " + answer);
-                    QJsonArray arr{out};
-                    QString escaped = QString::fromUtf8(QJsonDocument(arr).toJson(QJsonDocument::Compact));
-                    escaped = escaped.mid(1, escaped.length() - 2);
-                    safeView->pendingAiOverviewJsArg = escaped;
-                    for (int delayMs : {20, 250, 600}) {
-                        QTimer::singleShot(delayMs, safeView, [safeView, escaped, currentSearchId]() {
-                            if (safeView && safeView->page() && safeView->activeSearchId == currentSearchId) {
-                                safeView->page()->runJavaScript(QString("if (window.__setAiOverview) window.__setAiOverview(%1);").arg(escaped));
-                            }
-                        });
-                    }
-                });
-            }
-        };
-
-        QUrl ddgUrl("https://html.duckduckgo.com/html/?q=" + QUrl::toPercentEncoding(searchQueryMod));
-        QNetworkRequest req(ddgUrl);
-        req.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
-        req.setRawHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        req.setRawHeader("Accept-Language", "en-US,en;q=0.9");
-        req.setTransferTimeout(5000);
-        QNetworkReply *reply = m_netManager->get(req);
-
-        connect(reply, &QNetworkReply::finished, this, [this, reply, safeView, currentSearchId, searchQueryMod, dispatchSearchResults]() {
-            if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
-                reply->deleteLater();
-                return;
-            }
-            QJsonArray resultsArr;
-            QStringList groundingContext;
-            if (reply->error() == QNetworkReply::NoError) {
-                QString html = QString::fromUtf8(reply->readAll());
-                QRegularExpression re(
-                    "<a[^>]*class=\"[^\"]*result__a[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
-                    "<a[^>]*class=\"[^\"]*result__snippet[^\"]*\"[^>]*>([\\s\\S]*?)</a>",
-                    QRegularExpression::CaseInsensitiveOption
-                );
-                if (!re.match(html).hasMatch()) {
-                    re = QRegularExpression(
-                        "<a[^>]*result__a[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
-                        "<a[^>]*result__snippet[^>]*>([\\s\\S]*?)</a>",
-                        QRegularExpression::CaseInsensitiveOption
-                    );
-                }
-                auto it = re.globalMatch(html);
-                int count = 0;
-                while (it.hasNext() && count < 10) {
-                    auto match = it.next();
-                    QString rawHref = match.captured(1);
-                    if (rawHref.contains("uddg=")) {
-                        QUrl parsed("https://duckduckgo.com" + rawHref);
-                        QUrlQuery q(parsed);
-                        QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
-                        if (!uddg.isEmpty()) rawHref = uddg;
-                    }
-                    QString title = match.captured(2).remove(QRegularExpression("<[^>]+>")).simplified();
-                    QString snippet = match.captured(3).remove(QRegularExpression("<[^>]+>")).simplified();
-
-                    if (rawHref.startsWith("http") && !title.isEmpty()) {
-                        QJsonObject item;
-                        item["url"] = rawHref;
-                        item["title"] = title;
-                        item["snippet"] = snippet;
-                        resultsArr.append(item);
-                        if (count < 5) {
-                            groundingContext.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
-                        }
-                        count++;
-                    }
-                }
-            }
-            reply->deleteLater();
-
-            if (!resultsArr.isEmpty()) {
-                dispatchSearchResults(resultsArr, groundingContext);
-            } else {
-                QUrl liteUrl("https://lite.duckduckgo.com/lite/");
-                QNetworkRequest liteReq(liteUrl);
-                liteReq.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-                liteReq.setHeader(QNetworkRequest::UserAgentHeader, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
-                liteReq.setTransferTimeout(4000);
-                QByteArray postData = "q=" + QUrl::toPercentEncoding(searchQueryMod);
-                QNetworkReply *liteReply = m_netManager->post(liteReq, postData);
-                connect(liteReply, &QNetworkReply::finished, this, [liteReply, safeView, currentSearchId, dispatchSearchResults]() {
-                    if (!safeView || !safeView->page() || safeView->activeSearchId != currentSearchId) {
-                        liteReply->deleteLater();
-                        return;
-                    }
-                    QJsonArray liteArr;
-                    QStringList liteGrounding;
-                    if (liteReply->error() == QNetworkReply::NoError) {
-                        QString lHtml = QString::fromUtf8(liteReply->readAll());
-                        QRegularExpression reLite(
-                            "<a[^>]*class=\"[^\"]*result-link[^\"]*\"[^>]*href=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?"
-                            "<td[^>]*class=\"[^\"]*result-snippet[^\"]*\"[^>]*>([\\s\\S]*?)</td>",
-                            QRegularExpression::CaseInsensitiveOption
-                        );
-                        auto itL = reLite.globalMatch(lHtml);
-                        int count = 0;
-                        while (itL.hasNext() && count < 10) {
-                            auto m = itL.next();
-                            QString rawHref = m.captured(1);
-                            if (rawHref.contains("uddg=")) {
-                                QUrl parsed("https://duckduckgo.com" + rawHref);
-                                QUrlQuery q(parsed);
-                                QString uddg = q.queryItemValue("uddg", QUrl::FullyDecoded);
-                                if (!uddg.isEmpty()) rawHref = uddg;
-                            }
-                            QString title = m.captured(2).remove(QRegularExpression("<[^>]+>")).simplified();
-                            QString snippet = m.captured(3).remove(QRegularExpression("<[^>]+>")).simplified();
-                            if (rawHref.startsWith("http") && !title.isEmpty()) {
-                                QJsonObject item;
-                                item["url"] = rawHref;
-                                item["title"] = title;
-                                item["snippet"] = snippet;
-                                liteArr.append(item);
-                                if (count < 5) liteGrounding.append(QString("Source [%1] (%2): %3").arg(count + 1).arg(title, snippet));
-                                count++;
-                            }
-                        }
-                    }
-                    liteReply->deleteLater();
-                    dispatchSearchResults(liteArr, liteGrounding);
-                });
-            }
-        });
     }
 
     // ============================================================================
@@ -4677,7 +4122,7 @@ public:
         layout->setSpacing(20);
 
         QLineEdit *searchBox = new QLineEdit(page);
-        searchBox->setPlaceholderText("🔍 Search browsing & BraveLite Engine history");
+        searchBox->setPlaceholderText("🔍 Search browsing & SearXNG history");
         searchBox->setStyleSheet("background: #2b2d30; border: 1px solid #3c4043; border-radius: 20px; padding: 10px 18px; color: #fff; max-width: 650px; font-size: 14px;");
         layout->addWidget(searchBox);
 
@@ -4710,11 +4155,18 @@ public:
 
         connect(list, &QListWidget::itemDoubleClicked, [this](QListWidgetItem *it) {
             QString text = it->text();
-            if (text.startsWith("BraveLite Engine: ")) {
-                int paren = text.lastIndexOf("(bravelite://search");
+            if (text.startsWith("BraveLite Engine: ") || text.startsWith("SearXNG: ")) {
+                int paren = text.lastIndexOf("(http");
                 if (paren != -1) {
-                    QString qPart = text.mid(18, paren - 19).trimmed();
-                    runBraveLiteSearch(qPart, "all");
+                    QString urlPart = text.mid(paren + 1);
+                    if (urlPart.endsWith(")")) urlPart.chop(1);
+                    addNewTab(QUrl(urlPart));
+                    return;
+                }
+                int oldParen = text.lastIndexOf("(bravelite://search");
+                if (oldParen != -1) {
+                    QString qPart = text.mid(18, oldParen - 19).trimmed();
+                    addNewTab(getSearchEngineUrl(defaultSearchEngine, qPart));
                     return;
                 }
             }
@@ -4915,13 +4367,13 @@ public:
         QVBoxLayout *searchTextLayout = new QVBoxLayout();
         QLabel *sTitle = new QLabel(L10n::tr("Search engine"), searchCard);
         sTitle->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *sSub = new QLabel(L10n::tr("Choose your default search engine: BraveLite Engine (Private Search & AI), Google, Bing, DuckDuckGo, Yahoo, or Yandex."), searchCard);
+        QLabel *sSub = new QLabel(L10n::tr("Choose your default search engine: SearXNG, Google, Bing, DuckDuckGo, Yahoo, or Yandex."), searchCard);
         sSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         searchTextLayout->addWidget(sTitle);
         searchTextLayout->addWidget(sSub);
 
         QComboBox *engineCombo = new QComboBox(searchCard);
-        engineCombo->addItems({"BraveLite Engine", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
+        engineCombo->addItems({"SearXNG", "Google", "Bing", "DuckDuckGo", "Yahoo", "Yandex"});
         engineCombo->setCurrentText(defaultSearchEngine);
         if (engineCombo->currentIndex() < 0) {
             engineCombo->setCurrentIndex(0);
@@ -4931,6 +4383,9 @@ public:
             defaultSearchEngine = val;
             savePersistentData();
             updateUrlCompleter();
+            if (urlBar) {
+                urlBar->setPlaceholderText(L10n::getUrlBarPlaceholder(defaultSearchEngine));
+            }
         });
 
         searchLayout->addLayout(searchTextLayout, 1); // Fixed layout compiler error!
@@ -5036,10 +4491,6 @@ public:
         chkMaster->setChecked(aiEnabled);
         chkMaster->setStyleSheet("font-size: 15px; font-weight: bold; color: #ff6a22; border: none;");
 
-        QCheckBox *chkOverview = new QCheckBox("Enable BraveLite Engine AI Overview & Interactive Chat on Search Results", card);
-        chkOverview->setChecked(aiSearchOverviewEnabled);
-        chkOverview->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;");
-
         QCheckBox *chkHover = new QCheckBox("Enable Rich Link Previews & AI Summaries when hovering over links (hold Ctrl)", card);
         chkHover->setChecked(aiHoverSummaryEnabled);
         chkHover->setStyleSheet("font-size: 14px; color: #e0e0e0; border: none;");
@@ -5052,7 +4503,6 @@ public:
         chkGpu->setStyleSheet("font-size: 14px; font-weight: 600; color: #52c41a; border: none;");
 
         cLayout->addWidget(chkMaster);
-        cLayout->addWidget(chkOverview);
         cLayout->addWidget(chkHover);
         cLayout->addWidget(chkGpu);
 
@@ -5181,7 +4631,6 @@ public:
         cLayout->addLayout(btnRow2);
 
         connect(chkMaster, &QCheckBox::toggled, this, [this](bool v) { aiEnabled = v; savePersistentData(); });
-        connect(chkOverview, &QCheckBox::toggled, this, [this](bool v) { aiSearchOverviewEnabled = v; savePersistentData(); });
         connect(chkHover, &QCheckBox::toggled, this, [this](bool v) { aiHoverSummaryEnabled = v; savePersistentData(); });
         connect(chkGpu, &QCheckBox::toggled, this, [this](bool v) { aiUseGpu = v; savePersistentData(); });
 
@@ -6897,7 +6346,7 @@ private:
     bool odohEnabled = true;
     QString sponsorBlockServer = "https://sponsor.ajay.app/api/skipSegments";
     QString currentThemeProfile = "BraveLite Dark";
-    QString defaultSearchEngine = "BraveLite Engine";
+    QString defaultSearchEngine = "SearXNG";
 
     QWidget *findBar = nullptr;
     QLineEdit *findInput = nullptr;
@@ -7394,11 +6843,7 @@ private:
 
         auto doReload = [this]() {
             if (auto *v = activeWebView()) {
-                if (v->url().host() == "search.bravelite.local" && !v->lastSearchQuery.isEmpty()) {
-                    runBraveLiteSearch(v->lastSearchQuery, v->lastSearchTab);
-                } else {
-                    v->reload();
-                }
+                v->reload();
             }
         };
         bindKey(keybindsMap.value("Reload"), doReload);
@@ -8296,12 +7741,8 @@ private:
         btnBack->setStyleSheet(navBtnStyle);
         connect(btnBack, &QPushButton::clicked, this, [this]() {
             if (auto *v = activeWebView()) {
-                if (!v->lastSearchQuery.isEmpty() && (v->url().host() != "search.bravelite.local" || v->history()->currentItemIndex() <= 1)) {
-                    runBraveLiteSearch(v->lastSearchQuery, v->lastSearchTab);
-                } else if (v->history()->canGoBack()) {
+                if (v->history()->canGoBack()) {
                     v->back();
-                } else if (!v->lastSearchQuery.isEmpty()) {
-                    runBraveLiteSearch(v->lastSearchQuery, v->lastSearchTab);
                 }
             }
         });
@@ -8317,22 +7758,18 @@ private:
             if (auto *v = activeWebView()) v->forward();
         });
 
-            btnReload = new QPushButton(this);
-            btnReload->setFixedSize(28, 28);
-            btnReload->setIcon(BrowserIcons::drawIcon("reload"));
-            btnReload->setIconSize(QSize(16, 16));
-            btnReload->setToolTip(L10n::tr("Reload") + " (Ctrl+R)");
-            btnReload->setCursor(Qt::PointingHandCursor);
-            btnReload->setStyleSheet(navBtnStyle);
-            connect(btnReload, &QPushButton::clicked, this, [this]() {
-                if (auto *v = activeWebView()) {
-                    if (v->url().host() == "search.bravelite.local" && !v->lastSearchQuery.isEmpty()) {
-                        runBraveLiteSearch(v->lastSearchQuery, v->lastSearchTab);
-                    } else {
-                        v->reload();
-                    }
-                }
-            });
+        btnReload = new QPushButton(this);
+        btnReload->setFixedSize(28, 28);
+        btnReload->setIcon(BrowserIcons::drawIcon("reload"));
+        btnReload->setIconSize(QSize(16, 16));
+        btnReload->setToolTip(L10n::tr("Reload") + " (Ctrl+R)");
+        btnReload->setCursor(Qt::PointingHandCursor);
+        btnReload->setStyleSheet(navBtnStyle);
+        connect(btnReload, &QPushButton::clicked, this, [this]() {
+            if (auto *v = activeWebView()) {
+                v->reload();
+            }
+        });
 
             btnSplitView = new QPushButton(this);
             btnSplitView->setFixedSize(28, 28);
@@ -8704,8 +8141,8 @@ private:
             tabStack->setCurrentIndex(idx);
             if (auto *v = activeWebView()) {
                 QString urlStr = v->url().toString();
-                if (urlStr.startsWith("data:") || v->url().scheme() == "about" || v->url().host() == "search.bravelite.local") {
-                    if (v->url().host() != "search.bravelite.local" && v->url().scheme() != "bravelite") urlBar->clear();
+                if (urlStr.startsWith("data:") || v->url().scheme() == "about") {
+                    urlBar->clear();
                     btnPrivacyGrade->hide();
                 } else {
                     urlBar->setText(urlStr);
@@ -8727,28 +8164,6 @@ private:
         updateSplitButtonState();
     }
 
-    QUrl getSearchEngineUrl(const QString &engine, const QString &query) const {
-        QString encoded = QString::fromUtf8(QUrl::toPercentEncoding(query));
-        if (engine.compare("Startpage", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://www.startpage.com/do/dsearch?query=" + encoded);
-        } else if (engine.compare("Google", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://www.google.com/search?q=" + encoded);
-        } else if (engine.compare("Bing", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://www.bing.com/search?q=" + encoded);
-        } else if (engine.compare("DuckDuckGo", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://duckduckgo.com/?q=" + encoded);
-        } else if (engine.startsWith("Yahoo", Qt::CaseInsensitive)) {
-            return QUrl("https://search.yahoo.com/search?p=" + encoded);
-        } else if (engine.compare("Yandex", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://yandex.com/search/?text=" + encoded);
-        } else if (engine.compare("Ecosia", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://www.ecosia.org/search?q=" + encoded);
-        } else if (engine.compare("Baidu", Qt::CaseInsensitive) == 0) {
-            return QUrl("https://www.baidu.com/s?wd=" + encoded);
-        }
-        return QUrl("https://duckduckgo.com/?q=" + encoded);
-    }
-
     void handleUrlSubmit() {
         QString text = urlBar->text().trimmed();
         if (text.isEmpty()) return;
@@ -8761,13 +8176,9 @@ private:
             if (auto *v = activeWebView()) v->load(target);
             else addNewTab(target);
         } else {
-            if (defaultSearchEngine == "BraveLite Engine") {
-                runBraveLiteSearch(text, "all");
-            } else {
-                QUrl target = getSearchEngineUrl(defaultSearchEngine, text);
-                if (auto *v = activeWebView()) v->load(target);
-                else addNewTab(target);
-            }
+            QUrl target = getSearchEngineUrl(defaultSearchEngine, text);
+            if (auto *v = activeWebView()) v->load(target);
+            else addNewTab(target);
         }
     }
 
@@ -8964,8 +8375,8 @@ private:
         startupContinueWhereLeftOff = root.value("startupContinueWhereLeftOff").toBool(false);
         m_isDefaultBrowserSaved = root.value("isDefaultBrowser").toBool(false);
         currentThemeProfile = root.value("themeProfile").toString("BraveLite Dark");
-        defaultSearchEngine = root.value("defaultSearchEngine").toString("BraveLite Engine");
-        if (defaultSearchEngine == "BraveLite Browser") defaultSearchEngine = "BraveLite Engine";
+        defaultSearchEngine = root.value("defaultSearchEngine").toString("SearXNG");
+        if (defaultSearchEngine == "BraveLite Browser" || defaultSearchEngine == "Startpage" || defaultSearchEngine == "BraveLite Engine") defaultSearchEngine = "SearXNG";
         gamingModeActive = root.value("gamingModeActive").toBool(false);
 
         aiEnabled = root.value("aiEnabled").toBool(true);
@@ -9070,22 +8481,12 @@ private:
                     QString u1, u2;
                     if (sp->count() > 0) {
                         if (auto *v1 = qobject_cast<CustomWebView*>(sp->widget(0))) {
-                            if (!v1->lastSearchQuery.isEmpty()) {
-                                u1 = QString("https://search.bravelite.local/?q=%1&tab=%2")
-                                    .arg(QString::fromUtf8(QUrl::toPercentEncoding(v1->lastSearchQuery)), v1->lastSearchTab);
-                            } else {
-                                u1 = v1->url().toString();
-                            }
+                            u1 = v1->url().toString();
                         }
                     }
                     if (sp->count() > 1) {
                         if (auto *v2 = qobject_cast<CustomWebView*>(sp->widget(1))) {
-                            if (!v2->lastSearchQuery.isEmpty()) {
-                                u2 = QString("https://search.bravelite.local/?q=%1&tab=%2")
-                                    .arg(QString::fromUtf8(QUrl::toPercentEncoding(v2->lastSearchQuery)), v2->lastSearchTab);
-                            } else {
-                                u2 = v2->url().toString();
-                            }
+                            u2 = v2->url().toString();
                         }
                     }
                     if (!u1.isEmpty() && !u2.isEmpty()) {
@@ -9094,15 +8495,9 @@ private:
                         sessionArr.append(u1);
                     }
                 } else if (auto *v = qobject_cast<CustomWebView*>(w)) {
-                    if (!v->lastSearchQuery.isEmpty()) {
-                        QString searchUrl = QString("https://search.bravelite.local/?q=%1&tab=%2")
-                            .arg(QString::fromUtf8(QUrl::toPercentEncoding(v->lastSearchQuery)), v->lastSearchTab);
-                        sessionArr.append(searchUrl);
-                    } else {
-                        QString u = v->url().toString();
-                        if (!u.isEmpty() && !u.startsWith("data:") && v->url().scheme() != "about") {
-                            sessionArr.append(u);
-                        }
+                    QString u = v->url().toString();
+                    if (!u.isEmpty() && !u.startsWith("data:") && v->url().scheme() != "about") {
+                        sessionArr.append(u);
                     }
                 }
             }
@@ -9183,12 +8578,11 @@ private:
 
             connect(p, &CustomWebEnginePage::linkHoverSummarizeRequested, this, &BrowserWindow::handleLinkHoverSummarize);
             connect(p, &CustomWebEnginePage::braveliteSearchRequested, this, [this](const QString &q, const QString &tabType) {
-                if (defaultSearchEngine == "BraveLite Engine") {
-                    runBraveLiteSearch(q, tabType);
+                QUrl target = getSearchEngineUrl(defaultSearchEngine, q, tabType);
+                if (auto *v = activeWebView()) {
+                    v->load(target);
                 } else {
-                    if (auto *v = activeWebView()) {
-                        v->load(getSearchEngineUrl(defaultSearchEngine, q));
-                    }
+                    addNewTab(target);
                 }
             });
 
@@ -9299,8 +8693,8 @@ private:
         connect(view, &QWebEngineView::urlChanged, this, [this, view](const QUrl &u) {
             QString urlStr = u.toString();
             if (activeWebView() == view) {
-                if (urlStr.startsWith("data:") || u.scheme() == "about" || u.host() == "search.bravelite.local") {
-                    if (u.host() != "search.bravelite.local" && u.scheme() != "bravelite") urlBar->clear();
+                if (urlStr.startsWith("data:") || u.scheme() == "about") {
+                    urlBar->clear();
                     btnPrivacyGrade->hide();
                 } else {
                     urlBar->setText(urlStr);
@@ -9309,10 +8703,10 @@ private:
             }
 
             if (!m_isIncognito && !urlStr.isEmpty() && !urlStr.startsWith("data:") && u.scheme() != "about") {
-                if (u.scheme() == "bravelite" && u.host() == "search") {
+                if ((u.host() == "localhost" && u.port() == 8080 && u.path() == "/search") || (u.scheme() == "bravelite" && u.host() == "search")) {
                     QString q = QUrlQuery(u).queryItemValue("q");
                     if (!q.isEmpty()) {
-                        historyList.append(QString("BraveLite Engine: %1 (%2)").arg(q, urlStr));
+                        historyList.append(QString("SearXNG: %1 (%2)").arg(q, urlStr));
                         savePersistentData();
                         updateUrlCompleter();
                     }
@@ -9326,21 +8720,6 @@ private:
 
         connect(view, &QWebEngineView::loadFinished, this, [this, view](bool ok) {
             if (ok && !m_isIncognito) {
-                if (view->url().host() == "search.bravelite.local") {
-                    if (!view->pendingWebResultsJson.isEmpty()) {
-                        QString js = QString("if (window.__setWebResults) window.__setWebResults(%1);").arg(view->pendingWebResultsJson);
-                        view->page()->runJavaScript(js);
-                    }
-                    if (!view->pendingImageResultsJson.isEmpty()) {
-                        QString js = QString("if (window.__setImageResults) window.__setImageResults(%1);").arg(view->pendingImageResultsJson);
-                        view->page()->runJavaScript(js);
-                    }
-                    if (!view->pendingAiOverviewJsArg.isEmpty()) {
-                        QString js = QString("if (window.__setAiOverview) window.__setAiOverview(%1);").arg(view->pendingAiOverviewJsArg);
-                        view->page()->runJavaScript(js);
-                    }
-                }
-
                 view->page()->runJavaScript(R"(
                     (function() {
                         if (!window.__passHooked) {

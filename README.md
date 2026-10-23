@@ -18,13 +18,11 @@ A fast, lightweight, debloated web browser for Linux and Windows built natively 
   * Decoupled size constraints: `minimumSizeHint()` and `minimumTabSizeHint()` return `QSize(28, 32)` so opening 50+ tabs will never unmaximize the window or alter display bounds.
   * Intelligent close buttons: on compact tabs (< 55px), close buttons are hidden on inactive tabs to prevent accidental closure while staying fully available on hover and the active tab.
   * Comprehensive tab management: right-click tab context menu ("New tab to the right", "Reload", "Duplicate", "Close tab", "Close other tabs", "Close tabs to the right", "Reopen closed tab"), middle-click to close, mouse wheel cycling, and double-click to maximize/restore.
-* **Pure BraveLite Engine with Startpage Cosmetic Aesthetic:** Default BraveLite search engine featuring the sleek Startpage design aesthetic without any third-party branding or redirection:
-  * Deep navy palette (`#141724`), signature blue (`#6580ff`), and privacy badges ("BraveLite Protected: Zero personal data logged • No search profiling • AI Grounding enabled").
-  * **Fast Direct Search Backend:** Erased external bot-challenge timeouts with a direct, ultra-fast DuckDuckGo HTML and Lite fallback backend ensuring instant search responses without hanging.
-  * **Direct Destination Links:** Result links open directly with zero third-party proxy redirects.
-  * Category Navigation Tabs: 🔍 All, 🖼 Images (Wikimedia API), 🎬 Videos, 📰 News.
-  * Private AI Overview: grounded on verified search results with local Ollama acceleration, styled to match the dark aesthetic.
-* **Multi-Search Engine Selection (Google + Bing + DDG + Yahoo + Yandex):** Seamless search engine switching in Settings -> Get Started. Full cross-platform support for **Google**, **Microsoft Bing**, **DuckDuckGo**, **Yahoo**, and **Yandex**, while keeping **BraveLite Engine** (private search with local AI Overviews) as default. Address bar queries, start page searches, and autocomplete dynamically adapt to the active search engine.
+* **Native SearXNG Integration (http://localhost:8080/):** Default search engine powered directly by local SearXNG, delivering true private metasearch across engines without intermediate wrappers:
+  * Direct zero-latency queries via `http://localhost:8080/search?q=...` with full native support for category filters (All, Images, Videos, News).
+  * Direct destination links and complete privacy with zero corporate telemetry or profiling.
+  * Seamless browser history, tab persistence, back/forward navigation, and instant reload without artificial page-injection workarounds.
+* **Multi-Search Engine Selection (SearXNG + Google + Bing + DDG + Yahoo + Yandex):** Seamless search engine switching in Settings -> Get Started. Full cross-platform support for **SearXNG** (default local instance at `http://localhost:8080/`), **Google**, **Microsoft Bing**, **DuckDuckGo**, **Yahoo**, and **Yandex**. Address bar queries, start page searches, and autocomplete dynamically adapt to the active search engine.
 * **Fluid Resolution & DPI Scaling (Zero Sliders / Scrollbars):** Perfectly scaled UI across all screen resolutions (4K, 1440p, 1080p, 1366x768, 1280x720, down to 800x600) and OS scaling factors (100%, 125%, 150%, 175%):
   * PassThrough high-DPI rounding policy prevents fractional scaling rounding bugs.
   * Redesigned Starting Page with `overflow: hidden;` and responsive CSS `clamp()` typography so no sliders/scrollbars are ever needed to view the page.

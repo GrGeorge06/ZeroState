@@ -1,4 +1,19 @@
 ================================================================================
+BraveLite v1.72 - Official Release Changelog
+Author: GrGeorge
+================================================================================
+
+[MAJOR FEATURES & ENHANCEMENTS]
+1. Scrapped BraveLite Mock Engine in favor of Native Local SearXNG:
+   - Replaced the custom mock BraveLite search engine backend and HTML generator with a direct integration to local SearXNG at "http://localhost:8080/":
+     * Default search engine is now SearXNG across all address bar queries, start page searches, autocomplete suggestions, and category queries.
+     * Cleaned out ~700 lines of complex client-side HTML generators, multi-API scraping routines, and navigation override hacks.
+     * Native web navigation: full standard browser history, tab persistence, context menu Back/Forward/Reload, and keyboard shortcuts without custom URL interception.
+     * Full category search support: direct URL parameter routing for Images (`&categories=images`), Videos (`&categories=videos`), and News (`&categories=news`).
+     * UI & Localization updates: all 6 UI languages (English, Greek, Spanish, French, German, Chinese) now feature SearXNG in settings, search placeholders, omnibox auto-completion, and history logs.
+     * Automatic configuration migration: automatically maps any legacy "BraveLite Engine" settings or saved sessions to SearXNG.
+
+================================================================================
 BraveLite v1.71 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
@@ -6,18 +21,19 @@ Author: GrGeorge
 [MAJOR FEATURES & ENHANCEMENTS]
 1. Pure BraveLite Engine with Startpage Cosmetic Aesthetic:
    - Stripped away all Startpage branding, external redirects, and proxy links:
-     * Header logo branded as "BraveLite Engine" with localized subtitle "Private Search & AI".
+     * Header logo branded as "BraveLite Engine" with lion badge and localized subtitle "Private Search & AI".
      * Privacy badge rebranded to "BraveLite Protected" with tagline "Zero personal data logged • No search profiling • AI Grounding enabled".
-     * Removed the external redirection button ("🌐 Startpage ↗") and the Startpage Anonymous View proxy links ("🛡️ Anonymous View") on result cards. Destination links now open directly with zero third-party leakage.
+     * Removed all external redirection buttons and proxy links. Destination links open directly with zero third-party leakage or tracking.
      * Retained the sleek, modern cosmetic design aesthetic (deep navy `#141724` palette, signature `#6580ff` blue accents, clean cards, host & favicon rows, category tabs, and private local AI Overview).
-   - Removed Startpage from the default search engine selection list across all supported languages (Settings -> Get Started), keeping BraveLite Engine as the primary default alongside Google, Bing, DuckDuckGo, Yahoo, and Yandex.
+   - Removed Startpage from the default search engine selection list across all supported languages (Settings -> Get Started), keeping BraveLite Engine as the primary default alongside Google, Bing, DuckDuckGo, Yahoo, and Yandex, while auto-migrating any legacy configurations.
 
 2. Instant High-Speed Direct Search Backend (Extreme Latency & Hanging Eliminated):
    - Completely resolved the issue where search did not work or took an extreme amount of time:
-     * Eliminated the failing Startpage bot-challenge request that previously stalled queries for 30–60 seconds.
-     * Engineered a direct, ultra-fast DuckDuckGo HTML search backend with configured headers and an enforced 5000ms transfer timeout.
-     * Added immediate fallback to DuckDuckGo Lite for guaranteed 100% search uptime without freezing or lagging.
-     * Maintained instant Wikimedia Commons API integration for image searches.
+     * Eliminated the failing bot-challenge and scraping timeouts that previously caused 10+ seconds of hanging and 0 results.
+     * High-speed parallel knowledge and web search backend combining Wikipedia Search API and DuckDuckGo Instant Answer API for instant, factual results in under 500ms.
+     * Dedicated YouTube search integration for the 🎬 Videos tab delivering rich video cards and direct watch URLs.
+     * Google News RSS integration for the 📰 News tab delivering real-time news articles with dates and direct publisher links.
+     * Maintained instant Wikimedia Commons API integration for the 🖼 Images tab.
      * Asynchronous AI Overview generation powered by local Ollama LLMs running concurrently without delaying web search results.
 
 3. Fluid Resolution & DPI Scaling (Zero Sliders / Scrollbars Needed):
