@@ -126,14 +126,37 @@
 #endif
 
 inline QIcon loadZeroStateAppIcon() {
-    QIcon icon = QIcon("assets/zerostate.svg");
-    if (icon.isNull()) icon = QIcon("assets/bravelite.svg");
-    if (icon.isNull()) icon = QIcon("assets/zerostate.ico");
-    if (icon.isNull()) icon = QIcon("assets/icon.ico");
-    if (icon.isNull()) icon = QIcon::fromTheme("zerostate");
-    if (icon.isNull()) icon = QIcon::fromTheme("bravelite");
-    if (icon.isNull()) icon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/zerostate.png");
-    if (icon.isNull()) icon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
+    QIcon icon;
+    // 1. Try native desktop theme icon first (KDE Plasma / GNOME)
+    QIcon themeIcon = QIcon::fromTheme("zerostate");
+    if (themeIcon.isNull()) themeIcon = QIcon::fromTheme("ZeroState");
+    if (!themeIcon.isNull()) return themeIcon;
+
+    // 2. Add all standard icon resolutions for crisp X11 & Wayland taskbar scaling
+    const QString home = QDir::homePath();
+    const QVector<int> sizes = {16, 22, 24, 32, 48, 64, 128, 256, 512};
+    for (int s : sizes) {
+        QString p = QString("%1/.local/share/icons/hicolor/%2x%2/apps/zerostate.png").arg(home).arg(s);
+        if (QFile::exists(p)) icon.addFile(p, QSize(s, s));
+    }
+    QString svgInstalled = home + "/.local/share/icons/hicolor/scalable/apps/zerostate.svg";
+    if (QFile::exists(svgInstalled)) icon.addFile(svgInstalled);
+
+    // 3. Fallbacks relative to application directory and working directory
+    QString appDir = QCoreApplication::applicationDirPath();
+    QStringList svgCandidates = {
+        appDir + "/assets/zerostate.svg",
+        appDir + "/../assets/zerostate.svg",
+        "assets/zerostate.svg",
+        "assets/bravelite.svg",
+        "assets/icon.ico"
+    };
+    for (const QString &c : svgCandidates) {
+        if (QFile::exists(c)) {
+            icon.addFile(c);
+            break;
+        }
+    }
     return icon;
 }
 
@@ -9124,8 +9147,9 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     app.setApplicationName("ZeroState");
-    app.setApplicationVersion("1.71");
+    app.setApplicationVersion("1.72");
     app.setOrganizationName("ZeroState");
+    app.setDesktopFileName("zerostate.desktop");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
         app.setStyle(fusion);

@@ -131,26 +131,23 @@ Run this automated setup block inside your project directory:
 mkdir -p ~/.local/bin
 ln -sf "$(pwd)/build/ZeroState" ~/.local/bin/zerostate
 
-# 2. Install application icons across standard resolutions
-mkdir -p ~/.local/share/icons/hicolor/scalable/apps
-mkdir -p ~/.local/share/icons/hicolor/128x128/apps
-mkdir -p ~/.local/share/icons/hicolor/256x256/apps
-mkdir -p ~/.local/share/icons/hicolor/512x512/apps
+# 2. Install application icons across all standard resolutions
+for size in 16 22 24 32 48 64 128 256 512; do
+    dir="$HOME/.local/share/icons/hicolor/${size}x${size}/apps"
+    mkdir -p "$dir"
+    if command -v rsvg-convert >/dev/null 2>&1; then
+        rsvg-convert -w "$size" -h "$size" assets/zerostate.svg -o "$dir/zerostate.png"
+    elif command -v magick >/dev/null 2>&1; then
+        magick -background none -resize "${size}x${size}" assets/zerostate.svg "$dir/zerostate.png"
+    elif command -v convert >/dev/null 2>&1; then
+        convert -background none -resize "${size}x${size}" assets/zerostate.svg "$dir/zerostate.png"
+    fi
+    cp "$dir/zerostate.png" "$dir/ZeroState.png" 2>/dev/null || true
+done
 
+mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 cp assets/zerostate.svg ~/.local/share/icons/hicolor/scalable/apps/zerostate.svg
-if command -v rsvg-convert >/dev/null 2>&1; then
-    rsvg-convert -w 128 -h 128 assets/zerostate.svg -o ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
-    rsvg-convert -w 256 -h 256 assets/zerostate.svg -o ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
-    rsvg-convert -w 512 -h 512 assets/zerostate.svg -o ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
-elif command -v magick >/dev/null 2>&1; then
-    magick -background none -resize 128x128 assets/zerostate.svg ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
-    magick -background none -resize 256x256 assets/zerostate.svg ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
-    magick -background none -resize 512x512 assets/zerostate.svg ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
-elif command -v convert >/dev/null 2>&1; then
-    convert -background none -resize 128x128 assets/zerostate.svg ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
-    convert -background none -resize 256x256 assets/zerostate.svg ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
-    convert -background none -resize 512x512 assets/zerostate.svg ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
-fi
+cp assets/zerostate.svg ~/.local/share/icons/hicolor/scalable/apps/ZeroState.svg
 gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor 2>/dev/null || true
 
 # 3. Create Desktop Launcher entry
@@ -167,7 +164,7 @@ Icon=zerostate
 Categories=Network;WebBrowser;
 MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;
 StartupNotify=true
-StartupWMClass=zerostate
+StartupWMClass=ZeroState
 EOF
 
 update-desktop-database ~/.local/share/applications 2>/dev/null || true
