@@ -138,9 +138,19 @@ mkdir -p ~/.local/share/icons/hicolor/256x256/apps
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
 
 cp assets/zerostate.svg ~/.local/share/icons/hicolor/scalable/apps/zerostate.svg
-magick -background none -resize 128x128 assets/zerostate.svg ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
-magick -background none -resize 256x256 assets/zerostate.svg ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
-magick -background none -resize 512x512 assets/zerostate.svg ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
+if command -v rsvg-convert >/dev/null 2>&1; then
+    rsvg-convert -w 128 -h 128 assets/zerostate.svg -o ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
+    rsvg-convert -w 256 -h 256 assets/zerostate.svg -o ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
+    rsvg-convert -w 512 -h 512 assets/zerostate.svg -o ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
+elif command -v magick >/dev/null 2>&1; then
+    magick -background none -resize 128x128 assets/zerostate.svg ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
+    magick -background none -resize 256x256 assets/zerostate.svg ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
+    magick -background none -resize 512x512 assets/zerostate.svg ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
+elif command -v convert >/dev/null 2>&1; then
+    convert -background none -resize 128x128 assets/zerostate.svg ~/.local/share/icons/hicolor/128x128/apps/zerostate.png
+    convert -background none -resize 256x256 assets/zerostate.svg ~/.local/share/icons/hicolor/256x256/apps/zerostate.png
+    convert -background none -resize 512x512 assets/zerostate.svg ~/.local/share/icons/hicolor/512x512/apps/zerostate.png
+fi
 gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor 2>/dev/null || true
 
 # 3. Create Desktop Launcher entry
