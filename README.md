@@ -1,202 +1,153 @@
-# BraveLite - GrGeorge
+# BraveLite — By GrGeorge
 
-A fast, lightweight, debloated web browser for Linux and Windows built natively with **C++17** and **Qt6 WebEngine**. Inspired by the clean aesthetics of Brave and Chrome, BraveLite strips away corporate telemetry, crypto bloat, and unwanted background services while delivering advanced privacy features, built-in network shielding, and seamless desktop integration across all major Linux distributions and Windows.
+**A fast, lightweight, debloated, privacy-first web browser for Linux and Windows.**
 
-> **Note:** BraveLite is currently in active **BETA** (`v1.71 (Beta)`). Development is ongoing to bring high performance, local AI capabilities, and streamlined browsing across platforms.
-
-![Version](https://img.shields.io/badge/version-v1.71%20(Beta)-orange)
-![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20(Fedora%20%7C%20Ubuntu%20%7C%20Arch%20%7C%20openSUSE%20%7C%20Win10%2F11)-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+Built natively in **C++17** and **Qt6 WebEngine**, BraveLite strips away corporate telemetry, tracking, advertising bloat, and unwanted background services. It delivers built-in uBlock-grade shielding, zero-ad YouTube playback, local AI assistance, native SearXNG metasearch, multi-language UI, and direct Chrome Web Store extension support.
 
 ---
 
-## Key Features
+<p align="center">
+  <img src="assets/bravelite.svg" alt="BraveLite Logo" width="120" height="120" />
+</p>
 
-* **Standard Browser Tab Bar Mechanics (Disappearing Tab Bug Fixed):** Completely resolved the tab strip bug where opening a new tab caused existing tabs to scroll off-screen into negative coordinates and disappear. Tabs operate identically to Chrome, Brave, Edge, and Firefox:
-  * Dynamic width scaling: tabs scale smoothly from 185px down to 28px as tabs are added, fitting the exact available tab strip space.
-  * Geometry synchronization: container layout activates synchronously upon tab creation/removal to prevent any momentary coordinate offset.
-  * Decoupled size constraints: `minimumSizeHint()` and `minimumTabSizeHint()` return `QSize(28, 32)` so opening 50+ tabs will never unmaximize the window or alter display bounds.
-  * Intelligent close buttons: on compact tabs (< 55px), close buttons are hidden on inactive tabs to prevent accidental closure while staying fully available on hover and the active tab.
-  * Comprehensive tab management: right-click tab context menu ("New tab to the right", "Reload", "Duplicate", "Close tab", "Close other tabs", "Close tabs to the right", "Reopen closed tab"), middle-click to close, mouse wheel cycling, and double-click to maximize/restore.
-* **Native SearXNG Integration (http://localhost:8080/):** Default search engine powered directly by local SearXNG, delivering true private metasearch across engines without intermediate wrappers:
-  * Direct zero-latency queries via `http://localhost:8080/search?q=...` with full native support for category filters (All, Images, Videos, News).
-  * Direct destination links and complete privacy with zero corporate telemetry or profiling.
-  * Seamless browser history, tab persistence, back/forward navigation, and instant reload without artificial page-injection workarounds.
-* **Multi-Search Engine Selection (SearXNG + Google + Bing + DDG + Yahoo + Yandex):** Seamless search engine switching in Settings -> Get Started. Full cross-platform support for **SearXNG** (default local instance at `http://localhost:8080/`), **Google**, **Microsoft Bing**, **DuckDuckGo**, **Yahoo**, and **Yandex**. Address bar queries, start page searches, and autocomplete dynamically adapt to the active search engine.
-* **Fluid Resolution & DPI Scaling (Zero Sliders / Scrollbars):** Perfectly scaled UI across all screen resolutions (4K, 1440p, 1080p, 1366x768, 1280x720, down to 800x600) and OS scaling factors (100%, 125%, 150%, 175%):
-  * PassThrough high-DPI rounding policy prevents fractional scaling rounding bugs.
-  * Redesigned Starting Page with `overflow: hidden;` and responsive CSS `clamp()` typography so no sliders/scrollbars are ever needed to view the page.
-  * Responsive Search Results layout with flexible wrapping header, fluid navigation tabs, and horizontal overflow protection.
-  * Scrollable Settings panel with compact sidebar ensuring all configuration cards are completely accessible on lower-resolution screens.
-* **Streamlined Navigation Toolbar & Compact Buttons:**
-  * Cleaned up the top bar by moving the Zoom buttons into the 3-bar menu (and universal shortcuts `Ctrl++` / `Ctrl+-` / `Ctrl+0`).
-  * Streamlined the AI translation button into a sleek, fixed-width 28x28 emoji icon ("🌐", showing "⏳" during active local AI translation).
-  * Compacted all buttons next to the URL bar to a uniform 28x28 dimension, freeing up over 240 pixels of space for the omnibox and future toolbar tools.
-* **Comprehensive Multi-Language Support (5 Most Popular Languages + Greek):** Full browser UI localization across 6 languages: **English, Greek (Ελληνικά), Spanish (Español), French (Français), German (Deutsch), and Chinese (中文)**:
-  * **Settings Dashboard:** All 15 sidebar categories, detail headings, cards, statuses, and action buttons.
-  * **Starting Page (New Tab):** Localized greeting ("Welcome!"), search input placeholder, privacy tagline ("because privacy matters"), date display, and real-time localized clock adhering to native locale formats (`el-GR`, `es-ES`, `fr-FR`, `de-DE`, `zh-CN`, `en-US`).
-  * **URL Box (Omnibox):** Localized search placeholders, autocomplete search hints (`- Search with %1`), and context menus (Cut, Copy, Paste, Paste and Search, Delete, Select All, Undo, Redo).
-  * **Toolbar & Menus:** Full tooltip localization across all navigation buttons, a localized ☰ App Menu with a dedicated "🌐 Language" switching submenu, and automatic HTTP `Accept-Language` header synchronization.
-* **Seamless Window Border Drag Resizing (All Sides & Corners):** Click and drag on any of the four window borders or corners to fluidly resize the browser window like any native desktop application. Powered by native `WM_NCHITTEST` on Windows and `startSystemResize` with automatic fallback on Linux.
-* **Official BraveLite Window & Application Logo:** High-definition vector SVG branding (`assets/bravelite.svg`) loaded natively as the primary application and window icon, with multi-resolution `.ico` generation for Windows executable and taskbar fidelity.
-* **Top Bar Extensions Button & Dropdown Manager:** Dedicated Extensions button (crisp puzzle piece icon) sitting directly next to the BraveLite AI Assistant in the top tab row. Provides a quick dropdown menu displaying all installed WebExtensions, custom userscripts, and CRX packages with live enable/disable toggling, action popup launching, removal options, and shortcuts to install new extensions or browse the Chrome Web Store.
-* **Chrome Web Store Native "Add to Chrome" & Extension Installer:** Native 1-click installation from the Chrome Web Store (`https://chromewebstore.google.com/`). Full `chrome.webstorePrivate` API implementation and DOM event capturing that activates the official "Add to Chrome" button, automatically downloads `.crx` packages, and loads them into BraveLite Extensions storage. Also includes the floating "⚡ Add to BraveLite" installer button.
-* **Ubiquitous Find in Page (`Ctrl+F`):** Works everywhere across windows, web pages, and widgets. Features application-level shortcut interception, Chromium `focusProxy()` event routing, and webpage DOM listener fallback so `Ctrl+F` is never swallowed. Built with an ultra-minimalist, distraction-free floating dark pill with live match counts (`1/3`, `0/0`), Enter / Shift+Enter / F3 navigation, and Esc closing.
-* **uBlock Origin & Shields (Complete Zero-Ad YouTube Erasure):** Built-in uBlock Origin-style network interceptor and player defuser engine that completely erases prerolls, midrolls, overlay banners, and masthead ads on YouTube. Features automated anti-adblock detection bypass and a dedicated "uBlock Origin & Shields" dashboard in Settings.
-* **Omnibox `Tab` Key Autofill:** Pressing `Tab` in the address bar instantly autofills the top matching or highlighted domain (e.g. typing `yo` and hitting `Tab` completes `youtube.com`).
-* **Instant Link AI Summaries (Zero Delay):** Hold `Ctrl` while hovering over any link to instantaneously preview and summarize page contents via local Ollama models with zero hover delay.
-* **Top-Right BraveLite AI Assistant (Side Chat Panel):** Integrated side panel (~1/4 window width) connected locally to Ollama LLMs (e.g. `smollm2:360m`, `smollm2:135m`, `qwen2.5:0.5b`, `llama3.2:1b`). Provides 100% offline, private AI assistance with Markdown code syntax formatting, clearable chat sessions, and independent Chatting / Overview / Translation model selectors.
-* **Seamless Frameless Top Bar (Matching Photo 1):** Clean modern title bar with tabs positioned directly at the top, custom minimize (`—`), maximize (`🗖`), and close (`✕`) buttons, window dragging/resizing, and double-click to maximize/restore.
-* **Real-Time Instant Theme Engine:** Instantaneous live theme updates across all windows, settings cards, sidebars, and borders without requiring a browser restart.
-* **WebExtensions & Chrome Web Store:** Direct 1-click access to the Chrome Web Store (`https://chromewebstore.google.com/`) with support for installing unpacked WebExtensions and custom userscripts (`.user.js`).
-* **Clean, De-Emojified Settings UI:** Streamlined, distraction-free preferences interface with all emojis removed across categories, cards, statuses, and action buttons.
-* **Spotify Web Playback & Widevine DRM Fix:** Complete Widevine CDM support with automated `manifest.json` generation and direct library file loading on both Linux (`libwidevinecdm.so`) and Windows (`widevinecdm.dll`).
-* **Fixed Startup Bookmark Bar:** Fixed bookmark initialization sizing so all bookmarks render immediately on startup without needing YouTube or another site to load first.
-* **Preserved Fullscreen Navigation:** Fixed YouTube and video fullscreen transitions to cleanly preserve and restore window maximized state without unmaximizing.
-* **Minimalist Floating Find in Page (`Ctrl+F`):** Floating search pill anchored to the top-right corner with match counter, previous/next buttons, and ESC closing.
-* **Omnibox `Tab` Key Autofill:** Pressing `Tab` in the address bar autofills the best suggested domain (e.g. typing `yo` and pressing `Tab` fills `youtube.com`).
-* **Controlled Link AI Summaries:** Link hover previews require holding the `Ctrl` key (or `Cmd` on macOS) to prevent accidental popups.
-* **"Continue Where You Left Off" Tab Persistence:** Accurately saves and restores all open tabs, including BraveLite search queries and split view tabs upon exit and startup.
-* **Context Menu "Open New Window":** Clean window separation ensuring only the initial startup restores previous sessions.
-* **BraveLite Shield (Ad, YouTube & Spam Redirect Blocker):** Full network request interception and DOM shielding that blocks advertising networks, YouTube video ads, pop-under and spam redirects, analytics scripts, and device-maker telemetry out of the box.
-* **Detachable & Cross-Window Re-Attachable Tabs:** Drag any tab downward off the tab bar to detach it into an independent window, or drop it onto another window's tab bar to merge tabs.
-* **Dynamic Tab Shrinking:** Tabs maintain clean spacing with the `+` button directly adjacent to the last tab, smoothly scaling down to 36px only when tab count exceeds available screen width.
-* **Brave-Style Omnibox Autocomplete:** Rich autocomplete popup featuring high-res vector logos for popular services (YouTube, YouTube Music, Reddit, GitHub, Spotify, Google, etc.), bold titles, and clean domain subtitles.
-* **Spotify Web Playback & Widevine DRM:** Automatic Widevine CDM detection, 1-click Widevine downloader in Settings -> Media & DRM, and fast-path CDN bypassing for smooth music playback on `open.spotify.com`.
-* **Floating Pill Find in Page (`Ctrl+F`):** Modern floating search pill anchored to the top-right corner with text input, match counter (e.g. `1/3`), up/down chevron arrows, close button, and DOM auto-scrolling.
-* **Smart Bookmarks Bar & Overflow Menu:** Background favicon preloading with an automated, compact `»` chevron menu on the far right holding only the bookmarks that overflow the visible window.
-* **Preserved Fullscreen Navigation:** Cleanly restores maximized window state when exiting YouTube or video fullscreen without unmaximizing or stuttering.
-* **Fast Page & Video Reloads:** High-speed DNS and socket pooling optimizations delivering instantaneous refreshes on YouTube and media-heavy websites.
-* **Dynamic Theme Integration:** Built-in theme profiles (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) dynamically style the browser chrome, settings dashboard, and new-tab start page.
-* **BraveLite AI & Grounded Search Overview:** Local Ollama-powered AI overviews presented in natural paragraphs with bold key specifications and compact `More ▾` pill buttons, keeping code blocks strictly for coding and terminal queries.
-* **Per-Site Privacy Grade (A–F):** Real-time letter grade displayed directly inside the address bar showing site tracking behavior, blocked scripts, and encryption status. Click the badge for a detailed breakdown report.
-* **Start Page with Live Clock:** Centered layout with quick BraveLite search, a real-time updating digital clock, and customizable theme palettes.
-* **Self-Hosted Integrated Password Manager & Interactive Autofill:**
-  * Prompts *"Do you want to fill credentials?"* when clicking username/email or password boxes on websites with saved logins.
-  * Automatically detects form submissions to prompt saving or updating credentials locally.
-  * Built-in password manager dialog (`🔑` toolbar button and Settings tab) to view, add, edit, copy, search, and delete credentials.
-* **Persistent Sessions & Logins:** Uses disk-backed persistent storage and cookie policies (`~/.config/BraveLite/Storage`) to keep website logins active after browser restarts.
-* **Live Downloads Manager:** Real-time progress bars, live transfer speed (`MB/s` / `KB/s`), pause/resume, cancel, copy download link, and direct folder access.
-* **Diagnostic Crash Logs:** Automatic POSIX/Windows signal and renderer process crash logger saving timestamped reports to `~/.config/BraveLite/CrashLogs/`.
-* **SponsorBlock Integration:** Automated timestamp-based sponsor skipping on YouTube with support for custom self-hosted API endpoints.
-* **DNS over Oblivious HTTP (ODoH):** Toggleable query splitting that separates user IP identity from DNS resolution requests.
-* **Cross-Browser Import & Export:** One-click importing from Brave, Google Chrome, Chromium, Mozilla Firefox, Microsoft Edge, or manual file uploads (`.html`, `.json`, `.csv`).
-* **Isolated Incognito Windows:** Memory-only private browsing sessions (`Ctrl+Shift+N`) that store no cookies, caches, or history.
+<p align="center">
+  <a href="https://github.com/GrGeorge06/braveLite/releases"><img src="https://img.shields.io/badge/version-v1.72%20(Complete%20Release)-brightgreen?style=for-the-badge" alt="Release v1.72"></a>
+  <a href="https://github.com/GrGeorge06/braveLite/releases"><img src="https://img.shields.io/badge/status-Out%20of%20Beta-success?style=for-the-badge" alt="Out of Beta"></a>
+  <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue?style=for-the-badge" alt="Platform Support">
+  <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blueviolet?style=for-the-badge" alt="License MIT"></a>
+</p>
+
+> 🎉 **Officially Out of Beta!**
+> Welcome to **BraveLite Complete Release v1.72**. All beta experimental flags have graduated to stable release status, featuring robust multi-platform stability, fluid DPI scaling, seamless tab management, and complete Windows & Linux desktop integration.
 
 ---
 
-## Prerequisites & Distro Dependencies
+## Table of Contents
 
-BraveLite compiles on any modern Linux distribution or Windows environment with standard C++17, CMake, and Qt6 (Widgets, WebEngine, Core, Gui, Network, WebChannel, Positioning)[cite: 4, 7].
+- [Quick Installation Guide](#quick-installation-guide)
+  - [Windows Installation](#-windows-installation)
+  - [Linux Installation](#-linux-installation)
+- [Building from Source](#building-from-source)
+  - [Linux (Fedora, Ubuntu, Arch, openSUSE)](#linux-build)
+  - [Windows (MSVC & Ninja)](#windows-build)
+- [Linux Desktop Integration (App Menu & Icons)](#linux-desktop-integration)
+- [Key Features](#key-features)
+- [Default Keyboard Shortcuts](#default-keyboard-shortcuts)
+- [File & Storage Locations](#file--storage-locations)
+- [License](#license)
 
-### Fedora / RHEL / CentOS Stream
+---
+
+## Quick Installation Guide
+
+### 🪟 Windows Installation
+
+#### Option 1: Automated Installer (Recommended)
+1. Go to the [**BraveLite Releases**](https://github.com/GrGeorge06/braveLite/releases) page.
+2. Download the latest **`BraveLite-Setup-x64.exe`**.
+3. Run the installer. It will:
+   - Install BraveLite to your local application folder.
+   - Automatically bundle all necessary Qt6 and WebEngine dependencies.
+   - Create a desktop shortcut and a Start Menu entry.
+4. Launch **BraveLite** directly from your desktop or Start Menu!
+
+---
+
+### 🐧 Linux Installation
+
+You can build and install BraveLite in a couple of minutes on any modern Linux distribution.
+
+#### 1. Install System Dependencies
+
+Select your distribution below and run the command in your terminal:
+
+* **Fedora / RHEL / CentOS Stream:**
+  ```bash
+  sudo dnf install -y gcc-c++ cmake ninja-build \
+      qt6-qtbase-devel qt6-qtwebengine-devel \
+      qt6-qtsvg-devel ImageMagick
+  ```
+
+* **Ubuntu / Debian / Linux Mint / Pop!_OS:**
+  ```bash
+  sudo apt update
+  sudo apt install -y build-essential cmake ninja-build \
+      qt6-base-dev qt6-webengine-dev qt6-webengine-dev-tools \
+      libqt6svg6-dev imagemagick
+  ```
+
+* **Arch Linux / Manjaro / EndeavourOS:**
+  ```bash
+  sudo pacman -S --needed base-devel cmake ninja \
+      qt6-base qt6-webengine qt6-svg imagemagick
+  ```
+
+* **openSUSE (Tumbleweed / Leap):**
+  ```bash
+  sudo zypper install -y gcc-c++ cmake ninja \
+      qt6-base-devel qt6-webengine-devel \
+      qt6-svg-devel ImageMagick
+  ```
+
+* **Alpine Linux:**
+  ```bash
+  sudo apk add g++ cmake ninja \
+      qt6-qtbase-dev qt6-qtwebengine-dev \
+      qt6-qtsvg-dev imagemagick
+  ```
+
+#### 2. Clone and Compile
+
 ```bash
-sudo dnf install -y gcc-c++ cmake ninja-build \
-    qt6-qtbase-devel qt6-qtwebengine-devel \
-    qt6-qtsvg-devel ImageMagick
+# Clone the repository
+git clone https://github.com/GrGeorge06/braveLite.git
+cd braveLite
+
+# Configure and compile with Ninja
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+ninja -C build
 ```
 
-### Ubuntu / Debian / Linux Mint / Pop!_OS
-```bash
-sudo apt update
-sudo apt install -y build-essential cmake ninja-build \
-    qt6-base-dev qt6-webengine-dev qt6-webengine-dev-tools \
-    libqt6svg6-dev imagemagick
-```
+#### 3. Test Run
 
-### Arch Linux / Manjaro / EndeavourOS
+Launch the compiled browser immediately:
 ```bash
-sudo pacman -S --needed base-devel cmake ninja \
-    qt6-base qt6-webengine qt6-svg imagemagick
-```
-
-### openSUSE (Tumbleweed / Leap)
-```bash
-sudo zypper install -y gcc-c++ cmake ninja \
-    qt6-base-devel qt6-webengine-devel \
-    qt6-svg-devel ImageMagick
-```
-
-### Alpine Linux
-```bash
-sudo apk add g++ cmake ninja \
-    qt6-qtbase-dev qt6-qtwebengine-dev \
-    qt6-qtsvg-dev imagemagick
+./build/fedorabrowser
 ```
 
 ---
 
-## Installation & Build Instructions
+## Linux Desktop Integration
 
-### 1. Clone the Repository
+To install BraveLite permanently so it appears in your system application launcher (GNOME, KDE Plasma, XFCE, Cinnamon, etc.) with its official high-resolution icon:
 
-```bash
-git clone https://github.com/<your-username>/mybrowser.git
-cd mybrowser
-```
-
-### 2. Compile the Binary
-
-Compile the source using CMake and Ninja:
+Run this automated setup block inside the `braveLite` project directory:
 
 ```bash
-mkdir -p build && cd build
-cmake .. -G Ninja
-ninja
-```
-
-You can test-run the browser directly from the build folder:
-
-```bash
-./fedorabrowser
-```
-
----
-
-## Desktop Integration (Install as a System App)
-
-To make BraveLite appear in your application launcher (GNOME, KDE Plasma, XFCE, Cinnamon, or tiling window managers) with its custom icon and automatic update support:
-
-### 1. Link the Binary to Your Local PATH
-
-Creating a symbolic link ensures that whenever you run `ninja`, your installed application updates automatically without having to re-copy files:
-
-```bash
+# 1. Create executable symlink in ~/.local/bin
 mkdir -p ~/.local/bin
-ln -sf $(pwd)/fedorabrowser ~/.local/bin/bravelite
-```
+ln -sf "$(pwd)/build/fedorabrowser" ~/.local/bin/bravelite
 
-*(Ensure `~/.local/bin` is in your `$PATH`. Most modern distros include it by default).*
-
-### 2. Install Desktop Icons
-
-Generate and register the icon across standard resolutions:
-
-```bash
+# 2. Install application icons across standard resolutions
 mkdir -p ~/.local/share/icons/hicolor/scalable/apps
 mkdir -p ~/.local/share/icons/hicolor/128x128/apps
 mkdir -p ~/.local/share/icons/hicolor/256x256/apps
 mkdir -p ~/.local/share/icons/hicolor/512x512/apps
 
-cp ../assets/bravelite.svg ~/.local/share/icons/hicolor/scalable/apps/bravelite.svg
-magick -background none -resize 128x128 ../assets/bravelite.svg ~/.local/share/icons/hicolor/128x128/apps/bravelite.png
-magick -background none -resize 256x256 ../assets/bravelite.svg ~/.local/share/icons/hicolor/256x256/apps/bravelite.png
-magick -background none -resize 512x512 ../assets/bravelite.svg ~/.local/share/icons/hicolor/512x512/apps/bravelite.png
-
+cp assets/bravelite.svg ~/.local/share/icons/hicolor/scalable/apps/bravelite.svg
+magick -background none -resize 128x128 assets/bravelite.svg ~/.local/share/icons/hicolor/128x128/apps/bravelite.png
+magick -background none -resize 256x256 assets/bravelite.svg ~/.local/share/icons/hicolor/256x256/apps/bravelite.png
+magick -background none -resize 512x512 assets/bravelite.svg ~/.local/share/icons/hicolor/512x512/apps/bravelite.png
 gtk-update-icon-cache -f -t ~/.local/share/icons/hicolor 2>/dev/null || true
-```
 
-### 3. Create the Desktop Launcher Entry
-
-```bash
+# 3. Create Desktop Launcher entry
 mkdir -p ~/.local/share/applications
-
-cat << 'EOF' > ~/.local/share/applications/bravelite.desktop
+cat << EOF > ~/.local/share/applications/bravelite.desktop
 [Desktop Entry]
 Name=BraveLite
 GenericName=Web Browser
 Comment=Fast, debloated, privacy-respecting browser
-Exec=/home/$USER/.local/bin/bravelite %U
+Exec=$HOME/.local/bin/bravelite %U
 Terminal=false
 Type=Application
 Icon=bravelite
@@ -206,12 +157,81 @@ StartupNotify=true
 StartupWMClass=bravelite
 EOF
 
-# Substitute active username and update desktop database
-sed -i "s/\$USER/$USER/g" ~/.local/share/applications/bravelite.desktop
 update-desktop-database ~/.local/share/applications 2>/dev/null || true
 ```
 
-BraveLite is now installed and accessible from your system application menu.
+BraveLite is now registered as a native desktop application! You can launch it by searching for **BraveLite** in your applications menu.
+
+---
+
+## Building from Source
+
+### Linux Build
+```bash
+git clone https://github.com/GrGeorge06/braveLite.git
+cd braveLite
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+ninja -C build
+```
+
+Whenever you pull code updates, simply re-run:
+```bash
+ninja -C build
+```
+Because `~/.local/bin/bravelite` links directly to your build binary, your installed desktop app updates instantly.
+
+---
+
+### Windows Build
+
+#### Prerequisites:
+- **Visual Studio 2022** (with *Desktop development with C++*)
+- **CMake** (3.16+) and **Ninja**
+- **Qt 6.7+** (with `qtwebengine`, `qtwebchannel`, `qtpositioning`)
+- *(Optional)* **Inno Setup 6** (to produce `BraveLite-Setup-x64.exe`)
+
+#### Compilation Steps:
+1. Open the **x64 Native Tools Command Prompt for VS 2022**.
+2. Clone the repository and navigate into it:
+   ```cmd
+   git clone https://github.com/GrGeorge06/braveLite.git
+   cd braveLite
+   ```
+3. Configure CMake with your Qt directory:
+   ```cmd
+   cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:\Qt\6.7.3\msvc2019_64"
+   ```
+4. Build the executable:
+   ```cmd
+   ninja -C build
+   ```
+5. Deploy Qt runtime libraries:
+   ```cmd
+   mkdir dist
+   copy build\fedorabrowser.exe dist\BraveLite.exe
+   C:\Qt\6.7.3\msvc2019_64\bin\windeployqt.exe --release dist\BraveLite.exe
+   ```
+6. *(Optional)* Build the Inno Setup installer:
+   ```cmd
+   "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+   ```
+
+---
+
+## Key Features
+
+- 🛡️ **Zero-Ad Experience & uBlock-Grade Shields:** Built-in network request interception and DOM shielding that eliminates advertisements, trackers, pop-unders, and preroll/midroll video ads on YouTube out of the box with zero third-party extensions required.
+- 🔍 **Native Metasearch & Multi-Engine Switching:** Default local SearXNG metasearch integration (`http://localhost:8080/`) alongside 1-click toggling between **SearXNG**, **Google**, **Microsoft Bing**, **DuckDuckGo**, **Yahoo**, and **Yandex**.
+- 🧩 **Chrome Web Store Native Installer:** Browse the [Chrome Web Store](https://chromewebstore.google.com/) and click "Add to Chrome" to install extensions directly into BraveLite, with full support for unpacked WebExtensions and custom userscripts (`.user.js`).
+- 🤖 **Offline Local AI Assistant & Page Summarization:** Built-in side chat panel powered by local Ollama LLMs (`smollm2`, `qwen2.5`, `llama3.2`). Instant link AI summaries with `Ctrl` + hover, 100% private with no remote cloud telemetry.
+- 🌐 **Comprehensive Multi-Language Support:** Full browser localization across 6 languages: **English**, **Greek (Ελληνικά)**, **Spanish (Español)**, **French (Français)**, **German (Deutsch)**, and **Chinese (中文)**. Dynamically synchronizes settings, start page clock, omnibox suggestions, and HTTP `Accept-Language` headers.
+- 📑 **Modern Tab Bar & Window Mechanics:** Chrome-style dynamic tab scaling (from 185px to 28px) prevents tabs from ever disappearing. Supports detachable tabs, drag-and-drop merging between windows, split-view tabs, and complete session recovery ("Continue where you left off").
+- 🪟 **Fluid Border Resizing:** Smooth click-and-drag window resizing from all 4 borders and corners (`WM_NCHITTEST` on Windows, native system resize on Linux).
+- 🔑 **Self-Hosted Password Manager & Autofill:** Secure local credentials vault with automatic login form prompt-to-fill and submission detection.
+- 🎵 **Spotify Web Playback & Widevine DRM:** Out-of-the-box Widevine CDM support for DRM-protected streaming on Spotify and Netflix (`libwidevinecdm.so` on Linux, `widevinecdm.dll` on Windows).
+- 🎨 **Real-Time Instant Theme Engine:** Five built-in themes (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) with instant switching without restarting.
+- 🔎 **Ubiquitous Floating Find in Page (`Ctrl+F`):** Floating top-right search pill with real-time match counter (`1/3`), navigation arrows, and DOM auto-scrolling.
+- 🔒 **Isolated Incognito Sessions:** Memory-only private browsing (`Ctrl+Shift+N`) leaving zero traces of cookies, cache, or history on disk.
 
 ---
 
@@ -223,33 +243,39 @@ BraveLite is now installed and accessible from your system application menu.
 | `Ctrl + W` | Close the current tab |
 | `Ctrl + N` | Open a new window |
 | `Ctrl + Shift + N` | Open an Incognito window |
-| `Ctrl + H` | Open the History tab |
-| `Ctrl + J` | Open the Downloads tab |
+| `Ctrl + F` | Find in page |
+| `Ctrl + H` | Open History |
+| `Ctrl + J` | Open Downloads |
+| `Ctrl + D` | Add bookmark |
+| `Ctrl + Shift + O` | Open Bookmarks manager |
 | `Ctrl + +` / `Ctrl + =` | Zoom in |
 | `Ctrl + -` | Zoom out |
-| `Ctrl + 0` | Reset zoom to 100% |
-| `Ctrl + Shift + Del` | Quick clear browsing cookies and history |
+| `Ctrl + 0` | Reset zoom (100%) |
+| `Ctrl + Shift + Del` | Quick clear cookies, cache, and history |
+| `Alt + Left` | Back |
+| `Alt + Right` | Forward |
+| `Ctrl + R` / `F5` | Reload page |
+| `F11` | Toggle Fullscreen |
 
 ---
 
-## File Storage Locations
+## File & Storage Locations
 
-All user configuration, persistent cookies, and bookmarks are kept locally within your user profile in standard XDG directories:
+BraveLite stores configuration and cache locally in standard OS profile directories:
 
-* **Configuration & Saved Data:** `~/.config/BraveLite/data.json`
+### Linux
+* **Settings & Bookmarks:** `~/.config/BraveLite/data.json`
 * **Persistent Web Storage & Cookies:** `~/.config/BraveLite/Storage/`
-* **Desktop App Entry:** `~/.local/share/applications/bravelite.desktop`
-* **Application Icons:** `~/.local/share/icons/hicolor/*/apps/bravelite.*`
+* **Crash Logs:** `~/.config/BraveLite/CrashLogs/`
+* **Desktop Launcher:** `~/.local/share/applications/bravelite.desktop`
+
+### Windows
+* **Settings & Storage:** `%LOCALAPPDATA%\BraveLite\` and `%APPDATA%\BraveLite\`
+* **Installed Location:** `%LOCALAPPDATA%\Programs\BraveLite\` or `C:\Program Files\BraveLite\`
 
 ---
 
-## Updating After Code Changes
+## License
 
-Because your executable is symlinked to `~/.local/bin/bravelite`, any updates to the source code can be rebuilt in one step:
-
-```bash
-cd build
-ninja
-```
-
-The next time you open BraveLite from your application menu or terminal, the updated build runs immediately.
+This project is licensed under the [MIT License](LICENSE.txt).
+Developed with ❤️ by **GrGeorge**.
