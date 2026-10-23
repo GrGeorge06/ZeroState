@@ -357,4 +357,4 @@ To delete all saved browsing data, cookies, and settings:
 ## License
 
 This project is licensed under the [MIT License](LICENSE.txt).
-Developed with ❤️ by **GrGeorge**.
+Developed by **GrGeorge**.
