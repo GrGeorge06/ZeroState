@@ -1,7 +1,0 @@
-1) remove all starting page branding from my bravelite browser and the redirection, i just want the cosmetic change, also the search does not actualy work or it takes an extreme amount of time, I want it to be bravelite engine just with the theme of startingpage not actualy startingpage. AT THE MOMENT THE SEARCH DOES NOT WORK
-
-update the changelog and the README
-
-remember everything has to work for windows aswell
-
-ALL OF THESE ARE VERY IMPORTANT TO WORK
