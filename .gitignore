@@ -6,4 +6,5 @@ CMakeCache.txt
 *.ninja_log
 .cache/
 *.user
-fedorabrowser
+ZeroState
+zerostate

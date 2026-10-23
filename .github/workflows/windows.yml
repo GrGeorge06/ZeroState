@@ -35,7 +35,7 @@ jobs:
       run: |
         cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${env:QT_ROOT_DIR}"
 
-    - name: Compile BraveLite
+    - name: Compile ZeroState
       run: |
         cmake --build build --config Release
 
@@ -43,12 +43,12 @@ jobs:
       shell: pwsh
       run: |
         New-Item -ItemType Directory -Force -Path dist
-        if (Test-Path "build\fedorabrowser.exe") {
-            Copy-Item "build\fedorabrowser.exe" -Destination "dist\BraveLite.exe"
-        } elseif (Test-Path "build\Release\fedorabrowser.exe") {
-            Copy-Item "build\Release\fedorabrowser.exe" -Destination "dist\BraveLite.exe"
+        if (Test-Path "build\ZeroState.exe") {
+            Copy-Item "build\ZeroState.exe" -Destination "dist\ZeroState.exe"
+        } elseif (Test-Path "build\Release\ZeroState.exe") {
+            Copy-Item "build\Release\ZeroState.exe" -Destination "dist\ZeroState.exe"
         }
-        & "${env:QT_ROOT_DIR}\bin\windeployqt.exe" --release dist\BraveLite.exe
+        & "${env:QT_ROOT_DIR}\bin\windeployqt.exe" --release dist\ZeroState.exe
 
     - name: Build Windows Installer (Inno Setup)
       shell: pwsh
@@ -58,13 +58,13 @@ jobs:
     - name: Upload Installer Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: BraveLite-Installer
-        path: BraveLite-Setup-x64.exe
+        name: ZeroState-Installer
+        path: ZeroState-Setup-x64.exe
 
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
-        files: BraveLite-Setup-x64.exe
+        files: ZeroState-Setup-x64.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

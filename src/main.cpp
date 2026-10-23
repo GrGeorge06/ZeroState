@@ -1,5 +1,5 @@
 // ============================================================================
-// BraveLite v1.5 - Part 1 of 4
+// ZeroState v1.5 - Part 1 of 4
 // ============================================================================
 #include <QApplication>
 #include <QMainWindow>
@@ -125,11 +125,14 @@
 #include <windowsx.h>
 #endif
 
-inline QIcon loadBraveLiteAppIcon() {
-    QIcon icon = QIcon("assets/bravelite.svg");
-    if (icon.isNull()) icon = QIcon("assets/bravelite.ico");
+inline QIcon loadZeroStateAppIcon() {
+    QIcon icon = QIcon("assets/zerostate.svg");
+    if (icon.isNull()) icon = QIcon("assets/bravelite.svg");
+    if (icon.isNull()) icon = QIcon("assets/zerostate.ico");
     if (icon.isNull()) icon = QIcon("assets/icon.ico");
+    if (icon.isNull()) icon = QIcon::fromTheme("zerostate");
     if (icon.isNull()) icon = QIcon::fromTheme("bravelite");
+    if (icon.isNull()) icon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/zerostate.png");
     if (icon.isNull()) icon = QIcon(QDir::homePath() + "/.local/share/icons/hicolor/512x512/apps/bravelite.png");
     return icon;
 }
@@ -221,8 +224,8 @@ namespace L10n {
                 {"Display Language", "Γλώσσα εμφάνισης"},
                 {"Choose the display language for the browser interface, start page, and settings.", "Επιλέξτε τη γλώσσα εμφάνισης για τη διεπαφή του περιηγητή, την αρχική σελίδα και τις ρυθμίσεις."},
                 {"Default browser", "Προεπιλεγμένος περιηγητής"},
-                {"BraveLite is currently your default web browser.", "Το BraveLite είναι ο προεπιλεγμένος σας περιηγητής διαδικτύου."},
-                {"Make BraveLite your default web browser for opening web links.", "Ορίστε το BraveLite ως προεπιλεγμένο περιηγητή διαδικτύου για το άνοιγμα συνδέσμων."},
+                {"ZeroState is currently your default web browser.", "Το ZeroState είναι ο προεπιλεγμένος σας περιηγητής διαδικτύου."},
+                {"Make ZeroState your default web browser for opening web links.", "Ορίστε το ZeroState ως προεπιλεγμένο περιηγητή διαδικτύου για το άνοιγμα συνδέσμων."},
                 {"Default Browser", "Προεπιλεγμένος περιηγητής"},
                 {"Make default", "Ορισμός ως προεπιλογή"},
                 {"On startup", "Κατά την εκκίνηση"},
@@ -240,7 +243,7 @@ namespace L10n {
                 {"because privacy matters", "επειδή η ιδιωτικότητα έχει σημασία"},
                 {"Private Search & AI", "Ιδιωτική αναζήτηση & AI"},
                 {"Search privately with SearXNG...", "Ιδιωτική αναζήτηση με το SearXNG..."},
-                {"BraveLite Protected", "Προστασία BraveLite"},
+                {"ZeroState Protected", "Προστασία ZeroState"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Μηδενική καταγραφή προσωπικών δεδομένων • Χωρίς προφίλ αναζήτησης • Ενεργοποιημένη AI"},
                 {"🔍 All", "🔍 Όλα"},
                 {"🖼 Images", "🖼 Εικόνες"},
@@ -271,12 +274,12 @@ namespace L10n {
                 {"Zoom In", "Μεγέθυνση"},
                 {"Zoom Out", "Σμίκρυνση"},
                 {"Reset Zoom (100%)", "Επαναφορά μεγέθυνσης (100%)"},
-                {"BraveLite Menu", "Μενού BraveLite"},
+                {"ZeroState Menu", "Μενού ZeroState"},
                 {"Extensions", "Επεκτάσεις"},
                 {"Extensions & Userscripts", "Επεκτάσεις & Userscripts"},
                 {"Extensions (Userscripts)", "Επεκτάσεις (Userscripts)"},
-                {"BraveLite AI Assistant", "Βοηθός AI BraveLite"},
-                {"BraveLite AI Assistant (Side Chat)", "Βοηθός AI BraveLite (Πλευρική συνομιλία)"},
+                {"ZeroState AI Assistant", "Βοηθός AI ZeroState"},
+                {"ZeroState AI Assistant (Side Chat)", "Βοηθός AI ZeroState (Πλευρική συνομιλία)"},
                 {"Find in page...", "Εύρεση στη σελίδα..."},
                 {"Find in page", "Εύρεση στη σελίδα"},
                 {"Site Permissions", "Δικαιώματα ιστότοπου"},
@@ -323,8 +326,8 @@ namespace L10n {
                 {"Clear All History", "Εκκαθάριση όλου του ιστορικού"},
                 {"Search browsing & SearXNG history", "Αναζήτηση ιστορικού περιήγησης & SearXNG"},
                 {"Get started", "Ξεκινήστε"},
-                {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
-                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama & Ρύθμιση GPU)"},
+                {"ZeroState AI (Ollama)", "ZeroState AI (Ollama)"},
+                {"ZeroState AI (Ollama & GPU Configuration)", "ZeroState AI (Ollama & Ρύθμιση GPU)"},
                 {"uBlock Origin & Shields", "uBlock Origin & Ασπίδες"},
                 {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin & Ασπίδες (Προστασία από διαφημίσεις & ιχνηλάτες)"},
                 {"Theme Profiles", "Προφίλ εμφάνισης"},
@@ -340,7 +343,7 @@ namespace L10n {
                 {"Delete browsing data", "Διαγραφή δεδομένων περιήγησης"},
                 {"Reset settings", "Επαναφορά ρυθμίσεων"},
                 {"Reset all settings to default", "Επαναφορά όλων των ρυθμίσεων στις προεπιλογές"},
-                {"BraveLite AI Settings", "Ρυθμίσεις BraveLite AI"},
+                {"ZeroState AI Settings", "Ρυθμίσεις ZeroState AI"},
                 {"Cleared", "Εκκαθαρίστηκε"},
                 {"Permissions", "Δικαιώματα"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Gaming Mode: ΕΝΕΡΓΟ (Κλικ για επανενεργοποίηση AI)"},
@@ -375,8 +378,8 @@ namespace L10n {
                 {"Display Language", "Idioma de visualización"},
                 {"Choose the display language for the browser interface, start page, and settings.", "Elija el idioma de visualización para la interfaz del navegador, la página de inicio y la configuración."},
                 {"Default browser", "Navegador predeterminado"},
-                {"BraveLite is currently your default web browser.", "BraveLite es actualmente su navegador web predeterminado."},
-                {"Make BraveLite your default web browser for opening web links.", "Haga de BraveLite su navegador web predeterminado para abrir enlaces."},
+                {"ZeroState is currently your default web browser.", "ZeroState es actualmente su navegador web predeterminado."},
+                {"Make ZeroState your default web browser for opening web links.", "Haga de ZeroState su navegador web predeterminado para abrir enlaces."},
                 {"Default Browser", "Navegador predeterminado"},
                 {"Make default", "Establecer como predeterminado"},
                 {"On startup", "Al inicio"},
@@ -394,7 +397,7 @@ namespace L10n {
                 {"because privacy matters", "porque la privacidad importa"},
                 {"Private Search & AI", "Búsqueda privada y AI"},
                 {"Search privately with SearXNG...", "Buscar privadamente con SearXNG..."},
-                {"BraveLite Protected", "Protegido por BraveLite"},
+                {"ZeroState Protected", "Protegido por ZeroState"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Cero datos personales registrados • Sin perfiles • IA habilitada"},
                 {"🔍 All", "🔍 Todo"},
                 {"🖼 Images", "🖼 Imágenes"},
@@ -425,12 +428,12 @@ namespace L10n {
                 {"Zoom In", "Acercar"},
                 {"Zoom Out", "Alejar"},
                 {"Reset Zoom (100%)", "Restablecer zoom (100%)"},
-                {"BraveLite Menu", "Menú BraveLite"},
+                {"ZeroState Menu", "Menú ZeroState"},
                 {"Extensions", "Extensiones"},
                 {"Extensions & Userscripts", "Extensiones y scripts de usuario"},
                 {"Extensions (Userscripts)", "Extensiones (Scripts de usuario)"},
-                {"BraveLite AI Assistant", "Asistente AI BraveLite"},
-                {"BraveLite AI Assistant (Side Chat)", "Asistente AI BraveLite (Panel lateral)"},
+                {"ZeroState AI Assistant", "Asistente AI ZeroState"},
+                {"ZeroState AI Assistant (Side Chat)", "Asistente AI ZeroState (Panel lateral)"},
                 {"Find in page...", "Buscar en la página..."},
                 {"Find in page", "Buscar en la página"},
                 {"Site Permissions", "Permisos del sitio"},
@@ -477,8 +480,8 @@ namespace L10n {
                 {"Clear All History", "Borrar todo el historial"},
                 {"Search browsing & SearXNG history", "Buscar en historial de navegación y SearXNG"},
                 {"Get started", "Primeros pasos"},
-                {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
-                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama y configuración de GPU)"},
+                {"ZeroState AI (Ollama)", "ZeroState AI (Ollama)"},
+                {"ZeroState AI (Ollama & GPU Configuration)", "ZeroState AI (Ollama y configuración de GPU)"},
                 {"uBlock Origin & Shields", "uBlock Origin y escudos"},
                 {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin y escudos (Protección contra anuncios y rastreadores)"},
                 {"Theme Profiles", "Perfiles de tema"},
@@ -494,7 +497,7 @@ namespace L10n {
                 {"Delete browsing data", "Eliminar datos de navegación"},
                 {"Reset settings", "Restablecer configuración"},
                 {"Reset all settings to default", "Restablecer todas las configuraciones por defecto"},
-                {"BraveLite AI Settings", "Configuración de BraveLite AI"},
+                {"ZeroState AI Settings", "Configuración de ZeroState AI"},
                 {"Cleared", "Borrado"},
                 {"Permissions", "Permisos"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Modo Juego: ACTIVO (Clic para reactivar IA)"},
@@ -529,8 +532,8 @@ namespace L10n {
                 {"Display Language", "Langue d'affichage"},
                 {"Choose the display language for the browser interface, start page, and settings.", "Choisissez la langue d'affichage de l'interface, de la page d'accueil et des paramètres."},
                 {"Default browser", "Navigateur par défaut"},
-                {"BraveLite is currently your default web browser.", "BraveLite est actuellement votre navigateur Web par défaut."},
-                {"Make BraveLite your default web browser for opening web links.", "Définissez BraveLite comme navigateur par défaut pour ouvrir les liens Web."},
+                {"ZeroState is currently your default web browser.", "ZeroState est actuellement votre navigateur Web par défaut."},
+                {"Make ZeroState your default web browser for opening web links.", "Définissez ZeroState comme navigateur par défaut pour ouvrir les liens Web."},
                 {"Default Browser", "Navigateur par défaut"},
                 {"Make default", "Définir par défaut"},
                 {"On startup", "Au démarrage"},
@@ -548,7 +551,7 @@ namespace L10n {
                 {"because privacy matters", "parce que la confidentialité compte"},
                 {"Private Search & AI", "Recherche privée & IA"},
                 {"Search privately with SearXNG...", "Rechercher en toute confidentialité avec SearXNG..."},
-                {"BraveLite Protected", "Protégé par BraveLite"},
+                {"ZeroState Protected", "Protégé par ZeroState"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Zéro donnée personnelle enregistrée • Aucun profilage • IA activée"},
                 {"🔍 All", "🔍 Tous"},
                 {"🖼 Images", "🖼 Images"},
@@ -579,12 +582,12 @@ namespace L10n {
                 {"Zoom In", "Zoom avant"},
                 {"Zoom Out", "Zoom arrière"},
                 {"Reset Zoom (100%)", "Réinitialiser le zoom (100%)"},
-                {"BraveLite Menu", "Menu BraveLite"},
+                {"ZeroState Menu", "Menu ZeroState"},
                 {"Extensions", "Extensions"},
                 {"Extensions & Userscripts", "Extensions et scripts"},
                 {"Extensions (Userscripts)", "Extensions (Scripts utilisateur)"},
-                {"BraveLite AI Assistant", "Assistant IA BraveLite"},
-                {"BraveLite AI Assistant (Side Chat)", "Assistant IA BraveLite (Panneau latéral)"},
+                {"ZeroState AI Assistant", "Assistant IA ZeroState"},
+                {"ZeroState AI Assistant (Side Chat)", "Assistant IA ZeroState (Panneau latéral)"},
                 {"Find in page...", "Rechercher dans la page..."},
                 {"Find in page", "Rechercher dans la page"},
                 {"Site Permissions", "Autorisations du site"},
@@ -631,8 +634,8 @@ namespace L10n {
                 {"Clear All History", "Effacer tout l'historique"},
                 {"Search browsing & SearXNG history", "Rechercher dans l'historique et SearXNG"},
                 {"Get started", "Pour commencer"},
-                {"BraveLite AI (Ollama)", "BraveLite IA (Ollama)"},
-                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite IA (Ollama et configuration GPU)"},
+                {"ZeroState AI (Ollama)", "ZeroState IA (Ollama)"},
+                {"ZeroState AI (Ollama & GPU Configuration)", "ZeroState IA (Ollama et configuration GPU)"},
                 {"uBlock Origin & Shields", "uBlock Origin et boucliers"},
                 {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin et boucliers (Protection publicités & traceurs)"},
                 {"Theme Profiles", "Profils de thème"},
@@ -648,7 +651,7 @@ namespace L10n {
                 {"Delete browsing data", "Supprimer les données de navigation"},
                 {"Reset settings", "Réinitialiser les paramètres"},
                 {"Reset all settings to default", "Rétablir tous les paramètres par défaut"},
-                {"BraveLite AI Settings", "Paramètres BraveLite IA"},
+                {"ZeroState AI Settings", "Paramètres ZeroState IA"},
                 {"Cleared", "Effacé"},
                 {"Permissions", "Autorisations"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Mode Jeu : ACTIF (Cliquer pour réactiver l'IA)"},
@@ -683,8 +686,8 @@ namespace L10n {
                 {"Display Language", "Anzeigesprache"},
                 {"Choose the display language for the browser interface, start page, and settings.", "Wählen Sie die Anzeigesprache für die Benutzeroberfläche, Startseite und Einstellungen."},
                 {"Default browser", "Standard-Browser"},
-                {"BraveLite is currently your default web browser.", "BraveLite ist derzeit Ihr Standard-Webbrowser."},
-                {"Make BraveLite your default web browser for opening web links.", "Machen Sie BraveLite zu Ihrem Standard-Webbrowser zum Öffnen von Weblinks."},
+                {"ZeroState is currently your default web browser.", "ZeroState ist derzeit Ihr Standard-Webbrowser."},
+                {"Make ZeroState your default web browser for opening web links.", "Machen Sie ZeroState zu Ihrem Standard-Webbrowser zum Öffnen von Weblinks."},
                 {"Default Browser", "Standard-Browser"},
                 {"Make default", "Als Standard festlegen"},
                 {"On startup", "Beim Start"},
@@ -702,7 +705,7 @@ namespace L10n {
                 {"because privacy matters", "weil Datenschutz zählt"},
                 {"Private Search & AI", "Private Suche & KI"},
                 {"Search privately with SearXNG...", "Privat mit SearXNG suchen..."},
-                {"BraveLite Protected", "BraveLite-geschützt"},
+                {"ZeroState Protected", "ZeroState-geschützt"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "Keine Datenspeicherung • Kein Profiling • KI-Unterstützung"},
                 {"🔍 All", "🔍 Alle"},
                 {"🖼 Images", "🖼 Bilder"},
@@ -733,12 +736,12 @@ namespace L10n {
                 {"Zoom In", "Vergrößern"},
                 {"Zoom Out", "Verkleinern"},
                 {"Reset Zoom (100%)", "Zoom zurücksetzen (100%)"},
-                {"BraveLite Menu", "BraveLite-Menü"},
+                {"ZeroState Menu", "ZeroState-Menü"},
                 {"Extensions", "Erweiterungen"},
                 {"Extensions & Userscripts", "Erweiterungen & Benutzerskripte"},
                 {"Extensions (Userscripts)", "Erweiterungen (Benutzerskripte)"},
-                {"BraveLite AI Assistant", "BraveLite KI-Assistent"},
-                {"BraveLite AI Assistant (Side Chat)", "BraveLite KI-Assistent (Seitenleiste)"},
+                {"ZeroState AI Assistant", "ZeroState KI-Assistent"},
+                {"ZeroState AI Assistant (Side Chat)", "ZeroState KI-Assistent (Seitenleiste)"},
                 {"Find in page...", "Auf der Seite suchen..."},
                 {"Find in page", "Auf der Seite suchen"},
                 {"Site Permissions", "Website-Berechtigungen"},
@@ -785,8 +788,8 @@ namespace L10n {
                 {"Clear All History", "Gesamten Verlauf löschen"},
                 {"Search browsing & SearXNG history", "Verlauf & SearXNG durchsuchen"},
                 {"Get started", "Erste Schritte"},
-                {"BraveLite AI (Ollama)", "BraveLite KI (Ollama)"},
-                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite KI (Ollama & GPU-Konfiguration)"},
+                {"ZeroState AI (Ollama)", "ZeroState KI (Ollama)"},
+                {"ZeroState AI (Ollama & GPU Configuration)", "ZeroState KI (Ollama & GPU-Konfiguration)"},
                 {"uBlock Origin & Shields", "uBlock Origin & Schutzschilde"},
                 {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin & Schutzschilde (Werbe- & Trackerschutz)"},
                 {"Theme Profiles", "Design-Profile"},
@@ -802,7 +805,7 @@ namespace L10n {
                 {"Delete browsing data", "Browserdaten löschen"},
                 {"Reset settings", "Einstellungen zurücksetzen"},
                 {"Reset all settings to default", "Alle Einstellungen auf Standard zurücksetzen"},
-                {"BraveLite AI Settings", "BraveLite KI-Einstellungen"},
+                {"ZeroState AI Settings", "ZeroState KI-Einstellungen"},
                 {"Cleared", "Gelöscht"},
                 {"Permissions", "Berechtigungen"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 Gaming-Modus: EIN (Klicken zum Reaktivieren der KI)"},
@@ -837,8 +840,8 @@ namespace L10n {
                 {"Display Language", "显示语言"},
                 {"Choose the display language for the browser interface, start page, and settings.", "选择浏览器界面、起始页和设置的显示语言。"},
                 {"Default browser", "默认浏览器"},
-                {"BraveLite is currently your default web browser.", "BraveLite 当前是您的默认网络浏览器。"},
-                {"Make BraveLite your default web browser for opening web links.", "将 BraveLite 设置为打开网页链接的默认浏览器。"},
+                {"ZeroState is currently your default web browser.", "ZeroState 当前是您的默认网络浏览器。"},
+                {"Make ZeroState your default web browser for opening web links.", "将 ZeroState 设置为打开网页链接的默认浏览器。"},
                 {"Default Browser", "默认浏览器"},
                 {"Make default", "设为默认"},
                 {"On startup", "启动时"},
@@ -856,7 +859,7 @@ namespace L10n {
                 {"because privacy matters", "因为隐私至关重要"},
                 {"Private Search & AI", "隐私搜索与 AI"},
                 {"Search privately with SearXNG...", "使用 SearXNG 隐私搜索..."},
-                {"BraveLite Protected", "BraveLite 隐私保护"},
+                {"ZeroState Protected", "ZeroState 隐私保护"},
                 {"Zero personal data logged • No search profiling • AI Grounding enabled", "零个人数据记录 • 无搜索用户画像 • 启用 AI"},
                 {"🔍 All", "🔍 全部"},
                 {"🖼 Images", "🖼 图片"},
@@ -887,12 +890,12 @@ namespace L10n {
                 {"Zoom In", "放大"},
                 {"Zoom Out", "缩小"},
                 {"Reset Zoom (100%)", "重置缩放 (100%)"},
-                {"BraveLite Menu", "BraveLite 菜单"},
+                {"ZeroState Menu", "ZeroState 菜单"},
                 {"Extensions", "扩展程序"},
                 {"Extensions & Userscripts", "扩展程序与用户脚本"},
                 {"Extensions (Userscripts)", "扩展程序 (用户脚本)"},
-                {"BraveLite AI Assistant", "BraveLite AI 助手"},
-                {"BraveLite AI Assistant (Side Chat)", "BraveLite AI 助手 (侧边栏聊天)"},
+                {"ZeroState AI Assistant", "ZeroState AI 助手"},
+                {"ZeroState AI Assistant (Side Chat)", "ZeroState AI 助手 (侧边栏聊天)"},
                 {"Find in page...", "在页面中查找..."},
                 {"Find in page", "在页面中查找"},
                 {"Site Permissions", "网站权限"},
@@ -939,8 +942,8 @@ namespace L10n {
                 {"Clear All History", "清除全部历史记录"},
                 {"Search browsing & SearXNG history", "搜索浏览历史与 SearXNG"},
                 {"Get started", "新手入门"},
-                {"BraveLite AI (Ollama)", "BraveLite AI (Ollama)"},
-                {"BraveLite AI (Ollama & GPU Configuration)", "BraveLite AI (Ollama 与 GPU 配置)"},
+                {"ZeroState AI (Ollama)", "ZeroState AI (Ollama)"},
+                {"ZeroState AI (Ollama & GPU Configuration)", "ZeroState AI (Ollama 与 GPU 配置)"},
                 {"uBlock Origin & Shields", "uBlock Origin 与防护盾"},
                 {"uBlock Origin & Shields (Ad & Tracker Protection)", "uBlock Origin 与防护盾 (广告与追踪拦截)"},
                 {"Theme Profiles", "主题配置"},
@@ -956,7 +959,7 @@ namespace L10n {
                 {"Delete browsing data", "清除浏览数据"},
                 {"Reset settings", "重置设置"},
                 {"Reset all settings to default", "重置所有设置至默认状态"},
-                {"BraveLite AI Settings", "BraveLite AI 设置"},
+                {"ZeroState AI Settings", "ZeroState AI 设置"},
                 {"Cleared", "已清除"},
                 {"Permissions", "权限"},
                 {"🎮 Gaming Mode: ON (Click to Re-enable AI)", "🎮 游戏模式：开启 (点击恢复 AI)"},
@@ -979,14 +982,14 @@ namespace L10n {
     }
 
     inline QString getUrlBarPlaceholder(const QString &engine = "SearXNG") {
-        if (engine == "SearXNG" || engine == "BraveLite Engine" || engine == "Startpage") {
+        if (engine == "SearXNG" || engine == "ZeroState Engine" || engine == "Startpage") {
             return tr("Search privately with SearXNG or enter address");
         }
         return QString(tr("Search with %1 or enter address")).arg(engine);
     }
 
     inline QString getStartPagePlaceholder(const QString &engine = "SearXNG") {
-        if (engine == "SearXNG" || engine == "BraveLite Engine" || engine == "Startpage") {
+        if (engine == "SearXNG" || engine == "ZeroState Engine" || engine == "Startpage") {
             return tr("Search privately with SearXNG or enter address...");
         }
         return QString(tr("Search with %1 or enter address...")).arg(engine);
@@ -1236,10 +1239,10 @@ inline void ensureWidevineManifest(const QString &dirPath) {
 }
 
 inline QString getWidevineCdmFilePath() {
-    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite/WidevineCdm";
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/ZeroState/WidevineCdm";
     QStringList candidates = {
         configDir,
-        QDir::homePath() + "/.config/BraveLite/WidevineCdm",
+        QDir::homePath() + "/.config/ZeroState/WidevineCdm",
         QDir::homePath() + "/.config/google-chrome/WidevineCdm",
         QDir::homePath() + "/.config/chromium/WidevineCdm",
         QDir::homePath() + "/.config/BraveSoftware/Brave-Browser/WidevineCdm",
@@ -1248,7 +1251,7 @@ inline QString getWidevineCdmFilePath() {
         "/usr/lib/chromium/WidevineCdm"
     };
     #ifdef Q_OS_WIN
-    candidates << QDir::homePath() + "/AppData/Local/BraveLite/WidevineCdm"
+    candidates << QDir::homePath() + "/AppData/Local/ZeroState/WidevineCdm"
                << QDir::homePath() + "/AppData/Local/Google/Chrome/User Data/WidevineCdm"
                << QDir::homePath() + "/AppData/Local/BraveSoftware/Brave-Browser/User Data/WidevineCdm";
     #endif
@@ -1274,10 +1277,10 @@ inline QString getWidevineCdmFilePath() {
 }
 
 inline QString getWidevineCdmPath() {
-    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite/WidevineCdm";
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/ZeroState/WidevineCdm";
     QStringList candidates = {
         configDir,
-        QDir::homePath() + "/.config/BraveLite/WidevineCdm",
+        QDir::homePath() + "/.config/ZeroState/WidevineCdm",
         QDir::homePath() + "/.config/google-chrome/WidevineCdm",
         QDir::homePath() + "/.config/chromium/WidevineCdm",
         QDir::homePath() + "/.config/BraveSoftware/Brave-Browser/WidevineCdm",
@@ -1286,7 +1289,7 @@ inline QString getWidevineCdmPath() {
         "/usr/lib/chromium/WidevineCdm"
     };
     #ifdef Q_OS_WIN
-    candidates << QDir::homePath() + "/AppData/Local/BraveLite/WidevineCdm"
+    candidates << QDir::homePath() + "/AppData/Local/ZeroState/WidevineCdm"
                << QDir::homePath() + "/AppData/Local/Google/Chrome/User Data/WidevineCdm"
                << QDir::homePath() + "/AppData/Local/BraveSoftware/Brave-Browser/User Data/WidevineCdm";
     #endif
@@ -1318,7 +1321,7 @@ namespace CrashLogger {
     inline QString crashLogDir() {
         QString base = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
         if (base.isEmpty()) base = QDir::homePath() + "/.config";
-        QString dir = base + "/BraveLite/CrashLogs";
+        QString dir = base + "/ZeroState/CrashLogs";
         QDir().mkpath(dir);
         return dir;
     }
@@ -1366,7 +1369,7 @@ namespace CrashLogger {
         if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
             QTextStream out(&f);
             out << "====================================================================\n";
-            out << "BraveLite v1.71 Extensive Crash & Diagnostic Report\n";
+            out << "ZeroState v1.71 Extensive Crash & Diagnostic Report\n";
             out << "====================================================================\n";
             out << "Timestamp:        " << QDateTime::currentDateTime().toString(Qt::ISODateWithMs) << "\n";
             out << "Uptime (seconds): " << (s_appUptime.isValid() ? QString::number(s_appUptime.elapsed() / 1000.0, 'f', 2) : "0") << "s\n";
@@ -1599,22 +1602,22 @@ signals:
     void loginCaptured(const QString &site, const QString &user, const QString &pass);
     void autofillRequested(const QString &site);
     void linkHoverSummarizeRequested(const QString &url, const QString &linkText);
-    void braveliteSearchRequested(const QString &query, const QString &tabType);
+    void zerostateSearchRequested(const QString &query, const QString &tabType);
     void aiChatRequested(const QString &chatPrompt);
     void openLinkInNewTabRequested(const QUrl &url);
     void findRequested();
 
 protected:
     bool acceptNavigationRequest(const QUrl &url, NavigationType type, bool isMainFrame) override {
-        if ((url.scheme() == "bravelite" && url.host() == "search") ||
-            (url.host() == "search.bravelite.local")) {
+        if ((url.scheme() == "zerostate" && url.host() == "search") ||
+            (url.host() == "search.zerostate.local")) {
             QUrlQuery q(url);
             QString queryVal = q.queryItemValue("q", QUrl::FullyDecoded);
             QString tab = q.queryItemValue("tab", QUrl::FullyDecoded);
             if (tab.isEmpty()) tab = "all";
             if (!queryVal.isEmpty()) {
                 QTimer::singleShot(0, this, [this, queryVal, tab]() {
-                    emit braveliteSearchRequested(queryVal, tab);
+                    emit zerostateSearchRequested(queryVal, tab);
                 });
                 return false;
             }
@@ -1651,43 +1654,43 @@ protected:
             if (!site.isEmpty() && !pass.isEmpty()) {
                 emit loginCaptured(site, user, pass);
             }
-        } else if (message.startsWith("BRAVELITE_AUTOFILL_PROMPT::")) {
-            QString site = message.mid(QString("BRAVELITE_AUTOFILL_PROMPT::").length()).trimmed();
+        } else if (message.startsWith("ZEROSTATE_AUTOFILL_PROMPT::")) {
+            QString site = message.mid(QString("ZEROSTATE_AUTOFILL_PROMPT::").length()).trimmed();
             if (!site.isEmpty()) {
                 emit autofillRequested(site);
             }
-        } else if (message.startsWith("BRAVELITE_HOVER_LINK::")) {
-            QString jsonPart = message.mid(QString("BRAVELITE_HOVER_LINK::").length());
+        } else if (message.startsWith("ZEROSTATE_HOVER_LINK::")) {
+            QString jsonPart = message.mid(QString("ZEROSTATE_HOVER_LINK::").length());
             QJsonObject obj = QJsonDocument::fromJson(jsonPart.toUtf8()).object();
             QString targetUrl = obj["url"].toString();
             QString text = obj["text"].toString();
             if (!targetUrl.isEmpty()) {
                 emit linkHoverSummarizeRequested(targetUrl, text);
             }
-        } else if (message.startsWith("BRAVELITE_SEARCH_TAB::")) {
-            QString jsonPart = message.mid(QString("BRAVELITE_SEARCH_TAB::").length());
+        } else if (message.startsWith("ZEROSTATE_SEARCH_TAB::")) {
+            QString jsonPart = message.mid(QString("ZEROSTATE_SEARCH_TAB::").length());
             QJsonObject obj = QJsonDocument::fromJson(jsonPart.toUtf8()).object();
             QString q = obj["q"].toString().trimmed();
             QString tab = obj["tab"].toString("all");
             if (!q.isEmpty()) {
-                emit braveliteSearchRequested(q, tab);
+                emit zerostateSearchRequested(q, tab);
             }
-        } else if (message.startsWith("BRAVELITE_SEARCH::")) {
-            QString q = message.mid(QString("BRAVELITE_SEARCH::").length()).trimmed();
+        } else if (message.startsWith("ZEROSTATE_SEARCH::")) {
+            QString q = message.mid(QString("ZEROSTATE_SEARCH::").length()).trimmed();
             if (!q.isEmpty()) {
-                emit braveliteSearchRequested(q, "all");
+                emit zerostateSearchRequested(q, "all");
             }
-        } else if (message.startsWith("BRAVELITE_AI_CHAT::")) {
-            QString prompt = message.mid(QString("BRAVELITE_AI_CHAT::").length()).trimmed();
+        } else if (message.startsWith("ZEROSTATE_AI_CHAT::")) {
+            QString prompt = message.mid(QString("ZEROSTATE_AI_CHAT::").length()).trimmed();
             if (!prompt.isEmpty()) {
                 emit aiChatRequested(prompt);
             }
-        } else if (message.startsWith("BRAVELITE_OPEN_TAB::")) {
-            QString targetUrl = message.mid(QString("BRAVELITE_OPEN_TAB::").length()).trimmed();
+        } else if (message.startsWith("ZEROSTATE_OPEN_TAB::")) {
+            QString targetUrl = message.mid(QString("ZEROSTATE_OPEN_TAB::").length()).trimmed();
             if (!targetUrl.isEmpty()) {
                 emit openLinkInNewTabRequested(QUrl(targetUrl));
             }
-        } else if (message.startsWith("BRAVELITE_OPEN_FIND::")) {
+        } else if (message.startsWith("ZEROSTATE_OPEN_FIND::")) {
             emit findRequested();
         }
     }
@@ -1895,7 +1898,7 @@ protected:
 };
 
 // ============================================================================
-// BraveLite v1.5 - Part 2 of 4
+// ZeroState v1.5 - Part 2 of 4
 // ============================================================================
 
 // ---------------- 4. BOOKMARK TOOLBUTTON (Movable Reorder Any Slot at Once + Drag to Tab Bar & URL Box) ----------------
@@ -2045,7 +2048,7 @@ protected:
         } else if (event->mimeData()->hasText()) {
             QString t = event->mimeData()->text().trimmed();
             if (!t.isEmpty()) {
-                u = (t.startsWith("http://") || t.startsWith("https://") || t.startsWith("bravelite://"))
+                u = (t.startsWith("http://") || t.startsWith("https://") || t.startsWith("zerostate://"))
                 ? QUrl(t) : QUrl("https://" + t);
             }
         }
@@ -2567,10 +2570,10 @@ public:
         setAttribute(Qt::WA_Hover, true);
 
         resize(1280, 840);
-        setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito] (Beta)" : "BraveLite v1.71 (Beta)");
+        setWindowTitle(m_isIncognito ? "ZeroState v1.71 [Incognito] (Beta)" : "ZeroState v1.71 (Beta)");
         qApp->installEventFilter(this);
 
-        setWindowIcon(loadBraveLiteAppIcon());
+        setWindowIcon(loadZeroStateAppIcon());
 
         m_netManager = new QNetworkAccessManager(this);
         m_adBlocker = new AdBlocker(this);
@@ -2634,13 +2637,13 @@ public:
                         } else if (!parts.isEmpty()) {
                             addNewTab(QUrl(parts[0]));
                         }
-                    } else if (u.contains("search.bravelite.local")) {
+                    } else if (u.contains("search.zerostate.local")) {
                         QUrl searchUrl(u);
                         QString q = QUrlQuery(searchUrl).queryItemValue("q");
                         QString tab = QUrlQuery(searchUrl).queryItemValue("tab");
                         if (tab.isEmpty()) tab = "all";
                         if (!q.isEmpty()) {
-                            runBraveLiteSearch(q, tab);
+                            runZeroStateSearch(q, tab);
                         } else {
                             addNewTab(searchUrl);
                         }
@@ -2693,7 +2696,7 @@ public:
 
         int insertPos = qBound(0, index, tabStack->count());
         tabStack->insertWidget(insertPos, view);
-        int tabIdx = tabBar->insertTab(insertPos, loadBraveLiteAppIcon(), L10n::tr("New Tab"));
+        int tabIdx = tabBar->insertTab(insertPos, loadZeroStateAppIcon(), L10n::tr("New Tab"));
         if (tabRowContainer && tabRowContainer->layout()) {
             tabRowContainer->layout()->activate();
         }
@@ -2719,8 +2722,8 @@ public:
         if (v) {
             v->lastSearchQuery = rec.lastSearchQuery;
             v->lastSearchTab = rec.lastSearchTab;
-            if (!rec.lastSearchQuery.isEmpty() && rec.url.host() == "search.bravelite.local") {
-                runBraveLiteSearch(rec.lastSearchQuery, rec.lastSearchTab);
+            if (!rec.lastSearchQuery.isEmpty() && rec.url.host() == "search.zerostate.local") {
+                runZeroStateSearch(rec.lastSearchQuery, rec.lastSearchTab);
             }
             int idx = tabStack->indexOf(v);
             if (idx != -1 && !rec.title.isEmpty() && rec.title != "New Tab") {
@@ -3092,7 +3095,7 @@ public slots:
 
         QDialog *devDlg = new QDialog(this, Qt::Window);
         devDlg->setAttribute(Qt::WA_DeleteOnClose, true);
-        devDlg->setWindowTitle("BraveLite Developer Tools — " + (targetView->title().isEmpty() ? targetView->url().toString() : targetView->title()));
+        devDlg->setWindowTitle("ZeroState Developer Tools — " + (targetView->title().isEmpty() ? targetView->url().toString() : targetView->title()));
         devDlg->resize(1020, 680);
 
         QVBoxLayout *lay = new QVBoxLayout(devDlg);
@@ -3252,7 +3255,7 @@ public slots:
     }
 
     // ============================================================================
-    // BraveLite v1.5 - Part 3 of 4
+    // ZeroState v1.5 - Part 3 of 4
     // ============================================================================
 
     // Split View Top-Left Button Menu (Matches Photo 2: Unsplit, Close Left, Close Right, Show Stacked, Swap)
@@ -3318,7 +3321,7 @@ public slots:
                 QNetworkReply *r = m_netManager->post(req, QJsonDocument(body).toJson(QJsonDocument::Compact));
                 connect(r, &QNetworkReply::finished, r, &QObject::deleteLater);
             }
-            setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito | 🎮 Gaming Mode]" : "BraveLite v1.71 [🎮 Gaming Mode]");
+            setWindowTitle(m_isIncognito ? "ZeroState v1.71 [Incognito | 🎮 Gaming Mode]" : "ZeroState v1.71 [🎮 Gaming Mode]");
             QMessageBox::information(this, "Gaming Mode Enabled",
                                      "🎮 Gaming Mode is now ON!\n\n"
                                      "• Local AI Assistant & Hover Link Previews paused.\n"
@@ -3326,7 +3329,7 @@ public slots:
                                      "• Background timers throttled for maximum gaming FPS.");
         } else {
             if (aiEnabled) ensureOllamaServerRunning();
-            setWindowTitle(m_isIncognito ? "BraveLite v1.71 [Incognito]" : "BraveLite v1.71");
+            setWindowTitle(m_isIncognito ? "ZeroState v1.71 [Incognito]" : "ZeroState v1.71");
             QMessageBox::information(this, "Gaming Mode Disabled",
                                      "🎮 Gaming Mode is now OFF.\n\n"
                                      "• AI Overview, Link Previews, and Full-Site Translation are re-enabled!");
@@ -3478,7 +3481,7 @@ public slots:
                         btnTranslate->setToolTip(L10n::tr("Translate entire page with local AI (translategemma:4b)"));
                         btnTranslate->setEnabled(true);
                         QMessageBox::warning(this, "Translation Model Missing",
-                                             QString("Could not translate with '%1'. Open Settings -> BraveLite AI and click '⬇ Pull / Download Translation Model'.").arg(translationModel));
+                                             QString("Could not translate with '%1'. Open Settings -> ZeroState AI and click '⬇ Pull / Download Translation Model'.").arg(translationModel));
                         reply->deleteLater();
                     }
                 });
@@ -3581,7 +3584,7 @@ public slots:
 
         QLabel header(existingIndex != -1
         ? QString("Update saved password for %1?").arg(site)
-        : QString("Do you want BraveLite to save this login for %1?").arg(site));
+        : QString("Do you want ZeroState to save this login for %1?").arg(site));
         header.setWordWrap(true);
         header.setStyleSheet("font-weight: bold; color: #fff;");
         form.addRow(&header);
@@ -3641,10 +3644,10 @@ public slots:
         initPayload["url"] = targetUrl;
         initPayload["domain"] = url.host();
         initPayload["title"] = linkText.isEmpty() ? url.host() : linkText;
-        initPayload["summary"] = QString("⏳ BraveLite AI (%1) is generating preview...").arg(ollamaModel);
+        initPayload["summary"] = QString("⏳ ZeroState AI (%1) is generating preview...").arg(ollamaModel);
         QString initJson = QString::fromUtf8(QJsonDocument(initPayload).toJson(QJsonDocument::Compact));
         view->page()->runJavaScript(
-            QString("if (window.__updateBraveLiteAiTooltipObj) window.__updateBraveLiteAiTooltipObj(%1);").arg(initJson)
+            QString("if (window.__updateZeroStateAiTooltipObj) window.__updateZeroStateAiTooltipObj(%1);").arg(initJson)
         );
 
         QNetworkRequest pageReq(url);
@@ -3699,7 +3702,7 @@ public slots:
                 payload["summary"] = ok ? aiResponse.trimmed() : ("⚠ " + aiResponse);
                 QString jsonArg = QString::fromUtf8(QJsonDocument(payload).toJson(QJsonDocument::Compact));
                 safeView->page()->runJavaScript(
-                    QString("if (window.__updateBraveLiteAiTooltipObj) window.__updateBraveLiteAiTooltipObj(%1);").arg(jsonArg)
+                    QString("if (window.__updateZeroStateAiTooltipObj) window.__updateZeroStateAiTooltipObj(%1);").arg(jsonArg)
                 );
             });
         });
@@ -3709,7 +3712,7 @@ public slots:
         QString encoded = QString::fromUtf8(QUrl::toPercentEncoding(query));
         if (engine.compare("SearXNG", Qt::CaseInsensitive) == 0 ||
             engine.compare("Startpage", Qt::CaseInsensitive) == 0 ||
-            engine.compare("BraveLite Engine", Qt::CaseInsensitive) == 0) {
+            engine.compare("ZeroState Engine", Qt::CaseInsensitive) == 0) {
             if (encoded.isEmpty()) return QUrl("http://localhost:8080/");
             QString cat;
             if (tabType == "images") cat = "&categories=images";
@@ -3735,7 +3738,7 @@ public slots:
     }
 
     // ---------------- Default Search Execution (SearXNG at http://localhost:8080/) ----------------
-    void runBraveLiteSearch(const QString &query, const QString &tabType = "all") {
+    void runZeroStateSearch(const QString &query, const QString &tabType = "all") {
         if (query.trimmed().isEmpty()) return;
         QUrl target = getSearchEngineUrl(defaultSearchEngine, query, tabType);
         if (auto *v = activeWebView()) {
@@ -3746,7 +3749,7 @@ public slots:
     }
 
     // ============================================================================
-    // BraveLite v1.5 - Part 4 of 4 (Final)
+    // ZeroState v1.5 - Part 4 of 4 (Final)
     // ============================================================================
 
 private slots:
@@ -3762,7 +3765,7 @@ private slots:
 public:
     void updatePrivacyBadge(const QUrl &url) {
         if (url.isEmpty() || url.scheme() == "about" || url.toString().startsWith("data:") ||
-            url.scheme() == "bravelite" || url.host().endsWith(".local")) {
+            url.scheme() == "zerostate" || url.host().endsWith(".local")) {
             btnPrivacyGrade->hide();
         return;
             }
@@ -3813,7 +3816,7 @@ public:
                                      "<b>Privacy Grade:</b> %2<br>"
                                      "<b>Blocked Trackers & Ads:</b> %3<br>"
                                      "<b>Encrypted Connection:</b> %4<br><br>"
-                                     "<i>Protected by BraveLite Shield.</i>")
+                                     "<i>Protected by ZeroState Shield.</i>")
                                      .arg(host, btnPrivacyGrade->text(), QString::number(blocked), isHttps ? "HTTPS (Secure)" : "HTTP (Unencrypted)"));
         }
     }
@@ -3900,7 +3903,7 @@ public:
                     }
                     #endif
                     QMessageBox::information(this, "Extension Installed",
-                        QString("Extension '%1' was successfully downloaded and registered in BraveLite!").arg(item->fileName));
+                        QString("Extension '%1' was successfully downloaded and registered in ZeroState!").arg(item->fileName));
                 }
             } else if (state == QWebEngineDownloadRequest::DownloadCancelled ||
                 state == QWebEngineDownloadRequest::DownloadInterrupted) {
@@ -4155,7 +4158,7 @@ public:
 
         connect(list, &QListWidget::itemDoubleClicked, [this](QListWidgetItem *it) {
             QString text = it->text();
-            if (text.startsWith("BraveLite Engine: ") || text.startsWith("SearXNG: ")) {
+            if (text.startsWith("ZeroState Engine: ") || text.startsWith("SearXNG: ")) {
                 int paren = text.lastIndexOf("(http");
                 if (paren != -1) {
                     QString urlPart = text.mid(paren + 1);
@@ -4163,7 +4166,7 @@ public:
                     addNewTab(QUrl(urlPart));
                     return;
                 }
-                int oldParen = text.lastIndexOf("(bravelite://search");
+                int oldParen = text.lastIndexOf("(zerostate://search");
                 if (oldParen != -1) {
                     QString qPart = text.mid(18, oldParen - 19).trimmed();
                     addNewTab(getSearchEngineUrl(defaultSearchEngine, qPart));
@@ -4229,7 +4232,7 @@ public:
         #ifdef Q_OS_WIN
         QSettings reg("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\https\\UserChoice", QSettings::NativeFormat);
         QString progId = reg.value("ProgId").toString();
-        if (progId.contains("BraveLite", Qt::CaseInsensitive) || progId.contains("fedorabrowser", Qt::CaseInsensitive)) {
+        if (progId.contains("ZeroState", Qt::CaseInsensitive)) {
             return true;
         }
         #else
@@ -4237,7 +4240,7 @@ public:
         proc.start("xdg-settings", {"get", "default-web-browser"});
         if (proc.waitForFinished(1000)) {
             QString out = QString::fromUtf8(proc.readAllStandardOutput()).trimmed().toLower();
-            if (out.contains("bravelite") || out.contains("mybrowser") || out.contains("fedorabrowser")) {
+            if (out.contains("zerostate")) {
                 return true;
             }
         }
@@ -4263,8 +4266,8 @@ public:
 
         bool alreadyDefault = isCurrentlyDefaultBrowser();
         QLabel *defSub = new QLabel(alreadyDefault
-        ? L10n::tr("BraveLite is currently your default web browser.")
-        : L10n::tr("Make BraveLite your default web browser for opening web links."), defaultCard);
+        ? L10n::tr("ZeroState is currently your default web browser.")
+        : L10n::tr("Make ZeroState your default web browser for opening web links."), defaultCard);
         defSub->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
         defTextLayout->addWidget(defTitle);
         defTextLayout->addWidget(defSub);
@@ -4282,11 +4285,11 @@ public:
             #ifdef Q_OS_WIN
             QDesktopServices::openUrl(QUrl("ms-settings:defaultapps"));
             #else
-            QProcess::execute("xdg-settings", {"set", "default-web-browser", "bravelite.desktop"});
+            QProcess::execute("xdg-settings", {"set", "default-web-browser", "zerostate.desktop"});
             #endif
             m_isDefaultBrowserSaved = true;
             savePersistentData();
-            defSub->setText(L10n::tr("BraveLite is currently your default web browser."));
+            defSub->setText(L10n::tr("ZeroState is currently your default web browser."));
             btnMakeDefault->setText(L10n::tr("Default Browser"));
             btnMakeDefault->setStyleSheet("QPushButton { background: #52c41a; color: #fff; font-weight: bold; padding: 8px 18px; border-radius: 6px; border: none; }");
             btnMakeDefault->setEnabled(false);
@@ -4474,7 +4477,7 @@ public:
         }
     }
 
-    QWidget* createBraveLiteAiDashboardWidget(QWidget *parent = nullptr) {
+    QWidget* createZeroStateAiDashboardWidget(QWidget *parent = nullptr) {
         QWidget *container = new QWidget(parent);
         QVBoxLayout *layout = new QVBoxLayout(container);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -4487,7 +4490,7 @@ public:
         cLayout->setContentsMargins(20, 18, 20, 18);
         cLayout->setSpacing(12);
 
-        QCheckBox *chkMaster = new QCheckBox("Enable BraveLite AI (Powered locally via Ollama)", card);
+        QCheckBox *chkMaster = new QCheckBox("Enable ZeroState AI (Powered locally via Ollama)", card);
         chkMaster->setChecked(aiEnabled);
         chkMaster->setStyleSheet("font-size: 15px; font-weight: bold; color: #ff6a22; border: none;");
 
@@ -4608,7 +4611,7 @@ public:
         QHBoxLayout *btnRow2 = new QHBoxLayout();
         QPushButton *btnFetchModels = new QPushButton("Detect Installed Models", card);
         QPushButton *btnRedetectGpu = new QPushButton("Re-Scan GPU Hardware", card);
-        QPushButton *btnTestAi = new QPushButton("Test BraveLite AI", card);
+        QPushButton *btnTestAi = new QPushButton("Test ZeroState AI", card);
 
         btnSaveAi->setStyleSheet("QPushButton { background: #ff5500; color: #fff; font-weight: bold; padding: 8px 16px; border-radius: 6px; border: none; }");
         btnStartServer->setStyleSheet("QPushButton { background: #2b5b84; color: #fff; font-weight: bold; padding: 8px 14px; border-radius: 6px; border: none; } QPushButton:hover { background: #356fa1; }");
@@ -4842,9 +4845,9 @@ public:
             translationModel = transCombo->currentText().trimmed().toLower();
             aiSystemPrompt = sysPromptEdit->text().trimmed();
             savePersistentData();
-            statusLbl->setText(QString("Asking BraveLite AI (%1)...").arg(ollamaModel));
-            queryOllamaAsync("Say hello in one short sentence as BraveLite AI.", [statusLbl](const QString &resp, bool ok) {
-                statusLbl->setText(ok ? ("BraveLite AI: " + resp.trimmed()) : ("Error: " + resp));
+            statusLbl->setText(QString("Asking ZeroState AI (%1)...").arg(ollamaModel));
+            queryOllamaAsync("Say hello in one short sentence as ZeroState AI.", [statusLbl](const QString &resp, bool ok) {
+                statusLbl->setText(ok ? ("ZeroState AI: " + resp.trimmed()) : ("Error: " + resp));
                 statusLbl->setStyleSheet(QString("font-size: 13px; color: %1; border: none;").arg(ok ? "#52c41a" : "#f5222d"));
             });
         });
@@ -4958,7 +4961,7 @@ public:
         listWidget->addItem("✓ EasyList & EasyPrivacy Rules (78,000+ rules active)");
         listWidget->addItem("✓ YouTube Zero-Ad Defuser & Anti-Adblock Bypass v4.2 (Injected & Active)");
         listWidget->addItem("✓ Peter Lowe's Ad & Tracking Server List (Active)");
-        listWidget->addItem("✓ BraveLite Anti-Spam & Redirect Neutralizer (Active)");
+        listWidget->addItem("✓ ZeroState Anti-Spam & Redirect Neutralizer (Active)");
         lLayout->addWidget(listWidget);
 
         QHBoxLayout *listBtnRow = new QHBoxLayout();
@@ -4996,7 +4999,7 @@ public:
 
         QLabel *lbl = new QLabel("Web Extensions & Userscripts", card);
         lbl->setStyleSheet("font-size: 16px; font-weight: bold; color: #fff; border: none;");
-        QLabel *desc = new QLabel("Install and run Chrome Web Store extensions, unpacked extensions, and custom userscripts (.user.js) directly in BraveLite.", card);
+        QLabel *desc = new QLabel("Install and run Chrome Web Store extensions, unpacked extensions, and custom userscripts (.user.js) directly in ZeroState.", card);
         desc->setWordWrap(true);
         desc->setStyleSheet("font-size: 13px; color: #9aa0a6; border: none;");
 
@@ -5106,7 +5109,7 @@ public:
         cLayout->addWidget(lbl);
 
         QStringList themes = {
-            "BraveLite Dark",
+            "ZeroState Dark",
             "Midnight OLED",
             "Cyberpunk Neon",
             "Nordic Frost",
@@ -5375,7 +5378,7 @@ public:
 
     void openPasswordManagerDialog() {
         QDialog dlg(this);
-        dlg.setWindowTitle("BraveLite Self-Hosted Password Manager");
+        dlg.setWindowTitle("ZeroState Self-Hosted Password Manager");
         dlg.resize(740, 460);
         dlg.setStyleSheet("background-color: #1a1a1e; color: #fff;");
         QVBoxLayout *layout = new QVBoxLayout(&dlg);
@@ -5458,7 +5461,7 @@ public:
     }
 
     void downloadWidevineCdm(std::function<void(bool, const QString&)> onDone) {
-        QString baseDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite/WidevineCdm";
+        QString baseDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/ZeroState/WidevineCdm";
         QDir().mkpath(baseDir);
 
         #ifdef Q_OS_WIN
@@ -5474,7 +5477,7 @@ public:
         connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [proc, baseDir, onDone](int code, QProcess::ExitStatus) {
             proc->deleteLater();
             bool ok = QFile::exists(baseDir + "/widevinecdm.dll");
-            onDone(ok, ok ? "Widevine CDM configured at: " + baseDir + "\nPlease restart BraveLite for full hardware DRM." : "Widevine folder created at: " + baseDir);
+            onDone(ok, ok ? "Widevine CDM configured at: " + baseDir + "\nPlease restart ZeroState for full hardware DRM." : "Widevine folder created at: " + baseDir);
         });
         proc->start("powershell.exe", {"-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script});
         #else
@@ -5501,7 +5504,7 @@ public:
         connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [proc, baseDir, onDone](int code, QProcess::ExitStatus) {
             proc->deleteLater();
             bool ok = (code == 0 && QFile::exists(baseDir + "/libwidevinecdm.so"));
-            onDone(ok, ok ? "Widevine CDM installed successfully to " + baseDir + "!\nPlease restart BraveLite to activate protected audio playback." : "Widevine installation failed or requires internet connection.");
+            onDone(ok, ok ? "Widevine CDM installed successfully to " + baseDir + "!\nPlease restart ZeroState to activate protected audio playback." : "Widevine installation failed or requires internet connection.");
         });
         proc->start("/bin/bash", {"-c", script});
         #endif
@@ -5526,7 +5529,7 @@ public:
         )").arg(pal.bgCard, pal.borderCol, pal.accent));
 
         sidebar->addItem(L10n::tr("Get started"));
-        sidebar->addItem(L10n::tr("BraveLite AI (Ollama)"));
+        sidebar->addItem(L10n::tr("ZeroState AI (Ollama)"));
         sidebar->addItem(L10n::tr("uBlock Origin & Shields"));
         sidebar->addItem(L10n::tr("Extensions"));
         sidebar->addItem(L10n::tr("Theme Profiles"));
@@ -5551,7 +5554,7 @@ public:
         QStackedWidget *detailStack = new QStackedWidget(content);
 
         detailStack->addWidget(createGetStartedWidget(detailStack));
-        detailStack->addWidget(createBraveLiteAiDashboardWidget(detailStack));
+        detailStack->addWidget(createZeroStateAiDashboardWidget(detailStack));
         detailStack->addWidget(createUBlockOriginWidget(detailStack));
         detailStack->addWidget(createExtensionsWidget(detailStack));
         detailStack->addWidget(createThemeProfilesWidget(detailStack));
@@ -5632,7 +5635,7 @@ public:
                 return;
             }
             if (row == 1) {
-                detailTitle->setText(L10n::tr("BraveLite AI (Ollama & GPU Configuration)"));
+                detailTitle->setText(L10n::tr("ZeroState AI (Ollama & GPU Configuration)"));
                 detailStack->setCurrentIndex(1);
                 return;
             }
@@ -5799,7 +5802,7 @@ public:
                 });
             } else if (row == 14) {
                 detailTitle->setText(L10n::tr("Reset settings"));
-                itemsList->addItem("Restore BraveLite defaults to pristine condition");
+                itemsList->addItem("Restore ZeroState defaults to pristine condition");
                 actionBtn1->setText(L10n::tr("Reset all settings to default"));
                 actionBtn1->show();
                 connect(actionBtn1, &QPushButton::clicked, [this]() {
@@ -5848,7 +5851,7 @@ public:
         if (btnZoomOut) btnZoomOut->setToolTip(L10n::tr("Zoom Out"));
         if (btnZoomIn) btnZoomIn->setToolTip(L10n::tr("Zoom In"));
         if (btnDownload) btnDownload->setToolTip(L10n::tr("Downloads") + " (Ctrl+J)");
-        if (btnMenu) btnMenu->setToolTip(L10n::tr("BraveLite Menu"));
+        if (btnMenu) btnMenu->setToolTip(L10n::tr("ZeroState Menu"));
         if (btnPasswords) btnPasswords->setToolTip(L10n::tr("Passwords & Autofill Vault"));
         if (btnSplitView) btnSplitView->setToolTip(L10n::tr("Split View Options"));
         if (btnTranslate) {
@@ -5922,7 +5925,7 @@ public:
         zoomMenu->addAction(L10n::tr("Zoom Out") + "\t" + keybindsMap.value("ZoomOut"), this, &BrowserWindow::zoomOut);
         zoomMenu->addAction(L10n::tr("Reset Zoom (100%)") + "\t" + keybindsMap.value("ZoomReset"), this, &BrowserWindow::zoomReset);
 
-        menu.addAction("✨ " + L10n::tr("BraveLite AI Settings"), this, [this]() { openSettingsTab(1); });
+        menu.addAction("✨ " + L10n::tr("ZeroState AI Settings"), this, [this]() { openSettingsTab(1); });
         menu.addAction("🛡 " + L10n::tr("uBlock Origin & Shields"), this, [this]() { openSettingsTab(2); });
         menu.addAction(L10n::tr("Extensions (Userscripts)"), this, [this]() { openSettingsTab(3); });
         menu.addAction(L10n::tr("Passwords && Autofill"), this, &BrowserWindow::openPasswordManagerDialog);
@@ -6013,8 +6016,8 @@ public:
                     mgr->setExtensionEnabled(ext, !ext.isEnabled());
                 });
 
-                extSub->addAction("Remove from BraveLite", this, [this, mgr, ext]() {
-                    if (QMessageBox::question(this, "Remove Extension", QString("Remove '%1' from BraveLite?").arg(ext.name())) == QMessageBox::Yes) {
+                extSub->addAction("Remove from ZeroState", this, [this, mgr, ext]() {
+                    if (QMessageBox::question(this, "Remove Extension", QString("Remove '%1' from ZeroState?").arg(ext.name())) == QMessageBox::Yes) {
                         mgr->uninstallExtension(ext);
                     }
                 });
@@ -6345,7 +6348,7 @@ private:
     bool startupContinueWhereLeftOff = false;
     bool odohEnabled = true;
     QString sponsorBlockServer = "https://sponsor.ajay.app/api/skipSegments";
-    QString currentThemeProfile = "BraveLite Dark";
+    QString currentThemeProfile = "ZeroState Dark";
     QString defaultSearchEngine = "SearXNG";
 
     QWidget *findBar = nullptr;
@@ -6419,7 +6422,7 @@ private:
         QHBoxLayout *topRow = new QHBoxLayout();
         QLabel *titleIcon = new QLabel(aiSidePanel);
         titleIcon->setPixmap(BrowserIcons::drawIcon("sparkle", QColor("#ff5500")).pixmap(18, 18));
-        QLabel *titleText = new QLabel("BraveLite AI", aiSidePanel);
+        QLabel *titleText = new QLabel("ZeroState AI", aiSidePanel);
         titleText->setStyleSheet("font-size: 15px; font-weight: bold; color: #ffffff;");
 
         aiModelBadge = new QLabel(chattingModel, aiSidePanel);
@@ -6456,7 +6459,7 @@ private:
         inputRow->setSpacing(6);
 
         aiChatInput = new QTextEdit(aiSidePanel);
-        aiChatInput->setPlaceholderText("Ask BraveLite AI... (Enter to send)");
+        aiChatInput->setPlaceholderText("Ask ZeroState AI... (Enter to send)");
         aiChatInput->setFixedHeight(46);
         aiChatInput->installEventFilter(this);
 
@@ -6496,7 +6499,7 @@ private:
         aiChatView->clear();
         QString welcome = QString(
             "<div style='color: #9aa0a6; font-size: 12px; line-height: 1.5; margin-bottom: 8px;'>"
-            "<b style='color: #ff5500;'>BraveLite AI Assistant</b><br/>"
+            "<b style='color: #ff5500;'>ZeroState AI Assistant</b><br/>"
             "Powered by your local Ollama chatting model (<code style='color: #8ab4f8;'>%1</code>).<br/>"
             "100% private, fast, and offline. Ask questions or brainstorm!"
             "</div>"
@@ -6563,7 +6566,7 @@ private:
         appendAiChatMessage("user", prompt);
 
         if (gamingModeActive) {
-            appendAiChatMessage("assistant", "Gaming Mode is active. Turn off Gaming Mode in the menu to chat with BraveLite AI.");
+            appendAiChatMessage("assistant", "Gaming Mode is active. Turn off Gaming Mode in the menu to chat with ZeroState AI.");
             return;
         }
 
@@ -6793,7 +6796,7 @@ private:
     QString ollamaEndpoint = "http://127.0.0.1:11434";
     QString ollamaModel = "qwen2.5:0.5b";
     QString translationModel = "translategemma:4b";
-    QString aiSystemPrompt = "You are BraveLite AI. State only factual, grounded specifications present in the context. If specs (engine, battery, dimensions) are not verifiable, explicitly state 'Not listed' rather than guessing. Never fabricate engine configurations.";
+    QString aiSystemPrompt = "You are ZeroState AI. State only factual, grounded specifications present in the context. If specs (engine, battery, dimensions) are not verifiable, explicitly state 'Not listed' rather than guessing. Never fabricate engine configurations.";
 
     void initDefaultKeybinds() {
         keybindsMap["NewTab"] = "Ctrl+T";
@@ -6926,9 +6929,38 @@ private:
         });
     }
 
+    static void copyDirectoryRecursively(const QString &srcPath, const QString &dstPath) {
+        QDir srcDir(srcPath);
+        if (!srcDir.exists()) return;
+        QDir().mkpath(dstPath);
+        for (const QFileInfo &entry : srcDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot)) {
+            QString srcFilePath = entry.filePath();
+            QString dstFilePath = dstPath + "/" + entry.fileName();
+            if (entry.isDir()) {
+                copyDirectoryRecursively(srcFilePath, dstFilePath);
+            } else if (!QFile::exists(dstFilePath)) {
+                QFile::copy(srcFilePath, dstFilePath);
+            }
+        }
+    }
+
     QString getConfigDir() const {
-        QString dir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite";
+        QString dir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/ZeroState";
+        QString legacyDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/BraveLite";
         QDir().mkpath(dir);
+
+        // Seamless migration: if legacy BraveLite data exists, preserve all user data
+        if (QDir(legacyDir).exists()) {
+            QFileInfo destData(dir + "/data.json");
+            QFileInfo srcData(legacyDir + "/data.json");
+            if (srcData.exists() && (!destData.exists() || destData.size() < 2000)) {
+                QFile::remove(dir + "/data.json");
+                QFile::copy(legacyDir + "/data.json", dir + "/data.json");
+                copyDirectoryRecursively(legacyDir + "/Storage", dir + "/Storage");
+                copyDirectoryRecursively(legacyDir + "/Extensions", dir + "/Extensions");
+                copyDirectoryRecursively(legacyDir + "/favicons", dir + "/favicons");
+            }
+        }
         return dir;
     }
 
@@ -6938,7 +6970,7 @@ private:
         } else {
             static QWebEngineProfile *sharedPersistentProfile = nullptr;
             if (!sharedPersistentProfile) {
-                sharedPersistentProfile = new QWebEngineProfile("BraveLiteProfile", qApp);
+                sharedPersistentProfile = new QWebEngineProfile("ZeroStateProfile", qApp);
                 QString storagePath = getConfigDir() + "/Storage";
                 QString cachePath = getConfigDir() + "/Cache";
                 QDir().mkpath(storagePath);
@@ -6975,9 +7007,9 @@ private:
         settings->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
         settings->setAttribute(QWebEngineSettings::AllowWindowActivationFromJavaScript, true);
 
-        if (m_profile->scripts()->find("BraveLiteCosmeticAndYTShield").isEmpty()) {
+        if (m_profile->scripts()->find("ZeroStateCosmeticAndYTShield").isEmpty()) {
             QWebEngineScript shieldScript;
-            shieldScript.setName("BraveLiteCosmeticAndYTShield");
+            shieldScript.setName("ZeroStateCosmeticAndYTShield");
             shieldScript.setInjectionPoint(QWebEngineScript::DocumentReady);
             shieldScript.setWorldId(QWebEngineScript::MainWorld);
             shieldScript.setRunsOnSubFrames(false);
@@ -6988,7 +7020,7 @@ private:
             "    window.addEventListener('keydown', function(e) {\n"
             "      if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F' || e.keyCode === 70)) {\n"
             "        if (!e.altKey && !e.shiftKey) {\n"
-            "          console.log('BRAVELITE_OPEN_FIND::');\n"
+            "          console.log('ZEROSTATE_OPEN_FIND::');\n"
             "          e.preventDefault();\n"
             "          e.stopPropagation();\n"
             "        }\n"
@@ -7004,16 +7036,16 @@ private:
             "          }\n"
             "        }\n"
             "        if (el && el.href && el.href.indexOf('javascript:') !== 0) {\n"
-            "          console.log('BRAVELITE_OPEN_TAB::' + el.href);\n"
+            "          console.log('ZEROSTATE_OPEN_TAB::' + el.href);\n"
             "          e.preventDefault();\n"
             "          e.stopPropagation();\n"
             "        }\n"
             "      }\n"
             "    }, true);\n"
             "    const root = document.head || document.documentElement;\n"
-            "    if (root && !document.getElementById('__bravelite_cosmetic')) {\n"
+            "    if (root && !document.getElementById('__zerostate_cosmetic')) {\n"
             "      const s = document.createElement('style');\n"
-            "      s.id = '__bravelite_cosmetic';\n"
+            "      s.id = '__zerostate_cosmetic';\n"
             "      s.textContent = '::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-track { background: #16171a; } ::-webkit-scrollbar-thumb { background: #3c4043; border-radius: 5px; border: 2px solid #16171a; } ::-webkit-scrollbar-thumb:hover { background: #ff5500; } .adbox, .banner_ads, .adsbox, .textads, div[id*=\"google_ads\"], div[id*=\"ad-slot\"], #ad-container, .adsbygoogle, ytd-ad-slot-renderer, ytd-in-feed-ad-layout-renderer, ytd-banner-promo-renderer, ytd-statement-banner-renderer, ytd-masthead-ad-v3-renderer, ytd-primetime-promo-renderer, ytd-engagement-panel-section-list-renderer[target-id=\"engagement-panel-ads\"], ytd-merch-shelf-renderer, ytd-action-companion-ad-renderer, .ytd-mealbar-promo-renderer, .ytp-ad-overlay-container, .ytp-ad-message-container, .ytp-ad-image-overlay, .ytp-ad-text-overlay, .ytp-ad-player-overlay-layout, #masthead-ad, #player-ads, .video-ads { display: none !important; visibility: hidden !important; height: 0 !important; width: 0 !important; pointer-events: none !important; }';\n"
             "      root.appendChild(s);\n"
             "    }\n"
@@ -7058,9 +7090,9 @@ private:
         m_profile->scripts()->insert(shieldScript);
         }
 
-        if (m_profile->scripts()->find("BraveLiteChromeWebStoreHelper").isEmpty()) {
+        if (m_profile->scripts()->find("ZeroStateChromeWebStoreHelper").isEmpty()) {
             QWebEngineScript cwsScript;
-            cwsScript.setName("BraveLiteChromeWebStoreHelper");
+            cwsScript.setName("ZeroStateChromeWebStoreHelper");
             cwsScript.setInjectionPoint(QWebEngineScript::DocumentCreation);
             cwsScript.setWorldId(QWebEngineScript::MainWorld);
             cwsScript.setRunsOnSubFrames(false);
@@ -7135,11 +7167,11 @@ private:
 
         const extId = getStoreExtId();
         if (extId) {
-            if (!document.getElementById('__bravelite_cws_install_btn')) {
+            if (!document.getElementById('__zerostate_cws_install_btn')) {
                 const btn = document.createElement('button');
-                btn.id = '__bravelite_cws_install_btn';
-                btn.innerHTML = '⚡ Add to BraveLite';
-                btn.title = 'Download and Install extension into BraveLite (' + extId + ')';
+                btn.id = '__zerostate_cws_install_btn';
+                btn.innerHTML = '⚡ Add to ZeroState';
+                btn.title = 'Download and Install extension into ZeroState (' + extId + ')';
                 btn.style.cssText = 'position: fixed; top: 16px; right: 24px; z-index: 9999999; background: linear-gradient(135deg, #ff5500, #ff7a33); color: white; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 16px rgba(255,85,0,0.45); transition: transform 0.15s ease; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
                 btn.onmouseover = () => btn.style.transform = 'scale(1.04)';
                 btn.onmouseout = () => btn.style.transform = 'scale(1.0)';
@@ -7268,8 +7300,8 @@ private:
 
         view->page()->runJavaScript(R"(
             (function() {
-                if (window.__bravelitePromptHooked) return;
-                window.__bravelitePromptHooked = true;
+                if (window.__zerostatePromptHooked) return;
+                window.__zerostatePromptHooked = true;
 
                 document.addEventListener('mousedown', function(e) {
                     const el = e.target.closest('input');
@@ -7290,7 +7322,7 @@ private:
                     if (window.__lastAutofillPromptTime && (now - window.__lastAutofillPromptTime < 1500)) return;
                     window.__lastAutofillPromptTime = now;
 
-                    console.log("BRAVELITE_AUTOFILL_PROMPT::" + window.location.hostname);
+                    console.log("ZEROSTATE_AUTOFILL_PROMPT::" + window.location.hostname);
                 }, true);
             })();
         )");
@@ -7372,14 +7404,14 @@ private:
         btnShield->setText("🛡");
         btnShield->setFixedSize(28, 28);
         if (active) {
-            btnShield->setToolTip("BraveLite Shield: ON (Blocking ads, trackers & spam redirects)");
+            btnShield->setToolTip("ZeroState Shield: ON (Blocking ads, trackers & spam redirects)");
             btnShield->setStyleSheet(
                 "QPushButton { background-color: #2b211d; border: 1.5px solid #ff5500; border-radius: 6px; "
                 "color: #ff6a22; font-size: 13px; font-weight: bold; padding: 0; } "
                 "QPushButton:hover { background-color: #ff5500; color: #ffffff; }"
             );
         } else {
-            btnShield->setToolTip("BraveLite Shield: OFF (Click to enable protection)");
+            btnShield->setToolTip("ZeroState Shield: OFF (Click to enable protection)");
             btnShield->setStyleSheet(
                 "QPushButton { background-color: #25272b; border: 1px solid #3e4146; border-radius: 6px; "
                 "color: #8e9297; font-size: 13px; font-weight: bold; padding: 0; } "
@@ -7693,7 +7725,7 @@ private:
         btnAiChat = new QPushButton(this);
         btnAiChat->setIcon(BrowserIcons::drawIcon("sparkle", QColor("#8ab4f8")));
         btnAiChat->setIconSize(QSize(18, 18));
-        btnAiChat->setToolTip("BraveLite AI Assistant (Side Chat)");
+        btnAiChat->setToolTip("ZeroState AI Assistant (Side Chat)");
         btnAiChat->setFixedSize(30, 28);
         btnAiChat->setCursor(Qt::PointingHandCursor);
         btnAiChat->setStyleSheet("QPushButton { background-color: #242629; border: 1px solid #34373d; border-radius: 6px; padding: 0; } QPushButton:hover { background-color: #35373c; border-color: #8ab4f8; }");
@@ -7852,7 +7884,7 @@ private:
                 btnMenu->setFixedSize(28, 28);
                 btnMenu->setIcon(BrowserIcons::drawIcon("menu"));
                 btnMenu->setIconSize(QSize(16, 16));
-                btnMenu->setToolTip(L10n::tr("BraveLite Menu"));
+                btnMenu->setToolTip(L10n::tr("ZeroState Menu"));
                 btnMenu->setCursor(Qt::PointingHandCursor);
                 btnMenu->setStyleSheet(navBtnStyle);
                 connect(btnMenu, &QPushButton::clicked, this, &BrowserWindow::openAppMenu);
@@ -8103,7 +8135,7 @@ private:
                     <body>
                     <div class="hero-wrapper">
                     <h1>%8</h1>
-                    <form onsubmit="event.preventDefault(); console.log('BRAVELITE_SEARCH::' + document.getElementById('startSearch').value);" class="search-container">
+                    <form onsubmit="event.preventDefault(); console.log('ZEROSTATE_SEARCH::' + document.getElementById('startSearch').value);" class="search-container">
                     <input id="startSearch" type="text" name="q" placeholder="%9" autofocus autocomplete="off" />
                     </form>
                     <div class="datetime" id="liveClock">%10</div>
@@ -8374,9 +8406,9 @@ private:
         autofillEnabled = root.value("autofillEnabled").toBool(true);
         startupContinueWhereLeftOff = root.value("startupContinueWhereLeftOff").toBool(false);
         m_isDefaultBrowserSaved = root.value("isDefaultBrowser").toBool(false);
-        currentThemeProfile = root.value("themeProfile").toString("BraveLite Dark");
+        currentThemeProfile = root.value("themeProfile").toString("ZeroState Dark");
         defaultSearchEngine = root.value("defaultSearchEngine").toString("SearXNG");
-        if (defaultSearchEngine == "BraveLite Browser" || defaultSearchEngine == "Startpage" || defaultSearchEngine == "BraveLite Engine") defaultSearchEngine = "SearXNG";
+        if (defaultSearchEngine == "ZeroState Browser" || defaultSearchEngine == "BraveLite Browser" || defaultSearchEngine == "BraveLite Engine" || defaultSearchEngine == "Startpage" || defaultSearchEngine == "ZeroState Engine") defaultSearchEngine = "SearXNG";
         gamingModeActive = root.value("gamingModeActive").toBool(false);
 
         aiEnabled = root.value("aiEnabled").toBool(true);
@@ -8558,7 +8590,7 @@ private:
             openInspectElementWindow(targetView);
         });
         connect(view, &CustomWebView::searchBackFallbackRequested, this, [this](const QString &q, const QString &tab) {
-            runBraveLiteSearch(q, tab);
+            runZeroStateSearch(q, tab);
         });
 
         CustomWebEnginePage *p = qobject_cast<CustomWebEnginePage*>(view->page());
@@ -8577,7 +8609,7 @@ private:
             });
 
             connect(p, &CustomWebEnginePage::linkHoverSummarizeRequested, this, &BrowserWindow::handleLinkHoverSummarize);
-            connect(p, &CustomWebEnginePage::braveliteSearchRequested, this, [this](const QString &q, const QString &tabType) {
+            connect(p, &CustomWebEnginePage::zerostateSearchRequested, this, [this](const QString &q, const QString &tabType) {
                 QUrl target = getSearchEngineUrl(defaultSearchEngine, q, tabType);
                 if (auto *v = activeWebView()) {
                     v->load(target);
@@ -8703,7 +8735,7 @@ private:
             }
 
             if (!m_isIncognito && !urlStr.isEmpty() && !urlStr.startsWith("data:") && u.scheme() != "about") {
-                if ((u.host() == "localhost" && u.port() == 8080 && u.path() == "/search") || (u.scheme() == "bravelite" && u.host() == "search")) {
+                if ((u.host() == "localhost" && u.port() == 8080 && u.path() == "/search") || (u.scheme() == "zerostate" && u.host() == "search")) {
                     QString q = QUrlQuery(u).queryItemValue("q");
                     if (!q.isEmpty()) {
                         historyList.append(QString("SearXNG: %1 (%2)").arg(q, urlStr));
@@ -8765,27 +8797,27 @@ private:
                                 }, true);
                         }
 
-                        if (!window.__braveliteHoverHooked) {
-                            window.__braveliteHoverHooked = true;
+                        if (!window.__zerostateHoverHooked) {
+                            window.__zerostateHoverHooked = true;
                             let hoverTimer = null;
                             let activeAnchor = null;
                             let currentHoverUrl = '';
 
                     function ensureTooltip() {
-                        let tt = document.getElementById('__bravelite_ai_tooltip');
+                        let tt = document.getElementById('__zerostate_ai_tooltip');
                         if (!tt) {
                             tt = document.createElement('div');
-                            tt.id = '__bravelite_ai_tooltip';
+                            tt.id = '__zerostate_ai_tooltip';
                     tt.style.cssText = 'position:fixed; z-index:2147483647; max-width:390px; background:linear-gradient(180deg,#1f242d,#161920); color:#f0f2f5; border:1px solid #ff5500; border-radius:12px; padding:12px 15px; font-family:sans-serif; font-size:12.5px; line-height:1.5; box-shadow:0 12px 32px rgba(0,0,0,0.8); pointer-events:none; display:none;';
                     document.body.appendChild(tt);
                         }
                         return tt;
                     }
 
-                    window.__updateBraveLiteAiTooltipObj = function(obj) {
+                    window.__updateZeroStateAiTooltipObj = function(obj) {
                         if (!obj || obj.url !== currentHoverUrl) return;
                         const tt = ensureTooltip();
-                        tt.innerHTML = '<div style=\"display:flex;align-items:center;gap:6px;margin-bottom:5px;font-weight:bold;color:#ff6a22;font-size:12px;\">BraveLite Link Preview • ' + (obj.domain || '') + '</div>' +
+                        tt.innerHTML = '<div style=\"display:flex;align-items:center;gap:6px;margin-bottom:5px;font-weight:bold;color:#ff6a22;font-size:12px;\">ZeroState Link Preview • ' + (obj.domain || '') + '</div>' +
                     '<div style=\"font-weight:600;color:#8ab4f8;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">' + (obj.title || '') + '</div>' +
                     '<div style=\"color:#e0e2e8;\">' + (obj.summary || '') + '</div>';
                     tt.style.display = 'block';
@@ -8806,14 +8838,14 @@ private:
                         const tt = ensureTooltip();
                         tt.style.left = x + 'px';
                         tt.style.top = y + 'px';
-                        console.log('BRAVELITE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
+                        console.log('ZEROSTATE_HOVER_LINK::' + JSON.stringify({ url: a.href, text: linkText }));
                     }
 
                     function hideLinkHover() {
                         clearTimeout(hoverTimer);
                         activeAnchor = null;
                         currentHoverUrl = '';
-                        const tt = document.getElementById('__bravelite_ai_tooltip');
+                        const tt = document.getElementById('__zerostate_ai_tooltip');
                         if (tt) tt.style.display = 'none';
                     }
 
@@ -8932,7 +8964,7 @@ void CustomTabBar::startTabTearOffDrag(int idx) {
 
     QDrag *drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData();
-    mimeData->setData("application/x-bravelite-tab", QByteArray::number(idx));
+    mimeData->setData("application/x-zerostate-tab", QByteArray::number(idx));
     mimeData->setText(view->url().toString());
     drag->setMimeData(mimeData);
 
@@ -8957,7 +8989,7 @@ void CustomTabBar::startTabTearOffDrag(int idx) {
 }
 
 void CustomTabBar::dragEnterEvent(QDragEnterEvent *event) {
-    if (event->mimeData()->hasFormat("application/x-bravelite-tab") ||
+    if (event->mimeData()->hasFormat("application/x-zerostate-tab") || event->mimeData()->hasFormat("application/x-bravelite-tab") ||
         event->mimeData()->hasUrls() ||
         event->mimeData()->hasText()) {
         event->acceptProposedAction();
@@ -8967,7 +8999,7 @@ void CustomTabBar::dragEnterEvent(QDragEnterEvent *event) {
 }
 
 void CustomTabBar::dragMoveEvent(QDragMoveEvent *event) {
-    if (event->mimeData()->hasFormat("application/x-bravelite-tab") ||
+    if (event->mimeData()->hasFormat("application/x-zerostate-tab") || event->mimeData()->hasFormat("application/x-bravelite-tab") ||
         event->mimeData()->hasUrls() ||
         event->mimeData()->hasText()) {
         event->acceptProposedAction();
@@ -8977,7 +9009,7 @@ void CustomTabBar::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void CustomTabBar::dropEvent(QDropEvent *event) {
-    if (event->mimeData()->hasFormat("application/x-bravelite-tab")) {
+    if (event->mimeData()->hasFormat("application/x-zerostate-tab")) {
         BrowserWindow *targetWin = qobject_cast<BrowserWindow*>(window());
         if (targetWin && s_activeDraggedTab.view && s_activeDraggedTab.srcWin) {
             BrowserWindow *srcWin = s_activeDraggedTab.srcWin;
@@ -9042,7 +9074,7 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
     view->setPage(p);
 
     int index = tabStack->addWidget(view);
-    int tabIdx = tabBar->addTab(loadBraveLiteAppIcon(), L10n::tr("New Tab"));
+    int tabIdx = tabBar->addTab(loadZeroStateAppIcon(), L10n::tr("New Tab"));
     if (tabRowContainer && tabRowContainer->layout()) {
         tabRowContainer->layout()->activate();
     }
@@ -9065,7 +9097,7 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
         QString a = QString::fromLocal8Bit(argv[i]);
         if (a == "--version" || a == "-v") {
-            printf("BraveLite v1.71 (Beta)\n");
+            printf("ZeroState v1.71 (Beta)\n");
             return 0;
         }
     }
@@ -9091,15 +9123,15 @@ int main(int argc, char *argv[]) {
 #endif
 
     QApplication app(argc, argv);
-    app.setApplicationName("BraveLite");
+    app.setApplicationName("ZeroState");
     app.setApplicationVersion("1.71");
-    app.setOrganizationName("BraveLite");
+    app.setOrganizationName("ZeroState");
 
     if (QStyle *fusion = QStyleFactory::create("Fusion")) {
         app.setStyle(fusion);
     }
 
-    app.setWindowIcon(loadBraveLiteAppIcon());
+    app.setWindowIcon(loadZeroStateAppIcon());
 
     QList<QUrl> startupUrls;
     bool requestedNewWindow = false;
@@ -9123,7 +9155,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    const QString ipcServerName = "BraveLiteSingleInstanceServer_v171";
+    const QString ipcServerName = "ZeroStateSingleInstanceServer_v172";
     {
         QLocalSocket socket;
         socket.connectToServer(ipcServerName);

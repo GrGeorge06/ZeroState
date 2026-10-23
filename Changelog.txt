@@ -1,31 +1,31 @@
 ================================================================================
-BraveLite v1.72 - Official Release Changelog
+ZeroState v1.72 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
 [MAJOR FEATURES & ENHANCEMENTS]
-1. Scrapped BraveLite Mock Engine in favor of Native Local SearXNG:
-   - Replaced the custom mock BraveLite search engine backend and HTML generator with a direct integration to local SearXNG at "http://localhost:8080/":
+1. Scrapped ZeroState Mock Engine in favor of Native Local SearXNG:
+   - Replaced the custom mock ZeroState search engine backend and HTML generator with a direct integration to local SearXNG at "http://localhost:8080/":
      * Default search engine is now SearXNG across all address bar queries, start page searches, autocomplete suggestions, and category queries.
      * Cleaned out ~700 lines of complex client-side HTML generators, multi-API scraping routines, and navigation override hacks.
      * Native web navigation: full standard browser history, tab persistence, context menu Back/Forward/Reload, and keyboard shortcuts without custom URL interception.
      * Full category search support: direct URL parameter routing for Images (`&categories=images`), Videos (`&categories=videos`), and News (`&categories=news`).
      * UI & Localization updates: all 6 UI languages (English, Greek, Spanish, French, German, Chinese) now feature SearXNG in settings, search placeholders, omnibox auto-completion, and history logs.
-     * Automatic configuration migration: automatically maps any legacy "BraveLite Engine" settings or saved sessions to SearXNG.
+     * Automatic configuration migration: automatically maps any legacy "ZeroState Engine" settings or saved sessions to SearXNG.
 
 ================================================================================
-BraveLite v1.71 - Official Release Changelog
+ZeroState v1.71 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
 [MAJOR FEATURES & ENHANCEMENTS]
-1. Pure BraveLite Engine with Startpage Cosmetic Aesthetic:
+1. Pure ZeroState Engine with Startpage Cosmetic Aesthetic:
    - Stripped away all Startpage branding, external redirects, and proxy links:
-     * Header logo branded as "BraveLite Engine" with lion badge and localized subtitle "Private Search & AI".
-     * Privacy badge rebranded to "BraveLite Protected" with tagline "Zero personal data logged • No search profiling • AI Grounding enabled".
+     * Header logo branded as "ZeroState Engine" with lion badge and localized subtitle "Private Search & AI".
+     * Privacy badge rebranded to "ZeroState Protected" with tagline "Zero personal data logged • No search profiling • AI Grounding enabled".
      * Removed all external redirection buttons and proxy links. Destination links open directly with zero third-party leakage or tracking.
      * Retained the sleek, modern cosmetic design aesthetic (deep navy `#141724` palette, signature `#6580ff` blue accents, clean cards, host & favicon rows, category tabs, and private local AI Overview).
-   - Removed Startpage from the default search engine selection list across all supported languages (Settings -> Get Started), keeping BraveLite Engine as the primary default alongside Google, Bing, DuckDuckGo, Yahoo, and Yandex, while auto-migrating any legacy configurations.
+   - Removed Startpage from the default search engine selection list across all supported languages (Settings -> Get Started), keeping ZeroState Engine as the primary default alongside Google, Bing, DuckDuckGo, Yahoo, and Yandex, while auto-migrating any legacy configurations.
 
 2. Instant High-Speed Direct Search Backend (Extreme Latency & Hanging Eliminated):
    - Completely resolved the issue where search did not work or took an extreme amount of time:
@@ -60,11 +60,11 @@ Author: GrGeorge
 5. Cross-Platform Parity (Windows & Linux) & Version Bump to v1.71:
    - Full compatibility and parity across Windows 10/11 and all major Linux distributions.
    - Updated Inno Setup Windows installer (`installer.iss`) to v1.71.
-   - Updated IPC single-instance socket server to `BraveLiteSingleInstanceServer_v171`.
+   - Updated IPC single-instance socket server to `ZeroStateSingleInstanceServer_v171`.
    - Updated diagnostic crash logs and `--version` command line output to `v1.71 (Beta)`.
 
 ================================================================================
-BraveLite v1.70 - Official Release Changelog
+ZeroState v1.70 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
@@ -77,8 +77,8 @@ Author: GrGeorge
    - Intelligent close buttons: on compact tabs (< 55px), close buttons are cleanly hidden on inactive tabs to prevent accidental closures while staying fully available on hover and the active tab.
    - Comprehensive tab management: right-click tab context menu ("New tab to the right", "Reload", "Duplicate", "Close tab", "Close other tabs", "Close tabs to the right", "Reopen closed tab"), middle-click to close, mouse wheel cycling, and double-click to maximize/restore.
 
-2. Startpage-Powered BraveLite Engine (https://www.startpage.com/):
-   - Completely reworked the BraveLite Engine based on and functioning like Startpage:
+2. Startpage-Powered ZeroState Engine (https://www.startpage.com/):
+   - Completely reworked the ZeroState Engine based on and functioning like Startpage:
      * Full Startpage privacy design aesthetic: deep navy palette (`#141724`), Startpage signature blue (`#6580ff`), and privacy trust badges ("Startpage Protected: Zero personal data logged • No search profiling").
      * Anonymous View Proxy Integration: every web result card now features an official **"🛡️ Anonymous View"** proxy button linking to `https://www.startpage.com/av/proxy?piurl=...`, allowing users to browse result destinations 100% anonymously with masked IP addresses and zero tracking.
      * Category Navigation Tabs: 🔍 All, 🖼 Images, 🎬 Videos, 📰 News with dedicated Startpage-style result layouts.
@@ -99,7 +99,7 @@ Author: GrGeorge
    - Complete localized coverage across all browser components:
      * Settings Dashboard: all 15 categories, detail headings, cards, descriptions, and action buttons.
      * Starting Page (New Tab): welcome headline ("Welcome!"), search placeholder, tagline ("because privacy matters"), date formatting, and live JS clock adapting to the selected locale (`el-GR`, `es-ES`, `fr-FR`, `de-DE`, `zh-CN`, `en-US`).
-     * URL Box (Omnibox): localized placeholder ("Search privately with BraveLite Engine or enter address", "Search with %1 or enter address"), autocomplete search hints ("- Search with %1"), and full context menu (Cut, Copy, Paste, Paste and Search, Delete, Select All, Undo, Redo).
+     * URL Box (Omnibox): localized placeholder ("Search privately with ZeroState Engine or enter address", "Search with %1 or enter address"), autocomplete search hints ("- Search with %1"), and full context menu (Cut, Copy, Paste, Paste and Search, Delete, Select All, Undo, Redo).
      * Navigation Toolbar: tooltips for Back, Forward, Reload, Bookmarks, Zoom Out, Zoom In, Downloads, Passwords, Split View, and Menu, plus the Translate button.
      * App Menu: localized actions, confirmation dialogs, and a dedicated "🌐 Language" submenu with checkmark indicators.
      * Tab Bar & Internal Tabs: localized "New Tab", "Settings", "Downloads", "History", and "Permissions" tab titles.
@@ -110,10 +110,10 @@ Author: GrGeorge
 5. Full Windows & Linux Parity & Version Bump to v1.70:
    - Complete cross-platform feature parity across Windows 10/11 and Linux.
    - Native Windows border drag resizing with `WM_NCHITTEST` and Aero Snap.
-   - Updated Inno Setup Windows installer (`installer.iss`), IPC socket (`BraveLiteSingleInstanceServer_v170`), and diagnostic crash logger to v1.70.
+   - Updated Inno Setup Windows installer (`installer.iss`), IPC socket (`ZeroStateSingleInstanceServer_v170`), and diagnostic crash logger to v1.70.
 
 ================================================================================
-BraveLite v1.69 - Official Release Changelog
+ZeroState v1.69 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
@@ -156,29 +156,29 @@ Author: GrGeorge
    - Redesigned the neural translation button (`btnTranslate`) into a sleek, fixed-width icon-only button ("🌐").
    - Removed redundant button text while keeping informative hover tooltips and dynamic progress status ("⏳").
 
-6. Official BraveLite Window & Application Logo:
-   - Configured the official SVG logo (`/home/george/Documents/GitHub/braveLite/assets/bravelite.svg`) as the primary application and window icon.
-   - Re-encoded `assets/icon.ico` with multi-resolution embedded PNG layers (16x16 to 256x256) from `assets/bravelite.svg` for native Windows executable and taskbar fidelity.
+6. Official ZeroState Window & Application Logo:
+   - Configured the official SVG logo (`/home/george/Documents/GitHub/braveLite/assets/zerostate.svg`) as the primary application and window icon.
+   - Re-encoded `assets/icon.ico` with multi-resolution embedded PNG layers (16x16 to 256x256) from `assets/zerostate.svg` for native Windows executable and taskbar fidelity.
    - Integrated system-wide SVG and 512x512 desktop icon paths.
 
 7. Full Windows & Linux Parity & Version Bump to v1.69:
    - Full feature parity between Linux and Windows platforms.
-   - Updated Inno Setup Windows installer (`installer.iss`), IPC server instance (`BraveLiteSingleInstanceServer_v169`), and diagnostic crash logs to v1.69.
+   - Updated Inno Setup Windows installer (`installer.iss`), IPC server instance (`ZeroStateSingleInstanceServer_v169`), and diagnostic crash logs to v1.69.
 
 ================================================================================
-BraveLite v1.68 - Official Release Changelog
+ZeroState v1.68 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
 [MAJOR FEATURES & ENHANCEMENTS]
 1. Multi-Search Engine Support (Top 5 Popular Search Engines):
-   - Added native support for the top 5 most popular search engines globally alongside BraveLite Engine:
+   - Added native support for the top 5 most popular search engines globally alongside ZeroState Engine:
      * Google (https://www.google.com/search?q=)
      * Microsoft Bing (https://www.bing.com/search?q=)
      * DuckDuckGo (https://duckduckgo.com/?q=)
      * Yahoo (https://search.yahoo.com/search?p=)
      * Yandex (https://yandex.com/search/?text=)
-   - Kept BraveLite Engine (with local AI Overviews) as the default engine.
+   - Kept ZeroState Engine (with local AI Overviews) as the default engine.
    - Built full search engine selection directly inside Settings -> "Get started".
    - Dynamically routes search queries from both the address bar (omnibox) and the new tab start page to the active search engine.
    - Updated Omnibox autocomplete to dynamically reflect the selected engine (e.g. "- Search with Google", "- Search with DuckDuckGo").
@@ -189,16 +189,16 @@ Author: GrGeorge
    - Updated Inno Setup Windows installer (`installer.iss`) to v1.68.
 
 3. Version Bump to v1.68:
-   - Elevated application version, IPC single-instance socket name (`BraveLiteSingleInstanceServer_v168`), diagnostic crash reports, and engine headers to v1.68.
+   - Elevated application version, IPC single-instance socket name (`ZeroStateSingleInstanceServer_v168`), diagnostic crash reports, and engine headers to v1.68.
 
 ================================================================================
-BraveLite v1.67 - Official Release Changelog
+ZeroState v1.67 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
 [MAJOR FEATURES & ENHANCEMENTS]
 1. Extensions Button & Quick Management Dropdown Menu:
-   - Added a dedicated Extensions action button (crisp puzzle piece vector icon) in the top tab row placed directly adjacent to the BraveLite AI Assistant sparkle button.
+   - Added a dedicated Extensions action button (crisp puzzle piece vector icon) in the top tab row placed directly adjacent to the ZeroState AI Assistant sparkle button.
    - Built a sleek, theme-integrated dropdown management menu displaying all active WebExtensions, custom userscripts, and CRX packages.
    - Added direct extension management controls:
      * View real-time status (Active / Disabled) for each extension.
@@ -211,14 +211,14 @@ Author: GrGeorge
    - Eliminated recursive Qt event filtering during QCompleter popup initialization by caching popup references and adding a re-entrancy guard to `BrowserWindow::eventFilter`.
 
 3. Full Windows & Linux Cross-Platform Parity:
-   - Cross-platform UI design and file path handling via `QStandardPaths::ConfigLocation` (`%APPDATA%/BraveLite` on Windows and `~/.config/BraveLite` on Linux).
+   - Cross-platform UI design and file path handling via `QStandardPaths::ConfigLocation` (`%APPDATA%/ZeroState` on Windows and `~/.config/ZeroState` on Linux).
    - Inno Setup Windows installer updated to v1.67.
 
 4. Version Bump to v1.67:
-   - Updated engine versions, IPC socket namespaces (`BraveLiteSingleInstanceServer_v167`), window headers, and crash diagnostic logs to v1.67.
+   - Updated engine versions, IPC socket namespaces (`ZeroStateSingleInstanceServer_v167`), window headers, and crash diagnostic logs to v1.67.
 
 ================================================================================
-BraveLite v1.66 - Official Release Changelog
+ZeroState v1.66 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
@@ -226,26 +226,26 @@ Author: GrGeorge
 1. Chrome Web Store Native "Add to Chrome" Button Integration & Frictionless Installation:
    - Full implementation of `chrome.webstorePrivate` API bridge (`beginInstallWithManifest3`, `install`, `getExtensionStatus`, `enable`, `completeInstall`) injected at `DocumentCreation` to hook native Google WebStore actions before page scripts run.
    - Added capturing DOM event listener on Chrome Web Store buttons ("Add to Chrome", "Add to Brave", etc.), accurately extracting extension IDs from detail URLs and dispatching CRX downloads directly from Google client services.
-   - Overhauled download handling (`handleDownload`) to automatically intercept WebExtension CRX packages and Google update URLs, routing them directly into BraveLite's Extensions directory without popping modal file picker dialogs, and registering them via `QWebEngineExtensionManager`.
-   - Maintained the floating "⚡ Add to BraveLite" badge on WebStore pages as a persistent fallback installation mechanism.
+   - Overhauled download handling (`handleDownload`) to automatically intercept WebExtension CRX packages and Google update URLs, routing them directly into ZeroState's Extensions directory without popping modal file picker dialogs, and registering them via `QWebEngineExtensionManager`.
+   - Maintained the floating "⚡ Add to ZeroState" badge on WebStore pages as a persistent fallback installation mechanism.
 
 2. Ubiquitous Find in Page (Ctrl+F) Everywhere:
    - Fixed Qt ambiguous shortcut collision caused by duplicate keybind registration of `"Ctrl+F"`.
    - Implemented an application-level event filter (`qApp->installEventFilter(this)`) in `BrowserWindow`, ensuring `Ctrl+F` and `Meta+F` are captured reliably across all windows, child frames, and active widgets.
    - Installed event filtering on `CustomWebView` and its Chromium `focusProxy()`, preventing the internal Chromium widget from consuming key events.
-   - Injected a capturing `keydown` listener across all web pages in `BraveLiteCosmeticAndYTShield` communicating `BRAVELITE_OPEN_FIND::` via the console message channel, preventing websites from hijacking or suppressing `Ctrl+F`.
+   - Injected a capturing `keydown` listener across all web pages in `ZeroStateCosmeticAndYTShield` communicating `ZEROSTATE_OPEN_FIND::` via the console message channel, preventing websites from hijacking or suppressing `Ctrl+F`.
    - Added "Find in page...\tCtrl+F" to both the 3-dots App Menu and the web page right-click context menu.
    - Centralized `openFindDialog()` logic to immediately focus, select input, and update match counts across normal and split views.
 
 3. Full Windows & Linux Cross-Platform Compatibility:
-   - Standardized all extension storage and profile directory resolutions via `QStandardPaths::ConfigLocation` (`%APPDATA%/BraveLite` on Windows and `~/.config/BraveLite` on Linux).
-   - Validated IPC single-instance socket naming (`BraveLiteSingleInstanceServer_v166`) and Windows installer definition (`installer.iss`).
+   - Standardized all extension storage and profile directory resolutions via `QStandardPaths::ConfigLocation` (`%APPDATA%/ZeroState` on Windows and `~/.config/ZeroState` on Linux).
+   - Validated IPC single-instance socket naming (`ZeroStateSingleInstanceServer_v166`) and Windows installer definition (`installer.iss`).
 
 4. Version Bump:
    - Elevated application version, diagnostic crash reporter, IPC server name, and engine identifiers to v1.66.
 
 ================================================================================
-BraveLite v1.65 - Official Release Changelog
+ZeroState v1.65 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
@@ -253,8 +253,8 @@ Author: GrGeorge
 1. Chrome Web Store "Item Currently Unavailable" Fix & Direct WebExtension Installer:
    - Upgraded HTTP User-Agent and client profile to Chrome/140.0.0.0, resolving Google Chrome Web Store compatibility rejections for non-Google Chromium clients.
    - Injected a specialized Chrome Web Store bridge that eliminates "Item currently unavailable. Please check the troubleshooting guide." error cards.
-   - Added a modern floating "Add to BraveLite" action button on Chrome Web Store detail pages with direct CRX download routing from Google's client services.
-   - Integrated automatic WebExtension unpacking and registration directly from downloaded .crx extension packages into BraveLite Extensions storage.
+   - Added a modern floating "Add to ZeroState" action button on Chrome Web Store detail pages with direct CRX download routing from Google's client services.
+   - Integrated automatic WebExtension unpacking and registration directly from downloaded .crx extension packages into ZeroState Extensions storage.
 
 2. Minimalist & Slick Find in Page (Ctrl+F):
    - Overhauled Find in Page into an ultra-minimalist, sleek floating dark pill with smooth 10px rounded corners, subtle borders, search icon, live match count ("1/3", "0/0"), and smooth chevron navigation buttons.
@@ -280,15 +280,15 @@ Author: GrGeorge
    - Removed the 400ms setTimeout delay from handleLinkHoverSummarize, triggering rich AI preview summaries instantaneously when hovering over links with the Ctrl key held.
 
 ================================================================================
-BraveLite v1.64 (Beta) - Official Release Changelog
+ZeroState v1.64 (Beta) - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
 [NOTE: BETA RELEASE]
-BraveLite is currently in active Beta. This release introduces local AI side assistance, a modern frameless top bar, real-time theming, enhanced session persistence, Widevine DRM playback fixes, and extensive interface refinements.
+ZeroState is currently in active Beta. This release introduces local AI side assistance, a modern frameless top bar, real-time theming, enhanced session persistence, Widevine DRM playback fixes, and extensive interface refinements.
 
 [MAJOR FEATURES & ENHANCEMENTS]
-1. Top-Right BraveLite AI Assistant (Side Chat Panel):
+1. Top-Right ZeroState AI Assistant (Side Chat Panel):
    - Added an AI Overview sparkle button on the top-right of the window that toggles a dedicated side panel (~1/4 window width).
    - Fully connected to local Ollama LLMs with Markdown code formatting, user/assistant chat bubbles, and a "New" conversation reset button.
    - Added a dedicated "Chatting model" selector in AI Settings supporting low-spec offline models (smollm2:360m, smollm2:135m, qwen2.5:0.5b, llama3.2:1b).
@@ -298,7 +298,7 @@ BraveLite is currently in active Beta. This release introduces local AI side ass
    - Added support for loading unpacked WebExtensions via QWebEngineExtensionManager (Qt 6.11) and custom userscripts (.user.js).
 
 3. Real-Time Instant Theme Engine:
-   - Dynamic theme profile updates (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now refresh all open settings cards, borders, sidebars, and panels immediately with zero restart required.
+   - Dynamic theme profile updates (ZeroState Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now refresh all open settings cards, borders, sidebars, and panels immediately with zero restart required.
 
 4. Startup Bookmark Bar Rendering Fix:
    - Fixed an issue where only 1 bookmark rendered until a website like YouTube was loaded.
@@ -321,7 +321,7 @@ BraveLite is currently in active Beta. This release introduces local AI side ass
    - Ensured context menu "Open new window" and shortcuts open pristine clean windows, restricting session restoration strictly to the initial browser startup.
 
 10. "Continue Where You Left Off" Full Tab Persistence:
-    - Automatically persists open tab state on exit and restores it on startup, including search query tabs (search.bravelite.local) and split view tabs.
+    - Automatically persists open tab state on exit and restores it on startup, including search query tabs (search.zerostate.local) and split view tabs.
 
 11. Omnibox Tab Key Autofill:
     - Pressing the Tab key in the address bar autofills the best completion suggestion (e.g. typing "yo" autofills "youtube.com" matching Photo 2).
@@ -338,7 +338,7 @@ BraveLite is currently in active Beta. This release introduces local AI side ass
     - Updated single-instance IPC channel and crash logger diagnostics to v1.64 (Beta).
 
 ================================================================================
-BraveLite v1.63 - Official Release Changelog
+ZeroState v1.63 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
@@ -376,7 +376,7 @@ Author: GrGeorge
    - Fixed YouTube fullscreen exit to cleanly preserve and restore window maximized state using showMaximized() without unmaximizing or stuttering.
 
 9. Full Theme Integration for Settings & Start Page:
-   - Dynamic theme palette (BraveLite Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now applies to the Settings dashboard and Start Page.
+   - Dynamic theme palette (ZeroState Dark, Midnight OLED, Cyberpunk Neon, Nordic Frost, Catppuccin Mocha) now applies to the Settings dashboard and Start Page.
 
 10. Natural Language AI Overview & Slick Layout (Matching Photo 3):
     - Restored AI overview to natural language paragraphs with bold keywords (**keyword**) instead of code blocks.
@@ -393,7 +393,7 @@ Author: GrGeorge
     - Combined Chromium findText with window.find() DOM scrolling.
 
 ================================================================================
-BraveLite v1.5 - Official Release Changelog
+ZeroState v1.5 - Official Release Changelog
 Author: GrGeorge
 ================================================================================
 
@@ -436,7 +436,7 @@ Author: GrGeorge
      left-to-right and right-to-left.
 
 8. Complete Overhaul of Themes:
-   - Overhauled all 5 built-in theme profiles (BraveLite Dark, Midnight OLED,
+   - Overhauled all 5 built-in theme profiles (ZeroState Dark, Midnight OLED,
      Cyberpunk Neon, Nordic Frost, Catppuccin Mocha).
    - Added customized theme-matched slim rounded scrollbars (vertical & horizontal).
    - Added modern polished styling for tabs, menus, tooltips, dialogs, and splitter dividers.
@@ -462,19 +462,19 @@ Author: GrGeorge
 13. Spotify Audio & Web Player Playback Fix:
     - Fixed Spotify web player (open.spotify.com) failing to play songs by updating
       browser User-Agent to standard Chrome and configuring Widevine DRM / media codec flags.
-    - Whitelisted Spotify streaming and media endpoints in BraveLite Shield.
+    - Whitelisted Spotify streaming and media endpoints in ZeroState Shield.
 
 14. Version v1.5:
     - Updated version numbering to v1.5 across the application, Windows Inno Setup
       installer configuration (installer.iss), and release documentation.
 
 ================================================================================
-BraveLite v1.11 - Previous Release
+ZeroState v1.11 - Previous Release
 ================================================================================
-- Renamed Local Search Engine to "BraveLite Engine".
+- Renamed Local Search Engine to "ZeroState Engine".
 - Added Google-style "AI Overview" with DuckDuckGo live search grounding.
-- Fixed BraveLite AI Hover Link Summarizer.
-- GPU Detection & Hardware Acceleration for BraveLite AI.
+- Fixed ZeroState AI Hover Link Summarizer.
+- GPU Detection & Hardware Acceleration for ZeroState AI.
 - Eliminated Idle CPU Usage (0% CPU at Idle).
 - Single-instance IPC, 5 theme profiles, drag-and-drop reorderable bookmarks.
 ================================================================================

@@ -1,7 +1,7 @@
-#define MyAppName "BraveLite"
-#define MyAppVersion "1.71"
+#define MyAppName "ZeroState"
+#define MyAppVersion "1.72"
 #define MyAppPublisher "GrGeorge"
-#define MyAppExeName "BraveLite.exe"
+#define MyAppExeName "ZeroState.exe"
 
 [Setup]
 AppId={{D1A3F5E7-6F7D-4F66-96F1-3C3E14059D2E}
@@ -12,7 +12,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=.
-OutputBaseFilename=BraveLite-Setup-x64
+OutputBaseFilename=ZeroState-Setup-x64
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern

@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
-project(fedorabrowser LANGUAGES CXX)
+project(ZeroState LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebEngineCore Network WebChannel Positioning)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 
-qt_standard_project_setup()
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets WebEngineWidgets WebEngineCore Network WebChannel Positioning)
 
 set(APP_SOURCES
     src/main.cpp
@@ -18,12 +19,12 @@ if(WIN32)
 endif()
 
 # WIN32 parameter suppresses the black CMD / console pop-up window
-qt_add_executable(fedorabrowser WIN32
+add_executable(ZeroState WIN32
     ${APP_SOURCES}
     ${APP_RESOURCES}
 )
 
-target_link_libraries(fedorabrowser PRIVATE
+target_link_libraries(ZeroState PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
