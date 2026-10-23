@@ -26,6 +26,7 @@ Built natively in **C++17** and **Qt6 WebEngine**, ZeroState strips away corpora
 
 - [Quick Installation Guide](#quick-installation-guide)
   - [Windows Installation](#-windows-installation)
+    - [Bypassing SmartScreen](#bypassing-smartscreen)
   - [Linux Installation](#-linux-installation)
 - [Building from Source](#building-from-source)
   - [Linux (Fedora, Ubuntu, Arch, openSUSE)](#linux-build)
@@ -53,6 +54,22 @@ Built natively in **C++17** and **Qt6 WebEngine**, ZeroState strips away corpora
    - Automatically bundle all necessary Qt6 and WebEngine dependencies.
    - Create a desktop shortcut and a Start Menu entry.
 4. Launch **ZeroState** directly from your desktop or Start Menu!
+
+#### Bypassing SmartScreen
+
+> [!NOTE]
+> **Windows Defender SmartScreen Notice:**  
+> Because ZeroState is a community-developed, open-source browser and does not carry an expensive corporate EV code-signing certificate (\$400+/year), Windows Defender SmartScreen may display a blue dialog:
+>
+> *"Windows protected your PC — Microsoft Defender SmartScreen prevented an unrecognized app from starting."*
+>
+> **This is completely normal and expected for unsigned open-source binaries.**
+>
+> To proceed:
+> 1. Click **More info** (under the notification text).
+> 2. Click the **Run anyway** button that appears at the bottom.
+>
+> ZeroState is 100% open-source under the MIT license; its entire source code is auditable in this repository.
 
 ---
 
