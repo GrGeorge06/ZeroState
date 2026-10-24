@@ -2968,8 +2968,24 @@ public:
 
         bindWebViewSignals(view);
 
-        if (url.isEmpty()) view->setHtml(getNewTabHtml());
-        else view->load(url);
+        if (url.isEmpty()) {
+            view->setHtml(getNewTabHtml());
+            view->setFocus();
+            QTimer::singleShot(50, view, [view]() {
+                view->setFocus();
+                if (view->page()) {
+                    view->page()->runJavaScript("var el = document.getElementById('startSearch'); if (el) { el.focus(); el.select(); }");
+                }
+            });
+            QTimer::singleShot(250, view, [view]() {
+                view->setFocus();
+                if (view->page()) {
+                    view->page()->runJavaScript("var el = document.getElementById('startSearch'); if (el) { el.focus(); el.select(); }");
+                }
+            });
+        } else {
+            view->load(url);
+        }
 
         updateSplitButtonState();
         if (wasMax && !isMaximized()) {
@@ -7965,6 +7981,7 @@ private:
 
         newTabBtn = new NewTabDropButton("+", this);
         newTabBtn->setFixedSize(28, 28);
+        newTabBtn->setFocusPolicy(Qt::NoFocus);
         newTabBtn->setCursor(Qt::PointingHandCursor);
         newTabBtn->setToolTip(L10n::tr("New tab") + " (Ctrl+T)");
         newTabBtn->setStyleSheet("QPushButton { font-size: 16px; font-weight: bold; color: #c8ccd0; background: #242629; border: 1px solid #34373d; border-radius: 6px; padding: 0; } QPushButton:hover { background-color: #35373c; color: #fff; }");
@@ -8420,6 +8437,25 @@ private:
                     }
                     updateClock();
                     setInterval(updateClock, 30000);
+
+                    function focusSearch() {
+                        const el = document.getElementById('startSearch');
+                        if (el) {
+                            el.focus();
+                            el.select();
+                        }
+                    }
+                    focusSearch();
+                    window.addEventListener('DOMContentLoaded', focusSearch);
+                    window.addEventListener('load', focusSearch);
+                    setTimeout(focusSearch, 50);
+                    setTimeout(focusSearch, 150);
+                    setTimeout(focusSearch, 300);
+                    document.addEventListener('click', function(e) {
+                        if (e.target && e.target.tagName !== 'INPUT' && e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+                            focusSearch();
+                        }
+                    });
                     </script>
                     </body>
                     </html>
@@ -8591,9 +8627,16 @@ private:
             tabStack->setCurrentIndex(idx);
             if (auto *v = activeWebView()) {
                 QString urlStr = v->url().toString();
-                if (urlStr.startsWith("data:") || v->url().scheme() == "about") {
+                if (urlStr.startsWith("data:") || v->url().scheme() == "about" || urlStr.isEmpty()) {
                     urlBar->clear();
                     btnPrivacyGrade->hide();
+                    v->setFocus();
+                    QTimer::singleShot(50, v, [v]() {
+                        v->setFocus();
+                        if (v->page()) {
+                            v->page()->runJavaScript("var el = document.getElementById('startSearch'); if (el) { el.focus(); el.select(); }");
+                        }
+                    });
                 } else {
                     urlBar->setText(urlStr);
                     updatePrivacyBadge(v->url());
@@ -9209,6 +9252,10 @@ private:
         connect(view, &QWebEngineView::loadFinished, this, [this, view](bool ok) {
             if (ok) {
                 view->setProperty("zs_crash_count", 0);
+                if (view->url().isEmpty() || view->url().toString() == "about:blank" || view->url().scheme() == "data") {
+                    view->setFocus();
+                    view->page()->runJavaScript("var el = document.getElementById('startSearch'); if (el) { el.focus(); el.select(); }");
+                }
             }
             if (ok && !m_isIncognito) {
                 view->page()->runJavaScript(R"(
@@ -9542,8 +9589,24 @@ CustomWebView* BrowserWindow::createNewTabWithView(const QUrl &url) {
 
     bindWebViewSignals(view);
 
-    if (url.isEmpty()) view->setHtml(getNewTabHtml());
-    else view->load(url);
+    if (url.isEmpty()) {
+        view->setHtml(getNewTabHtml());
+        view->setFocus();
+        QTimer::singleShot(50, view, [view]() {
+            view->setFocus();
+            if (view->page()) {
+                view->page()->runJavaScript("var el = document.getElementById('startSearch'); if (el) { el.focus(); el.select(); }");
+            }
+        });
+        QTimer::singleShot(250, view, [view]() {
+            view->setFocus();
+            if (view->page()) {
+                view->page()->runJavaScript("var el = document.getElementById('startSearch'); if (el) { el.focus(); el.select(); }");
+            }
+        });
+    } else {
+        view->load(url);
+    }
 
     updateSplitButtonState();
     if (wasMax && !isMaximized()) {
