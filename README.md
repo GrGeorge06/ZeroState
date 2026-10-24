@@ -11,7 +11,7 @@ Built natively in **C++17** and **Qt6 WebEngine**, ZeroState strips away corpora
 </p>
 
 <p align="center">
-  <a href="https://github.com/GrGeorge06/braveLite/releases"><img src="https://img.shields.io/badge/version-v1.72%20(Complete%20Release)-brightgreen?style=for-the-badge" alt="Release v1.72"></a>
+  <a href="https://github.com/GrGeorge06/braveLite/releases"><img src="https://img.shields.io/badge/version-v1.73%20(Complete%20Release)-brightgreen?style=for-the-badge" alt="Release v1.72"></a>
   <a href="https://github.com/GrGeorge06/braveLite/releases"><img src="https://img.shields.io/badge/status-Out%20of%20Beta-success?style=for-the-badge" alt="Out of Beta"></a>
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue?style=for-the-badge" alt="Platform Support">
   <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blueviolet?style=for-the-badge" alt="License MIT"></a>
