@@ -8344,7 +8344,7 @@ private:
 
         QString searchPlaceholder = L10n::getStartPagePlaceholder(defaultSearchEngine);
         QString newTabTitle = L10n::tr("New Tab");
-        QString welcomeText = L10n::tr("Welcome!");
+        QString welcomeText = "ZeroState";
         QString taglineText = L10n::tr("because privacy matters");
         QString localeCode = L10n::getLocaleCode();
 
@@ -8429,6 +8429,161 @@ private:
                    .arg(now.toHtmlEscaped())
                    .arg(taglineText.toHtmlEscaped())
                    .arg(localeCode);
+    }
+
+    QString getCrashPageHtml(const QUrl &crashedUrl, int exitCode, QWebEnginePage::RenderProcessTerminationStatus status) {
+        QString bgMain = "#191b1f";
+        QString bgCard = "#242529";
+        QString borderCol = "#32353b";
+        QString accent = "#ff5500";
+        QString textCol = "#ffffff";
+        QString subTextCol = "#a0a4ab";
+
+        if (currentThemeProfile == "Midnight OLED") {
+            bgMain = "#000000";
+            bgCard = "#0e0f12";
+            borderCol = "#222327";
+            accent = "#ff5e00";
+            textCol = "#f2f2f5";
+            subTextCol = "#8a8f9d";
+        } else if (currentThemeProfile == "Cyberpunk Neon") {
+            bgMain = "#090710";
+            bgCard = "#140e24";
+            borderCol = "#351f54";
+            accent = "#00f0ff";
+            textCol = "#f5ecff";
+            subTextCol = "#a78bfa";
+        } else if (currentThemeProfile == "Nordic Frost") {
+            bgMain = "#1e222a";
+            bgCard = "#282e3a";
+            borderCol = "#3b4252";
+            accent = "#88c0d0";
+            textCol = "#eceff4";
+            subTextCol = "#d8dee9";
+        } else if (currentThemeProfile == "Catppuccin Mocha") {
+            bgMain = "#181825";
+            bgCard = "#1e1e2e";
+            borderCol = "#45475a";
+            accent = "#cba6f7";
+            textCol = "#cdd6f4";
+            subTextCol = "#a6adc8";
+        }
+
+        QString urlDisplay = crashedUrl.toDisplayString().toHtmlEscaped();
+        if (urlDisplay.isEmpty()) urlDisplay = "about:blank";
+
+        QString statusStr = "Crashed (SIGTRAP / Assertion)";
+        if (status == QWebEnginePage::AbnormalTerminationStatus) statusStr = "Abnormal Exit";
+        else if (status == QWebEnginePage::KilledTerminationStatus) statusStr = "Killed by OS";
+
+        return QString(R"crash(
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tab Crashed — ZeroState</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body {
+            background-color: %1;
+            color: %4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .card {
+            background: %2;
+            border: 1px solid %3;
+            border-radius: 16px;
+            max-width: 580px;
+            width: 100%;
+            padding: 36px 32px;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+        .icon {
+            font-size: 52px;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: %4;
+        }
+        p {
+            color: %5;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .url-box {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid %3;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: monospace;
+            font-size: 13px;
+            color: %4;
+            word-break: break-all;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .details {
+            font-size: 12px;
+            color: %5;
+            margin-bottom: 24px;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .btn {
+            background: %6;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s ease, transform 0.1s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-secondary {
+            background: transparent;
+            color: %4;
+            border: 1px solid %3;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.06);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">⚠</div>
+        <h1>This tab crashed</h1>
+        <p>Something went wrong while displaying this webpage. To continue, try reloading the page or closing other intensive tabs.</p>
+        <div class="url-box">%7</div>
+        <div class="details">Status: %8 &bull; Exit Code: %9</div>
+        <div class="actions">
+            <button class="btn" onclick="location.reload()">Reload Page</button>
+            <button class="btn btn-secondary" onclick="window.history.length > 1 ? window.history.back() : window.location.href='about:blank'">Go Back</button>
+        </div>
+    </div>
+</body>
+</html>
+)crash").arg(bgMain, bgCard, borderCol, textCol, subTextCol, accent, urlDisplay, statusStr, QString::number(exitCode));
     }
 
     void tabSwitched(int idx) {
@@ -8894,14 +9049,52 @@ private:
                 });
             });
 
-            connect(view, &QWebEngineView::renderProcessTerminated, this, [view](QWebEnginePage::RenderProcessTerminationStatus status, int exitCode) {
+            connect(view, &QWebEngineView::renderProcessTerminated, this, [this, view](QWebEnginePage::RenderProcessTerminationStatus status, int exitCode) {
+                QUrl crashedUrl = (view->page() && view->page()->requestedUrl().isValid() && !view->page()->requestedUrl().isEmpty())
+                                  ? view->page()->requestedUrl() : view->url();
+                if (crashedUrl.isEmpty() && view->history() && view->history()->currentItem().isValid()) {
+                    crashedUrl = view->history()->currentItem().url();
+                }
+
+                bool isStartPage = crashedUrl.isEmpty() || crashedUrl.toString() == "about:blank" || crashedUrl.scheme() == "data";
+
+                QString urlStr = crashedUrl.toString();
                 CrashLogger::writeCrashEntry("WebEngine Render Process Terminated",
                                              QString("URL: %1 | Status: %2 | ExitCode: %3")
-                                             .arg(view->url().toString()).arg(status).arg(exitCode));
+                                             .arg(urlStr).arg(status).arg(exitCode));
+
+                qWarning().noquote() << QString("[ZeroState] WebEngine Render Process Terminated: %1 (Status: %2, ExitCode: %3)")
+                                        .arg(urlStr).arg(status).arg(exitCode);
+
                 if (status != QWebEnginePage::NormalTerminationStatus) {
-                    QTimer::singleShot(400, view, [view]() {
-                        view->reload();
-                    });
+                    if (isStartPage) {
+                        // Never replace the new tab / welcome screen with a crash page; simply restore it
+                        view->setHtml(getNewTabHtml());
+                        return;
+                    }
+
+                    int crashCount = view->property("zs_crash_count").toInt();
+                    qint64 lastCrashTime = view->property("zs_last_crash_time").toLongLong();
+                    qint64 now = QDateTime::currentMSecsSinceEpoch();
+
+                    if (now - lastCrashTime > 30000) {
+                        crashCount = 0;
+                    }
+                    crashCount++;
+                    view->setProperty("zs_crash_count", crashCount);
+                    view->setProperty("zs_last_crash_time", now);
+
+                    if (crashCount <= 1) {
+                        // First crash: attempt a single graceful reload after 1 second
+                        QTimer::singleShot(1000, view, [view, crashedUrl]() {
+                            view->load(crashedUrl);
+                        });
+                    } else {
+                        // Repeated crashes: break the infinite reload loop and display the native error page
+                        qWarning().noquote() << QString("[ZeroState] Suppressing reload loop for repeatedly crashing URL: %1 (Crash count: %2)")
+                                                .arg(urlStr).arg(crashCount);
+                        view->setHtml(getCrashPageHtml(crashedUrl, exitCode, status), crashedUrl);
+                    }
                 }
             });
 
@@ -9014,6 +9207,9 @@ private:
         });
 
         connect(view, &QWebEngineView::loadFinished, this, [this, view](bool ok) {
+            if (ok) {
+                view->setProperty("zs_crash_count", 0);
+            }
             if (ok && !m_isIncognito) {
                 view->page()->runJavaScript(R"(
                     (function() {
