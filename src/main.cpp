@@ -124,6 +124,7 @@
 #endif
 #include <windows.h>
 #include <windowsx.h>
+#include <dwmapi.h>
 #endif
 
 inline QIcon loadZeroStateAppIcon() {
@@ -3122,6 +3123,9 @@ protected:
 
     void showEvent(QShowEvent *event) override {
         QMainWindow::showEvent(event);
+#ifdef Q_OS_WIN
+        enableWindowsSnap();
+#endif
         QTimer::singleShot(50, this, [this]() {
             renderBookmarks();
         });
@@ -3162,12 +3166,12 @@ protected:
             QMainWindow::mouseMoveEvent(event);
             return;
         }
-        const int margin = 6;
+        const int margin = 8;
         QPoint p = event->pos();
         Qt::Edges edges;
         if (p.x() <= margin) edges |= Qt::LeftEdge;
         if (p.x() >= width() - margin) edges |= Qt::RightEdge;
-        if (p.y() <= margin) edges |= Qt::TopEdge;
+        if (p.y() <= 5) edges |= Qt::TopEdge;
         if (p.y() >= height() - margin) edges |= Qt::BottomEdge;
 
         if ((edges & (Qt::LeftEdge | Qt::TopEdge)) == (Qt::LeftEdge | Qt::TopEdge) ||
@@ -3188,12 +3192,12 @@ protected:
 
     void mousePressEvent(QMouseEvent *event) override {
         if (event->button() == Qt::LeftButton && !isMaximized()) {
-            const int margin = 6;
+            const int margin = 8;
             QPoint p = event->pos();
             Qt::Edges edges;
             if (p.x() <= margin) edges |= Qt::LeftEdge;
             if (p.x() >= width() - margin) edges |= Qt::RightEdge;
-            if (p.y() <= margin) edges |= Qt::TopEdge;
+            if (p.y() <= 5) edges |= Qt::TopEdge;
             if (p.y() >= height() - margin) edges |= Qt::BottomEdge;
 
             if (edges != Qt::Edges() && windowHandle()) {
@@ -3206,6 +3210,24 @@ protected:
     }
 
 #ifdef Q_OS_WIN
+    void enableWindowsSnap() {
+        HWND hwnd = reinterpret_cast<HWND>(winId());
+        if (!hwnd) return;
+
+        LONG style = GetWindowLong(hwnd, GWL_STYLE);
+        // WS_THICKFRAME + WS_MAXIMIZEBOX + WS_MINIMIZEBOX + WS_CAPTION
+        // enable the native Windows Aero Snap engine and Win11 Snap Layouts.
+        style |= WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_CAPTION;
+        SetWindowLong(hwnd, GWL_STYLE, style);
+
+        // Extend DWM frame into client area to give the frameless window native drop shadow & snapping
+        MARGINS margins = { 1, 1, 1, 1 };
+        DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override {
 #else
@@ -3213,24 +3235,123 @@ protected:
 #endif
         if (eventType == "windows_generic_MSG") {
             MSG *msg = static_cast<MSG*>(message);
-            if (msg->message == WM_NCHITTEST && !isMaximized()) {
+
+            if (isFullScreen()) {
+                return QMainWindow::nativeEvent(eventType, message, result);
+            }
+
+            if (msg->message == WM_NCCALCSIZE) {
+                if (msg->wParam) {
+                    if (IsZoomed(msg->hwnd)) {
+                        HMONITOR hMon = MonitorFromWindow(msg->hwnd, MONITOR_DEFAULTTONEAREST);
+                        MONITORINFO mi;
+                        mi.cbSize = sizeof(mi);
+                        if (GetMonitorInfo(hMon, &mi)) {
+                            NCCALCSIZE_PARAMS *params = reinterpret_cast<NCCALCSIZE_PARAMS*>(msg->lParam);
+                            params->rgrc[0] = mi.rcWork;
+                        }
+                    }
+                    *result = 0;
+                    return true;
+                }
+                *result = 0;
+                return true;
+            }
+
+            if (msg->message == WM_NCHITTEST) {
                 POINT pt = { GET_X_LPARAM(msg->lParam), GET_Y_LPARAM(msg->lParam) };
                 RECT winrect;
                 GetWindowRect(msg->hwnd, &winrect);
-                int border = 8;
-                bool left = pt.x < winrect.left + border;
-                bool right = pt.x >= winrect.right - border;
-                bool top = pt.y < winrect.top + border;
-                bool bottom = pt.y >= winrect.bottom - border;
 
-                if (top && left) { *result = HTTOPLEFT; return true; }
-                if (top && right) { *result = HTTOPRIGHT; return true; }
-                if (bottom && left) { *result = HTBOTTOMLEFT; return true; }
-                if (bottom && right) { *result = HTBOTTOMRIGHT; return true; }
-                if (top) { *result = HTTOP; return true; }
-                if (bottom) { *result = HTBOTTOM; return true; }
-                if (left) { *result = HTLEFT; return true; }
-                if (right) { *result = HTRIGHT; return true; }
+                if (!isMaximized()) {
+                    int border = 8;
+                    bool left = pt.x < winrect.left + border;
+                    bool right = pt.x >= winrect.right - border;
+                    bool top = pt.y < winrect.top + border;
+                    bool bottom = pt.y >= winrect.bottom - border;
+
+                    if (top && left) { *result = HTTOPLEFT; return true; }
+                    if (top && right) { *result = HTTOPRIGHT; return true; }
+                    if (bottom && left) { *result = HTBOTTOMLEFT; return true; }
+                    if (bottom && right) { *result = HTBOTTOMRIGHT; return true; }
+                    if (top) { *result = HTTOP; return true; }
+                    if (bottom) { *result = HTBOTTOM; return true; }
+                    if (left) { *result = HTLEFT; return true; }
+                    if (right) { *result = HTRIGHT; return true; }
+                }
+
+                auto isUnder = [](QWidget *w, const QPoint &globalPos) -> bool {
+                    if (!w || !w->isVisible()) return false;
+                    QPoint ptInWidget = w->mapFromGlobal(globalPos);
+                    return w->rect().contains(ptInWidget);
+                };
+
+                QPoint globalPt(pt.x, pt.y);
+
+                if (isUnder(btnWinClose, globalPt)) {
+                    *result = HTCLOSE;
+                    return true;
+                }
+                if (isUnder(btnWinMax, globalPt)) {
+                    *result = HTMAXBUTTON;
+                    return true;
+                }
+                if (isUnder(btnWinMin, globalPt)) {
+                    *result = HTMINBUTTON;
+                    return true;
+                }
+
+                if (isUnder(tabRowContainer, globalPt)) {
+                    if (isUnder(newTabBtn, globalPt)) {
+                        *result = HTCLIENT;
+                        return true;
+                    }
+                    if (isUnder(btnExtensions, globalPt)) {
+                        *result = HTCLIENT;
+                        return true;
+                    }
+                    if (isUnder(btnAiChat, globalPt)) {
+                        *result = HTCLIENT;
+                        return true;
+                    }
+                    if (isUnder(tabBar, globalPt)) {
+                        QPoint ptInTab = tabBar->mapFromGlobal(globalPt);
+                        if (tabBar->tabAt(ptInTab) != -1) {
+                            *result = HTCLIENT;
+                            return true;
+                        }
+                    }
+
+                    // Top caption area: dragging here triggers native Aero Snap & Win11 snap-to-top
+                    *result = HTCAPTION;
+                    return true;
+                }
+            }
+
+            if (msg->message == WM_NCLBUTTONUP) {
+                if (msg->wParam == HTMAXBUTTON) {
+                    if (isMaximized()) showNormal();
+                    else showMaximized();
+                    *result = 0;
+                    return true;
+                }
+                if (msg->wParam == HTMINBUTTON) {
+                    showMinimized();
+                    *result = 0;
+                    return true;
+                }
+                if (msg->wParam == HTCLOSE) {
+                    close();
+                    *result = 0;
+                    return true;
+                }
+            }
+
+            if (msg->message == WM_NCLBUTTONDBLCLK && msg->wParam == HTCAPTION) {
+                if (isMaximized()) showNormal();
+                else showMaximized();
+                *result = 0;
+                return true;
             }
         }
         return QMainWindow::nativeEvent(eventType, message, result);
@@ -3246,6 +3367,59 @@ protected:
             explicit FilterGuard(bool &f) : flag(f) { flag = true; }
             ~FilterGuard() { flag = false; }
         } guard(s_inFilter);
+
+        QWidget *w = qobject_cast<QWidget*>(watched);
+        if (w && !isMaximized() && !isFullScreen() && (w == this || (isAncestorOf(w) && !(w->windowFlags() & Qt::Popup)))) {
+            if (event->type() == QEvent::MouseMove) {
+                auto *me = static_cast<QMouseEvent*>(event);
+                if (me->buttons() == Qt::NoButton) {
+                    QPoint windowPos = mapFromGlobal(me->globalPosition().toPoint());
+                    const int margin = 8;
+                    Qt::Edges edges;
+                    if (windowPos.x() >= 0 && windowPos.x() <= margin) edges |= Qt::LeftEdge;
+                    if (windowPos.x() >= width() - margin && windowPos.x() <= width()) edges |= Qt::RightEdge;
+                    if (windowPos.y() >= 0 && windowPos.y() <= 5) edges |= Qt::TopEdge;
+                    if (windowPos.y() >= height() - margin && windowPos.y() <= height()) edges |= Qt::BottomEdge;
+
+                    if (edges != Qt::Edges()) {
+                        Qt::CursorShape shape = Qt::ArrowCursor;
+                        if ((edges & (Qt::LeftEdge | Qt::TopEdge)) == (Qt::LeftEdge | Qt::TopEdge) ||
+                            (edges & (Qt::RightEdge | Qt::BottomEdge)) == (Qt::RightEdge | Qt::BottomEdge)) {
+                            shape = Qt::SizeFDiagCursor;
+                        } else if ((edges & (Qt::RightEdge | Qt::TopEdge)) == (Qt::RightEdge | Qt::TopEdge) ||
+                                   (edges & (Qt::LeftEdge | Qt::BottomEdge)) == (Qt::LeftEdge | Qt::BottomEdge)) {
+                            shape = Qt::SizeBDiagCursor;
+                        } else if (edges & (Qt::LeftEdge | Qt::RightEdge)) {
+                            shape = Qt::SizeHorCursor;
+                        } else if (edges & (Qt::TopEdge | Qt::BottomEdge)) {
+                            shape = Qt::SizeVerCursor;
+                        }
+                        w->setCursor(shape);
+                    } else if (w->cursor().shape() == Qt::SizeHorCursor ||
+                               w->cursor().shape() == Qt::SizeVerCursor ||
+                               w->cursor().shape() == Qt::SizeFDiagCursor ||
+                               w->cursor().shape() == Qt::SizeBDiagCursor) {
+                        w->unsetCursor();
+                    }
+                }
+            } else if (event->type() == QEvent::MouseButtonPress) {
+                auto *me = static_cast<QMouseEvent*>(event);
+                if (me->button() == Qt::LeftButton) {
+                    QPoint windowPos = mapFromGlobal(me->globalPosition().toPoint());
+                    const int margin = 8;
+                    Qt::Edges edges;
+                    if (windowPos.x() >= 0 && windowPos.x() <= margin) edges |= Qt::LeftEdge;
+                    if (windowPos.x() >= width() - margin && windowPos.x() <= width()) edges |= Qt::RightEdge;
+                    if (windowPos.y() >= 0 && windowPos.y() <= 5) edges |= Qt::TopEdge;
+                    if (windowPos.y() >= height() - margin && windowPos.y() <= height()) edges |= Qt::BottomEdge;
+
+                    if (edges != Qt::Edges() && windowHandle()) {
+                        windowHandle()->startSystemResize(edges);
+                        return true;
+                    }
+                }
+            }
+        }
 
         if (event->type() == QEvent::KeyPress) {
             auto *ke = static_cast<QKeyEvent*>(event);

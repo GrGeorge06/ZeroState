@@ -35,3 +35,7 @@ target_link_libraries(ZeroState PRIVATE
     Qt6::WebChannel
     Qt6::Positioning
 )
+
+if(WIN32)
+    target_link_libraries(ZeroState PRIVATE dwmapi)
+endif()
