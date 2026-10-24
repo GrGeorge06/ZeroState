@@ -3263,6 +3263,21 @@ protected:
                 RECT winrect;
                 GetWindowRect(msg->hwnd, &winrect);
 
+                auto isUnder = [](QWidget *w, const QPoint &globalPos) -> bool {
+                    if (!w || !w->isVisible()) return false;
+                    QPoint ptInWidget = w->mapFromGlobal(globalPos);
+                    return w->rect().contains(ptInWidget);
+                };
+
+                QPoint globalPt(pt.x, pt.y);
+
+                if (isUnder(btnWinClose, globalPt) ||
+                    isUnder(btnWinMax, globalPt) ||
+                    isUnder(btnWinMin, globalPt)) {
+                    *result = HTCLIENT;
+                    return true;
+                }
+
                 if (!isMaximized()) {
                     int border = 8;
                     bool left = pt.x < winrect.left + border;
@@ -3278,27 +3293,6 @@ protected:
                     if (bottom) { *result = HTBOTTOM; return true; }
                     if (left) { *result = HTLEFT; return true; }
                     if (right) { *result = HTRIGHT; return true; }
-                }
-
-                auto isUnder = [](QWidget *w, const QPoint &globalPos) -> bool {
-                    if (!w || !w->isVisible()) return false;
-                    QPoint ptInWidget = w->mapFromGlobal(globalPos);
-                    return w->rect().contains(ptInWidget);
-                };
-
-                QPoint globalPt(pt.x, pt.y);
-
-                if (isUnder(btnWinClose, globalPt)) {
-                    *result = HTCLOSE;
-                    return true;
-                }
-                if (isUnder(btnWinMax, globalPt)) {
-                    *result = HTMAXBUTTON;
-                    return true;
-                }
-                if (isUnder(btnWinMin, globalPt)) {
-                    *result = HTMINBUTTON;
-                    return true;
                 }
 
                 if (isUnder(tabRowContainer, globalPt)) {
@@ -3328,25 +3322,6 @@ protected:
                 }
             }
 
-            if (msg->message == WM_NCLBUTTONUP) {
-                if (msg->wParam == HTMAXBUTTON) {
-                    if (isMaximized()) showNormal();
-                    else showMaximized();
-                    *result = 0;
-                    return true;
-                }
-                if (msg->wParam == HTMINBUTTON) {
-                    showMinimized();
-                    *result = 0;
-                    return true;
-                }
-                if (msg->wParam == HTCLOSE) {
-                    close();
-                    *result = 0;
-                    return true;
-                }
-            }
-
             if (msg->message == WM_NCLBUTTONDBLCLK && msg->wParam == HTCAPTION) {
                 if (isMaximized()) showNormal();
                 else showMaximized();
@@ -3369,7 +3344,11 @@ protected:
         } guard(s_inFilter);
 
         QWidget *w = qobject_cast<QWidget*>(watched);
-        if (w && !isMaximized() && !isFullScreen() && (w == this || (isAncestorOf(w) && !(w->windowFlags() & Qt::Popup)))) {
+        bool isWinBtn = (w == btnWinMin || w == btnWinMax || w == btnWinClose ||
+                         (btnWinMin && btnWinMin->isAncestorOf(w)) ||
+                         (btnWinMax && btnWinMax->isAncestorOf(w)) ||
+                         (btnWinClose && btnWinClose->isAncestorOf(w)));
+        if (!isWinBtn && w && !isMaximized() && !isFullScreen() && (w == this || (isAncestorOf(w) && !(w->windowFlags() & Qt::Popup)))) {
             if (event->type() == QEvent::MouseMove) {
                 auto *me = static_cast<QMouseEvent*>(event);
                 if (me->buttons() == Qt::NoButton) {
@@ -8189,12 +8168,14 @@ private:
         btnWinMin = new QPushButton("—", this);
         btnWinMin->setFixedSize(32, 28);
         btnWinMin->setToolTip("Minimize");
+        btnWinMin->setAttribute(Qt::WA_Hover, true);
         btnWinMin->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 14px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #35373c; color: #ffffff; }");
         connect(btnWinMin, &QPushButton::clicked, this, &BrowserWindow::showMinimized);
 
         btnWinMax = new QPushButton(isMaximized() ? "🗗" : "🗖", this);
         btnWinMax->setFixedSize(32, 28);
         btnWinMax->setToolTip("Maximize / Restore");
+        btnWinMax->setAttribute(Qt::WA_Hover, true);
         btnWinMax->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 13px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #35373c; color: #ffffff; }");
         connect(btnWinMax, &QPushButton::clicked, this, [this]() {
             if (isMaximized()) showNormal();
@@ -8204,6 +8185,7 @@ private:
         btnWinClose = new QPushButton("✕", this);
         btnWinClose->setFixedSize(34, 28);
         btnWinClose->setToolTip("Close");
+        btnWinClose->setAttribute(Qt::WA_Hover, true);
         btnWinClose->setStyleSheet("QPushButton { background: transparent; border: none; color: #9aa0a6; font-size: 14px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #e81123; color: #ffffff; }");
         connect(btnWinClose, &QPushButton::clicked, this, &BrowserWindow::close);
 

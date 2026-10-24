@@ -18,7 +18,7 @@ Built natively in **C++17** and **Qt6 WebEngine**, ZeroState strips away corpora
 </p>
 
 > 🎉 **Officially Out of Beta!**
-> Welcome to **ZeroState Complete Release v1.72**. All beta experimental flags have graduated to stable release status, featuring robust multi-platform stability, fluid DPI scaling, seamless tab management, and complete Windows & Linux desktop integration.
+> Welcome to **ZeroState Complete Release v1.73**. All beta experimental flags have graduated to stable release status, featuring robust multi-platform stability, fluid DPI scaling, seamless tab management, and complete Windows & Linux desktop integration.
 
 ---
 
